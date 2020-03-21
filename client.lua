@@ -93,15 +93,15 @@ local deltas = {
     vector2(0, 1),
 }
 
-local function getGridChunk(x)
+function GetGridChunk(x)
     return math.floor((x + 8192) / 128)
 end
 
-local function getGridBase(x)
+function GetGridBase(x)
     return (x * 128) - 8192
 end
 
-local function toChannel(v)
+function GetChunkChannel(v)
     return (v.x << 8) | v.y
 end
 
@@ -119,8 +119,8 @@ Citizen.CreateThread(function()
 		local playerPos = GetPedBoneCoords(playerPed, headBone)
 		local playerList = GetActivePlayers()
 
-		local currentChunk = vector2(getGridChunk(coords.x), getGridChunk(coords.y)) -- Chunk player is in
-		local chunkChannel = toChannel(currentChunk) -- Get voice channel for chunk
+		local currentChunk = vector2(GetGridChunk(coords.x), GetGridChunk(coords.y)) -- Chunk player is in
+		local chunkChannel = GetChunkChannel(currentChunk) -- Get voice channel for chunk
 
 		NetworkSetVoiceChannel(chunkChannel) -- Set voice channel
 
@@ -128,8 +128,8 @@ Citizen.CreateThread(function()
 
 		for i = 1, #deltas do -- Get nearby chunks
 			local chunkSize = coords.xy + (deltas[i] * 20) -- edge size
-			local chunk = vector2(getGridChunk(chunkSize.x), getGridChunk(chunkSize.y)) -- get nearby chunk
-			local channel = toChannel(chunk) -- Get voice channel for chunk
+			local chunk = vector2(GetGridChunk(chunkSize.x), GetGridChunk(chunkSize.y)) -- get nearby chunk
+			local channel = GetChunkChannel(chunk) -- Get voice channel for chunk
 
 			targetList[channel] = true -- add chunk to target list
 		end
@@ -163,7 +163,7 @@ Citizen.CreateThread(function()
 			
 			MumbleSetVoiceTarget(2) -- Broadcast voice to target
 
-			lastChunks = targetChunks
+			lastChunks = targetChunks -- Store chunks list
 		end
 	end
 end)
