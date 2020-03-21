@@ -105,8 +105,8 @@ local function toChannel(v)
     return (v.x << 8) | v.y
 end
 
-local targetList = {}
-local lastTargetList = {}
+local targetChunks = {}
+local lastChunks = {}
 
 -- loop
 --neptunium
@@ -120,33 +120,33 @@ Citizen.CreateThread(function()
 		local playerList = GetActivePlayers()
 
 		local currentChunk = vector2(getGridChunk(coords.x), getGridChunk(coords.y)) -- Chunk player is in
-		local chunkChannel = toChannel(currentChunk)
+		local chunkChannel = toChannel(currentChunk) -- Get voice channel for chunk
 
-		NetworkSetVoiceChannel(gridZone)
+		NetworkSetVoiceChannel(chunkChannel) -- Set voice channel
 
-		targetList = {}
+		targetChunks = {} -- Clear list of target chunks
 
 		for i = 1, #deltas do -- Get nearby chunks
 			local chunkSize = coords.xy + (deltas[i] * 20) -- edge size
-			local chunk = vector2(getGridChunk(chunkSize.x), getGridChunk(chunkSize.y))
-			local channel = toChannel(chunk)
+			local chunk = vector2(getGridChunk(chunkSize.x), getGridChunk(chunkSize.y)) -- get nearby chunk
+			local channel = toChannel(chunk) -- Get voice channel for chunk
 
-			targetList[channel] = true
+			targetList[channel] = true -- add chunk to target list
 		end
 		
 		-- super naive hash difference
 		local different = false
-		print(json.encode(targetList))
-		for k, _ in pairs(targetList) do
-			if not lastTargetList[k] then
+
+		for channel, _ in pairs(targetChunks) do
+			if not lastChunks[channel] then -- Check for any new chunks
 				different = true
 				break
 			end
 		end
 
 		if not different then
-			for k, _ in pairs(lastTargetList) do
-				if not targetList[k] then
+			for channel, _ in pairs(lastChunks) do
+				if not targetChunks[channel] then -- Checks for any redundant chunks
 					different = true
 					break
 				end
@@ -155,15 +155,15 @@ Citizen.CreateThread(function()
 
 		if different then
 			-- you might want to swap between two targets when changing
-			MumbleClearVoiceTarget(2)
+			MumbleClearVoiceTarget(2) -- Clear voice targets
 			
-			for k, _ in pairs(targetList) do
-				MumbleAddVoiceTargetChannel(2, k)
+			for channel, _ in pairs(targetChunks) do
+				MumbleAddVoiceTargetChannel(2, channel) -- Add chunk channels to voice target
 			end
 			
-			MumbleSetVoiceTarget(2)
+			MumbleSetVoiceTarget(2) -- Broadcast voice to target
 
-			lastTargetList = targetList
+			lastChunks = targetChunks
 		end
 	end
 end)
