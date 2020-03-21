@@ -1,8 +1,8 @@
 local voiceData = {}
 local voiceModes = {
-	{5, "Whisper"},
-	{15, "Normal"},
-	{40, "Shouting"},
+	{2.5, "Whisper"},
+	{8, "Normal"},
+	{20, "Shouting"},
 }
 local voiceMode = 2
 
