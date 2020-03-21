@@ -59,28 +59,28 @@ Citizen.CreateThread(function()
 	end
 end)
 
-local deltas = {
-    vector2(-1, -1),
-    vector2(-1, 0),
-    vector2(-1, 1),
-    vector2(0, -1),
-    vector2(1, -1),
-    vector2(1, 0),
-    vector2(1, 1),
-    vector2(0, 1),
-}
+-- local deltas = {
+--     vector2(-1, -1),
+--     vector2(-1, 0),
+--     vector2(-1, 1),
+--     vector2(0, -1),
+--     vector2(1, -1),
+--     vector2(1, 0),
+--     vector2(1, 1),
+--     vector2(0, 1),
+-- }
 
-function GetGridChunk(x)
-    return math.floor((x + 8192) / 128)
-end
+-- function GetGridChunk(x)
+--     return math.floor((x + 8192) / 128)
+-- end
 
-function GetGridBase(x)
-    return (x * 128) - 8192
-end
+-- function GetGridBase(x)
+--     return (x * 128) - 8192
+-- end
 
-function GetChunkChannel(v)
-    return (v.x << 8) | v.y
-end
+-- function GetChunkChannel(v)
+--     return (v.x << 8) | v.y
+-- end
 
 -- loop
 --neptunium
@@ -93,52 +93,52 @@ Citizen.CreateThread(function()
 		local playerPos = GetPedBoneCoords(playerPed, headBone)
 		local playerList = GetActivePlayers()
 
-		local currentChunk = vector2(GetGridChunk(playerPos.x), GetGridChunk(playerPos.y)) -- Chunk player is in
-		local chunkChannel = GetChunkChannel(currentChunk) -- Get voice channel for chunk
+		-- local currentChunk = vector2(GetGridChunk(playerPos.x), GetGridChunk(playerPos.y)) -- Chunk player is in
+		-- local chunkChannel = GetChunkChannel(currentChunk) -- Get voice channel for chunk
 
-		NetworkSetVoiceChannel(chunkChannel) -- Set voice channel
+		-- NetworkSetVoiceChannel(chunkChannel) -- Set voice channel
 
-		targetChunks = {} -- Clear list of target chunks
+		-- targetChunks = {} -- Clear list of target chunks
 
-		for i = 1, #deltas do -- Get nearby chunks
-			local chunkSize = playerPos.xy + (deltas[i] * 20) -- edge size
-			local chunk = vector2(GetGridChunk(chunkSize.x), GetGridChunk(chunkSize.y)) -- get nearby chunk
-			local channel = GetChunkChannel(chunk) -- Get voice channel for chunk
+		-- for i = 1, #deltas do -- Get nearby chunks
+		-- 	local chunkSize = playerPos.xy + (deltas[i] * 20) -- edge size
+		-- 	local chunk = vector2(GetGridChunk(chunkSize.x), GetGridChunk(chunkSize.y)) -- get nearby chunk
+		-- 	local channel = GetChunkChannel(chunk) -- Get voice channel for chunk
 
-			targetChunks[channel] = true -- add chunk to target list
-		end
+		-- 	targetChunks[channel] = true -- add chunk to target list
+		-- end
 		
-		-- super naive hash difference
-		local different = false
+		-- -- super naive hash difference
+		-- local different = false
 
-		for channel, _ in pairs(targetChunks) do
-			if not lastChunks[channel] then -- Check for any new chunks
-				different = true
-				break
-			end
-		end
+		-- for channel, _ in pairs(targetChunks) do
+		-- 	if not lastChunks[channel] then -- Check for any new chunks
+		-- 		different = true
+		-- 		break
+		-- 	end
+		-- end
 
-		if not different then
-			for channel, _ in pairs(lastChunks) do
-				if not targetChunks[channel] then -- Checks for any redundant chunks
-					different = true
-					break
-				end
-			end
-		end
+		-- if not different then
+		-- 	for channel, _ in pairs(lastChunks) do
+		-- 		if not targetChunks[channel] then -- Checks for any redundant chunks
+		-- 			different = true
+		-- 			break
+		-- 		end
+		-- 	end
+		-- end
 
-		if different then
-			-- you might want to swap between two targets when changing
-			MumbleClearVoiceTarget(2) -- Clear voice targets
+		-- if different then
+		-- 	-- you might want to swap between two targets when changing
+		-- 	MumbleClearVoiceTarget(2) -- Clear voice targets
 			
-			for channel, _ in pairs(targetChunks) do
-				MumbleAddVoiceTargetChannel(2, channel) -- Add chunk channels to voice target
-			end
+		-- 	for channel, _ in pairs(targetChunks) do
+		-- 		MumbleAddVoiceTargetChannel(2, channel) -- Add chunk channels to voice target
+		-- 	end
 			
-			MumbleSetVoiceTarget(2) -- Broadcast voice to target
+		-- 	MumbleSetVoiceTarget(2) -- Broadcast voice to target
 
-			lastChunks = targetChunks -- Store chunks list
-		end
+		-- 	lastChunks = targetChunks -- Store chunks list
+		-- end
 
 		for i = 1, #playerList do -- Proximity based voice (probably won't work for infinity? near a grid border?)
 			local remotePlayerId = playerList[i]
