@@ -1,8 +1,25 @@
 local voiceData = {}
 
+local resourceName = ""
+local debug = true
+
+function DebugMsg(msg)
+    if debug then
+        print("\x1b[32m[" .. resourceName .. "]\x1b[0m ".. msg)
+    end
+end
+
+AddEventHandler("onServerResourceStart", function(resName)
+	if GetCurrentResourceName() ~= resName then
+		return
+	end
+
+	resourceName = resName
+end)
+
 RegisterNetEvent("mumble:Initialise")
 AddEventHandler("mumble:Initialise", function()
-    print("[mumble]: Initialised player: ".. source)
+    DebugMsg("Initialised player: " .. source)
 
     if not voiceData[source] then
         voiceData[source] = {
