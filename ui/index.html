@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>mumble-voip</title>
+		
+		<style>
+			.info-container {
+				position: absolute;
+				bottom: 0%;
+				right: 0%;
+				text-align: right;
+				padding: 5px;
+				font-family: sans-serif;
+				font-weight: bold;
+				color: rgb(1, 176, 240);
+				font-size: 0.5vw;
+				text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+			}
+
+			.talking {
+				color: rgba(244, 196, 65, 255);
+			}
+		</style>
+		<script type="text/javascript">
+			window.addEventListener("message", function(event) {
+				var item = event.data;
+
+				if (item.sound && item.volume) {
+					let snd = document.getElementById(item.sound);
+					snd.load();
+					snd.volume = item.volume;
+					snd.play();
+				}
+
+				if (item.mode) {					
+					let modeElem = document.getElementById("voip-mode");
+
+					modeElem.innerHTML = item.mode + (item.radioActive ? " on radio" : "");
+
+					if (item.talking != null) {
+						if (item.talking) {
+							modeElem.className = "talking"
+						} else {
+							modeElem.className = ""
+						}
+					}					
+				}
+
+				if (item.radio != null) {
+					if (item.radio > 0) {
+						let radioElem = document.getElementById("voip-radio");
+
+						radioElem.innerHTML = "[Radio] " + item.radio + (!isNaN(item.radio) ? " MHz" : "");					
+					}
+				}
+
+				if (item.call != null) {
+					if (item.call > 0) {
+						let callElem = document.getElementById("voip-call");
+						
+						callElem.innerHTML = "[Call] [" + (item.speaker ? "🔊" : "🔈") + "] " + item.call;					
+					}
+				}
+			});
+		</script>
+	</head>
+	<body>
+		<audio id="audio_on" src="mic_click_on.ogg"></audio>
+		<audio id="audio_off" src="mic_click_off.ogg"></audio>
+
+		<div class="info-container">
+			
+			<div>[Mumble] <span id="voip-mode"></span></div>
+			<div id="voip-radio"></div>
+			<div id="voip-call"></div>
+		</div>
+	</body>
+</html>
