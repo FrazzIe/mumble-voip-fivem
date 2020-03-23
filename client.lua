@@ -6,8 +6,8 @@ local voiceModes = {
 }
 local voiceMode = 2
 
-local targetChunks = {}
-local lastChunks = {}
+-- local targetChunks = {}
+-- local lastChunks = {}
 
 RegisterCommand("+voiceMode", function()
 	local newMode = voiceMode + 1
