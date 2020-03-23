@@ -63,7 +63,7 @@
 				if (item.radio != null) {
 					let radioElem = document.getElementById("voip-radio");
 
-					if (item.radio > 0) {
+					if (item.radio > 0 || isNaN(item.radio)) {
 						radioElem.innerHTML = "[Radio] " + item.radio + (!isNaN(item.radio) ? " MHz" : "");					
 					} else {
 						radioElem.innerHTML = "";

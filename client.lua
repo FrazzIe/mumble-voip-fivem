@@ -178,7 +178,7 @@ Citizen.CreateThread(function()
 		SendNUIMessage({
 			talking = playerTalking,
 			mode = mumbleConfig.voiceModes[playerMode][2],
-			radio = radioChannelNames[playerRadio] ~= nil and radioChannelNames[playerRadio] or playerRadio,
+			radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
 			radioActive = playerRadioActive,
 			call = playerCall,
 			speaker = playerCallSpeaker,
