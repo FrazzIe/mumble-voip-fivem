@@ -1,6 +1,6 @@
 # mumble-voip
 
-A tokovoip replacement that uses fivems mumble voice
+A tokovoip replacement that uses fivems mumble voip
 
 - Radios (one radio channel per player for now)
 - Radio mic clicks
