@@ -20,6 +20,20 @@
 			.talking {
 				color: rgba(244, 196, 65, 255);
 			}
+
+			.watermark {
+				position: fixed;
+				top: 0%;
+				right: 0%;
+				text-align: right;
+				opacity: 0.4;
+				z-index: 99;
+				color: rgb(184, 185, 185);
+				font-family: Arial;
+				font-weight: normal;
+				font-size: 0.5vw;
+				opacity: 0.8;
+			}
 		</style>
 		<script type="text/javascript">
 			window.addEventListener("message", function(event) {
@@ -47,18 +61,22 @@
 				}
 
 				if (item.radio != null) {
-					if (item.radio > 0) {
-						let radioElem = document.getElementById("voip-radio");
+					let radioElem = document.getElementById("voip-radio");
 
+					if (item.radio > 0) {
 						radioElem.innerHTML = "[Radio] " + item.radio + (!isNaN(item.radio) ? " MHz" : "");					
+					} else {
+						radioElem.innerHTML = "";
 					}
 				}
 
 				if (item.call != null) {
+					let callElem = document.getElementById("voip-call");
+					
 					if (item.call > 0) {
-						let callElem = document.getElementById("voip-call");
-						
 						callElem.innerHTML = "[Call] [" + (item.speaker ? "🔊" : "🔈") + "] " + item.call;					
+					} else {
+						callElem.innerHTML = "";
 					}
 				}
 			});
@@ -68,8 +86,9 @@
 		<audio id="audio_on" src="mic_click_on.ogg"></audio>
 		<audio id="audio_off" src="mic_click_off.ogg"></audio>
 
+		<div class="watermark">mumble-voip by Frazzle.</div>
+		
 		<div class="info-container">
-			
 			<div>[Mumble] <span id="voip-mode"></span></div>
 			<div id="voip-radio"></div>
 			<div id="voip-call"></div>
