@@ -105,7 +105,7 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
             if channel ~= nil then
                 for id, _ in pairs(channel) do
                     DebugMsg("Sending sound to player" .. id)
-                    TriggerClientEvent("mumble:RadioSound", id, value)
+                    TriggerClientEvent("mumble:RadioSound", id, value, radio)
                 end
             end
         end

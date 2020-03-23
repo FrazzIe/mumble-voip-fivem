@@ -10,9 +10,12 @@ files {
 }
 
 client_scripts {
+	"config.lua",
     "client.lua",
 }
 
 server_scripts {
     "server.lua",
 }
+
+provide "tokovoip_script"

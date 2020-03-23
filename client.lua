@@ -1,18 +1,15 @@
 local voiceData = {}
 local radioData = {}
 local callData = {}
-local voiceModes = {
-	{2.5, "Whisper"},
-	{8, "Normal"},
-	{20, "Shouting"},
-}
-local speakerRange = 1.5
+
 local playerServerId = GetPlayerServerId(PlayerId())
 
+-- Functions
 function SetVoiceData(key, value)
 	TriggerServerEvent("mumble:SetVoiceData", key, value)
 end
 
+-- Events
 RegisterNetEvent("mumble:SetVoiceData")
 AddEventHandler("mumble:SetVoiceData", function(voice, radio, call)
 	voiceData = voice
@@ -27,10 +24,23 @@ AddEventHandler("mumble:SetVoiceData", function(voice, radio, call)
 end)
 
 RegisterNetEvent("mumble:RadioSound")
-AddEventHandler("mumble:RadioSound", function(snd)
-	SendNUIMessage({ sound = (snd and "audio_on" or "audio_off"), volume = 0.1 })
+AddEventHandler("mumble:RadioSound", function(snd, channel)
+	if channel <= mumbleConfig.radioClickMaxChannel then
+		if (snd and mumbleConfig.micClickOn) or (not snd and mumbleConfig.micClickOff) then
+			SendNUIMessage({ sound = (snd and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
+		end
+	end
 end)
 
+AddEventHandler("onClientResourceStart", function (resourceName)
+	if GetCurrentResourceName() ~= resourceName then
+		return
+	end
+
+	TriggerServerEvent("mumble:Initialise")
+end)
+
+-- Keybinds
 RegisterCommand("+voiceMode", function()
 	local playerData = voiceData[playerServerId]
 	local voiceMode = 2
@@ -55,7 +65,7 @@ RegisterCommand("-voiceMode", function()
 end)
 
 RegisterCommand("+radio", function()
-	if exports["rp-radio"]:CanRadioBeUsed() then
+	if mumbleConfig.radioEnabled then
 		local playerData = voiceData[playerServerId]
 
 
@@ -85,12 +95,14 @@ RegisterCommand("-radio", function()
 end)
 
 RegisterCommand("+speaker", function()
-	local playerData = voiceData[playerServerId]
+	if mumbleConfig.radioSpeakerEnabled then
+		local playerData = voiceData[playerServerId]
 
-	if playerData then
-		if playerData.radio ~= nil then
-			if playerData.call > 0 then
-				SetVoiceData("callSpeaker", not playerData.callSpeaker)
+		if playerData then
+			if playerData.radio ~= nil then
+				if playerData.call > 0 then
+					SetVoiceData("callSpeaker", not playerData.callSpeaker)
+				end
 			end
 		end
 	end
@@ -100,18 +112,28 @@ RegisterCommand("-speaker", function()
 
 end)
 
-RegisterKeyMapping("+voiceMode", "Change voice distance", "keyboard", "f3")
-RegisterKeyMapping("+radio", "Talk on the radio", "keyboard", "capital")
-RegisterKeyMapping("+speaker", "Toggle speaker mode", "keyboard", "f4")
+RegisterKeyMapping("+voiceMode", "Change voice distance", "keyboard", mumbleConfig.controls.proximity)
+RegisterKeyMapping("+radio", "Talk on the radio", "keyboard", mumbleConfig.controls.radio)
+RegisterKeyMapping("+speaker", "Toggle speaker mode", "keyboard", mumbleConfig.controls.speaker)
 
-AddEventHandler("onClientResourceStart", function (resourceName)
-	if GetCurrentResourceName() ~= resourceName then
-		return
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0)
+		local playerData = voiceData[playerServerId]
+		local playerRadioActive = false
+
+		if playerData ~= nil then
+			playerRadioActive = playerData.radioActive or false
+		end
+
+		if playerRadioActive then -- Force PTT enabled
+			SetControlNormal(0, 249, 1.0)
+			SetControlNormal(1, 249, 1.0)
+			SetControlNormal(2, 249, 1.0)
+		end
 	end
-
-	TriggerServerEvent("mumble:Initialise")
-end)
-
+end)	
+-- Main thread
 Citizen.CreateThread(function()
 	local talkingAnim = { "mic_chatter", "mp_facial" }
 	local normalAnim = { "mood_normal_1", "facials@gen_male@base" }
@@ -129,7 +151,8 @@ Citizen.CreateThread(function()
 	end
 
 	while true do
-		Citizen.Wait(0)
+		Citizen.Wait(200)
+
 		local playerId = PlayerId()
 		local playerPed = PlayerPedId()
 		local playerHeading = math.rad(GetGameplayCamRot().z % 360)
@@ -151,6 +174,7 @@ Citizen.CreateThread(function()
 			playerCallSpeaker = playerData.callSpeaker or false
 		end
 
+		-- Update UI
 		SendNUIMessage({
 			talking = playerTalking,
 			mode = voiceModes[playerMode][2],
@@ -160,18 +184,12 @@ Citizen.CreateThread(function()
 			speaker = playerCallSpeaker,
 		})
 
-		if playerRadioActive then -- Force PTT enabled
-			SetControlNormal(0, 249, 1.0)
-			SetControlNormal(1, 249, 1.0)
-			SetControlNormal(2, 249, 1.0)
-		end
-
 		local voiceList = {}
 		local muteList = {}
 		local callList = {}
 		local radioList = {}
 
-		for i = 1, #playerList do -- Proximity based voice (probably won't work for infinity? near a grid border?)
+		for i = 1, #playerList do -- Proximity based voice (probably won't work for infinity?)
 			local remotePlayerId = playerList[i]
 
 			if playerId ~= remotePlayerId then
@@ -196,17 +214,19 @@ Citizen.CreateThread(function()
 				end
 
 				-- Mouth animations
-				local remotePlayerTalking = NetworkIsPlayerTalking(remotePlayerId)
-
-				if remotePlayerTalking then
-					PlayFacialAnim(remotePlayerPed, talkingAnim[1], talkingAnim[2])
-				else
-					PlayFacialAnim(remotePlayerPed, normalAnim[1], normalAnim[2])
+				if mumbleConfig.faceAnimations then
+					local remotePlayerTalking = NetworkIsPlayerTalking(remotePlayerId)
+					
+					if remotePlayerTalking then
+						PlayFacialAnim(remotePlayerPed, talkingAnim[1], talkingAnim[2])
+					else
+						PlayFacialAnim(remotePlayerPed, normalAnim[1], normalAnim[2])
+					end
 				end
 
 				-- Check if player is in range
-				if distance < voiceModes[mode][1] then
-					local volume = 1.0 - (distance / voiceModes[mode][1])^0.5
+				if distance < mumbleConfig.voiceModes[mode][1] then
+					local volume = 1.0 - (distance / mumbleConfig.voiceModes[mode][1])^0.5
 
 					if volume < 0 then
 						volume = 0.0
@@ -218,25 +238,29 @@ Citizen.CreateThread(function()
 						volume = volume,
 					}
 
-					if call > 0 then -- Collect all players in the phone call
-						if callSpeaker then
-							local callParticipants = callData[call]
-							if callParticipants ~= nil then
-								for id, _ in pairs(callParticipants) do
-									if id ~= remotePlayerServerId then
-										callList[id] = true
+					if mumbleConfig.callSpeakerEnabled then
+						if call > 0 then -- Collect all players in the phone call
+							if callSpeaker then
+								local callParticipants = callData[call]
+								if callParticipants ~= nil then
+									for id, _ in pairs(callParticipants) do
+										if id ~= remotePlayerServerId then
+											callList[id] = true
+										end
 									end
 								end
 							end
 						end
 					end
-
-					if radio > 0 then -- Collect all players in the radio channel
-						local radioParticipants = radioData[radio]
-						if radioParticipants then
-							for id, _ in pairs(radioParticipants) do
-								if id ~= remotePlayerServerId then
-									radioList[id] = true
+					
+					if mumbleConfig.radioSpeakerEnabled then
+						if radio > 0 then -- Collect all players in the radio channel
+							local radioParticipants = radioData[radio]
+							if radioParticipants then
+								for id, _ in pairs(radioParticipants) do
+									if id ~= remotePlayerServerId then
+										radioList[id] = true
+									end
 								end
 							end
 						end
@@ -259,8 +283,8 @@ Citizen.CreateThread(function()
 
 				for j = 1, #muteList do
 					if callList[muteList[j].id] or radioList[muteList[j].id] then
-						if distance < speakerRange then
-							muteList[j].volume = 1.0 - (muteList[j].distance / speakerRange)^0.5
+						if distance < mumbleConfig.speakerRange then
+							muteList[j].volume = 1.0 - (muteList[j].distance / mumbleConfig.speakerRange)^0.5
 						end
 					end
 
@@ -279,39 +303,31 @@ Citizen.CreateThread(function()
 	end
 end)
 
-exports("SetRadio", function(channel)
-	SetVoiceData("radio", channel)
-end)
-
-exports("SetCall", function(channel)
-	local channel = tonumber(channel)
-
-	if channel ~= nil then
-		SetVoiceData("call", channel)
-	end
-end)
-
--- TokoVOIP legacy exports
-exports("addPlayerToRadio", function(channel)
+-- Exports
+function SetRadioChannel(channel)
 	local channel = tonumber(channel)
 
 	if channel ~= nil then
 		SetVoiceData("radio", channel)
 	end
-end)
+end
 
-exports("removePlayerFromRadio", function(channel)
-	SetVoiceData("radio", 0)
-end)
-
-exports("addPlayerToCall", function(channel)
+function SetCallChannel(channel)
 	local channel = tonumber(channel)
 
 	if channel ~= nil then
 		SetVoiceData("call", channel)
 	end
+end
+
+exports("SetRadioChannel", SetRadioChannel)
+exports("addPlayerToRadio", SetRadioChannel)
+exports("removePlayerFromRadio", function()
+	SetRadioChannel(0)
 end)
 
+exports("SetCallChannel", SetCallChannel)
+exports("addPlayerToCall", SetCallChannel)
 exports("removePlayerFromCall", function()
-	SetVoiceData("call", 0)
+	SetCallChannel(0)
 end)
