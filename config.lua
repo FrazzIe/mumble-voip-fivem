@@ -15,7 +15,7 @@ mumbleConfig = {
     faceAnimations = true, -- Enable mouth movement when a player talks
     controls = { -- Change default key binds
         proximity = "z", -- Switch proximity mode
-        radio = "captial", -- Use radio
+        radio = "capital", -- Use radio
         speaker = "x" -- Toggle speaker mode (phone calls)
     }
 }

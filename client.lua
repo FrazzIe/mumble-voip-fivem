@@ -51,7 +51,7 @@ RegisterCommand("+voiceMode", function()
 
 	local newMode = voiceMode + 1
 
-	if newMode > #voiceModes then
+	if newMode > #mumbleConfig.voiceModes then
 		voiceMode = 1
 	else
 		voiceMode = newMode
@@ -177,7 +177,7 @@ Citizen.CreateThread(function()
 		-- Update UI
 		SendNUIMessage({
 			talking = playerTalking,
-			mode = voiceModes[playerMode][2],
+			mode = mumbleConfig.voiceModes[playerMode][2],
 			radio = playerRadio,
 			radioActive = playerRadioActive,
 			call = playerCall,
