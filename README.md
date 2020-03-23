@@ -9,3 +9,6 @@ A tokovoip replacement that uses fivems mumble voice
 - Phone Speaker mode toggle
 - Hear nearby calls and radios
 - HTML UI
+
+### Credits
+@Itokoyamato for TokoVOIP 
