@@ -17,6 +17,13 @@ mumbleConfig = {
         proximity = "z", -- Switch proximity mode
         radio = "capital", -- Use radio
         speaker = "x" -- Toggle speaker mode (phone calls)
+    },
+    radioChannelNames = { -- Add named radio channels (Defaults to [channel number] MHz)
+        [1] = "LEO Tac 1",
+        [2] = "LEO Tac 2",
+        [3] = "EMS Tac 1",
+        [4] = "EMS Tac 2",
+        [500] = "Hurr Durr 500 Hurr Durr",
     }
 }
 
