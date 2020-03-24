@@ -8,6 +8,7 @@ mumbleConfig = {
     callSpeakerEnabled = true, -- Allow players to hear all talking participants of a phone call if standing next to someone that is on the phone
     radioSpeakerEnabled = true, -- Allow players to hear all talking participants in a radio if standing next to someone that has a radio
     radioEnabled = true, -- Enable or disable using the radio
+    micClicks = true, -- Are clicks enabled or not
     micClickOn = true, -- Is click sound on active
     micClickOff = true, -- Is click sound off active
     micClickVolume = 0.1, -- How loud a mic click is

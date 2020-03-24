@@ -26,8 +26,10 @@ end)
 RegisterNetEvent("mumble:RadioSound")
 AddEventHandler("mumble:RadioSound", function(snd, channel)
 	if channel <= mumbleConfig.radioClickMaxChannel then
-		if (snd and mumbleConfig.micClickOn) or (not snd and mumbleConfig.micClickOff) then
-			SendNUIMessage({ sound = (snd and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
+		if mumbleConfig.micClicks then
+			if (snd and mumbleConfig.micClickOn) or (not snd and mumbleConfig.micClickOff) then
+				SendNUIMessage({ sound = (snd and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
+			end
 		end
 	end
 end)
