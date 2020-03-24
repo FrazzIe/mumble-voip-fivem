@@ -276,29 +276,29 @@ Citizen.CreateThread(function()
 						call = call,
 					}					
 				end
+			end
+		end
 
-				for j = 1, #voiceList do
-					MumbleSetVolumeOverride(voiceList[j].player, voiceList[j].volume)
-				end
+		for j = 1, #voiceList do
+			MumbleSetVolumeOverride(voiceList[j].player, voiceList[j].volume)
+		end
 
-				for j = 1, #muteList do
-					if callList[muteList[j].id] or radioList[muteList[j].id] then
-						if distance < mumbleConfig.speakerRange then
-							muteList[j].volume = 1.0 - (muteList[j].distance / mumbleConfig.speakerRange)^0.5
-						end
-					end
-
-					if muteList[j].radio > 0 and muteList[j].radio == playerRadio and muteList[j].radioActive then
-						muteList[j].volume = 1.0
-					end
-
-					if muteList[j].call > 0 and muteList[j].call == playerCall then
-						muteList[j].volume = 1.2
-					end
-					
-					MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume)
+		for j = 1, #muteList do
+			if callList[muteList[j].id] or radioList[muteList[j].id] then
+				if distance < mumbleConfig.speakerRange then
+					muteList[j].volume = 1.0 - (muteList[j].distance / mumbleConfig.speakerRange)^0.5
 				end
 			end
+
+			if muteList[j].radio > 0 and muteList[j].radio == playerRadio and muteList[j].radioActive then
+				muteList[j].volume = 1.0
+			end
+
+			if muteList[j].call > 0 and muteList[j].call == playerCall then
+				muteList[j].volume = 1.2
+			end
+			
+			MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume)
 		end
 	end
 end)
