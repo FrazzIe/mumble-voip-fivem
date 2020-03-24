@@ -141,7 +141,7 @@ end)
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(200)
-
+		local playerId = PlayerId()
 		local playerData = voiceData[playerServerId]
 		local playerTalking = NetworkIsPlayerTalking(playerId)
 		local playerMode = 2
