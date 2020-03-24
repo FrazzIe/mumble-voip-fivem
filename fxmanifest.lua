@@ -4,7 +4,7 @@ game "gta5"
 name "mumble-voip"
 description "A tokovoip replacement that uses fivems mumble voip"
 author "Frazzle (frazzle9999@gmail.com)"
-version "1.0"
+version "1.1"
 
 ui_page "ui/index.html"
 
