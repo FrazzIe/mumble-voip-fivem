@@ -116,6 +116,7 @@ RegisterKeyMapping("+voiceMode", "Change voice distance", "keyboard", mumbleConf
 RegisterKeyMapping("+radio", "Talk on the radio", "keyboard", mumbleConfig.controls.radio)
 RegisterKeyMapping("+speaker", "Toggle speaker mode", "keyboard", mumbleConfig.controls.speaker)
 
+-- Simulate PTT when radio is active
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
@@ -132,32 +133,13 @@ Citizen.CreateThread(function()
 			SetControlNormal(2, 249, 1.0)
 		end
 	end
-end)	
--- Main thread
+end)
+
+-- UI
 Citizen.CreateThread(function()
-	local talkingAnim = { "mic_chatter", "mp_facial" }
-	local normalAnim = { "mood_normal_1", "facials@gen_male@base" }
-
-	RequestAnimDict(talkingAnim[3])
-
-	while not HasAnimDictLoaded(talkingAnim[2]) do
-		Citizen.Wait(150)
-	end
-
-	RequestAnimDict(normalAnim[2])
-
-	while not HasAnimDictLoaded(normalAnim[2]) do
-		Citizen.Wait(150)
-	end
-
 	while true do
 		Citizen.Wait(200)
 
-		local playerId = PlayerId()
-		local playerPed = PlayerPedId()
-		local playerHeading = math.rad(GetGameplayCamRot().z % 360)
-		local playerPos = GetPedBoneCoords(playerPed, headBone)
-		local playerList = GetActivePlayers()
 		local playerData = voiceData[playerServerId]
 		local playerTalking = NetworkIsPlayerTalking(playerId)
 		local playerMode = 2
@@ -183,6 +165,41 @@ Citizen.CreateThread(function()
 			call = playerCall,
 			speaker = playerCallSpeaker,
 		})
+	end
+end)
+
+-- Main thread
+Citizen.CreateThread(function()
+	local talkingAnim = { "mic_chatter", "mp_facial" }
+	local normalAnim = { "mood_normal_1", "facials@gen_male@base" }
+
+	RequestAnimDict(talkingAnim[3])
+
+	while not HasAnimDictLoaded(talkingAnim[2]) do
+		Citizen.Wait(150)
+	end
+
+	RequestAnimDict(normalAnim[2])
+
+	while not HasAnimDictLoaded(normalAnim[2]) do
+		Citizen.Wait(150)
+	end
+
+	while true do
+		Citizen.Wait(500)
+
+		local playerId = PlayerId()
+		local playerPed = PlayerPedId()
+		local playerPos = GetPedBoneCoords(playerPed, headBone)
+		local playerList = GetActivePlayers()
+		local playerData = voiceData[playerServerId]
+		local playerRadio = 0
+		local playerCall = 0
+
+		if playerData ~= nil then
+			playerRadio = playerData.radio or 0
+			playerCall = playerData.call or 0
+		end
 
 		local voiceList = {}
 		local muteList = {}
