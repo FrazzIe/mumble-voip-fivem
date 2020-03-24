@@ -75,6 +75,7 @@ RegisterCommand("+radio", function()
 			if playerData.radio ~= nil then
 				if playerData.radio > 0 then
 					SetVoiceData("radioActive", true)
+					playerData.radioActive = true
 				end
 			end
 		end
@@ -90,6 +91,7 @@ RegisterCommand("-radio", function()
 			if playerData.radio > 0 then
 				if playerData.radioActive then
 					SetVoiceData("radioActive", false)
+					playerData.radioActive = false
 				end
 			end
 		end
