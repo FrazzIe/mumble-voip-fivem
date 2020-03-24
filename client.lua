@@ -215,12 +215,14 @@ Citizen.CreateThread(function()
 
 				-- Mouth animations
 				if mumbleConfig.faceAnimations then
-					local remotePlayerTalking = NetworkIsPlayerTalking(remotePlayerId)
-					
-					if remotePlayerTalking then
-						PlayFacialAnim(remotePlayerPed, talkingAnim[1], talkingAnim[2])
-					else
-						PlayFacialAnim(remotePlayerPed, normalAnim[1], normalAnim[2])
+					if distance < 50 then
+						local remotePlayerTalking = NetworkIsPlayerTalking(remotePlayerId)
+						
+						if remotePlayerTalking then
+							PlayFacialAnim(remotePlayerPed, talkingAnim[1], talkingAnim[2])
+						else
+							PlayFacialAnim(remotePlayerPed, normalAnim[1], normalAnim[2])
+						end
 					end
 				end
 
