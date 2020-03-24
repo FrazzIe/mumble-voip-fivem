@@ -287,7 +287,7 @@ Citizen.CreateThread(function()
 
 		for j = 1, #muteList do
 			if callList[muteList[j].id] or radioList[muteList[j].id] then
-				if distance < mumbleConfig.speakerRange then
+				if muteList[j].distance < mumbleConfig.speakerRange then
 					muteList[j].volume = 1.0 - (muteList[j].distance / mumbleConfig.speakerRange)^0.5
 				end
 			end
