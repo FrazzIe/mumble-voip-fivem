@@ -232,19 +232,6 @@ Citizen.CreateThread(function()
 					callSpeaker = remotePlayerData.callSpeaker or false
 				end
 
-				-- Mouth animations
-				if mumbleConfig.faceAnimations then
-					if distance < 50 then
-						local remotePlayerTalking = NetworkIsPlayerTalking(remotePlayerId)
-						
-						if remotePlayerTalking then
-							PlayFacialAnim(remotePlayerPed, talkingAnim[1], talkingAnim[2])
-						else
-							PlayFacialAnim(remotePlayerPed, normalAnim[1], normalAnim[2])
-						end
-					end
-				end
-
 				-- Check if player is in range
 				if distance < mumbleConfig.voiceModes[mode][1] then
 					local volume = 1.0 - (distance / mumbleConfig.voiceModes[mode][1])^0.5

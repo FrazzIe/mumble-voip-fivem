@@ -13,7 +13,6 @@ mumbleConfig = {
     micClickOff = true, -- Is click sound off active
     micClickVolume = 0.1, -- How loud a mic click is
     radioClickMaxChannel = 100, -- Set the max amount of radio channels that will have local radio clicks enabled
-    faceAnimations = true, -- Enable mouth movement when a player talks
     controls = { -- Change default key binds
         proximity = "z", -- Switch proximity mode
         radio = "capital", -- Use radio
