@@ -3,7 +3,7 @@ local radioData = {}
 local callData = {}
 
 local resourceName = ""
-local debug = true
+local debug = false
 
 function DebugMsg(msg)
     if debug then
