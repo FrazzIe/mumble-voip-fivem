@@ -13,12 +13,13 @@ A tokovoip replacement that uses fivems mumble voip
 ### Exports
 Setters
  
-| Export            | Description        | Parameter(s) |
-|-------------------|--------------------|--------------|
-| SetMumbleProperty | Set config options | string, any  |
-| SetRadioChannel   | Set radio channel  | int          |
-| SetCallChannel    | Set call channel   | int          |
-
+| Export              | Description               | Parameter(s) |
+|---------------------|---------------------------|--------------|
+| SetMumbleProperty   | Set config options        | string, any  |
+| SetRadioChannel     | Set radio channel         | int          |
+| SetCallChannel      | Set call channel          | int          |
+| SetCallChannel      | Set call channel          | int          |
+| AddRadioChannelName | Add name to radio channel | int, string  |
 Supported TokoVOIP Exports
 
 | Export                | Description              | Parameter(s) |
@@ -31,3 +32,4 @@ Supported TokoVOIP Exports
 
 ### Credits
 @Itokoyamato for TokoVOIP 
+@Nardah and @crunchFiveM for Testing

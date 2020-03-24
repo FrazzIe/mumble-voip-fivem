@@ -30,11 +30,22 @@ mumbleConfig = {
 
 -- Update config properties from another script
 function SetMumbleProperty(key, value)
-	if mumbleConfig[key] ~= nil and mumbleConfig[key] ~= "controls" then
+	if mumbleConfig[key] ~= nil and mumbleConfig[key] ~= "controls" and mumbleConfig[key] ~= "radioChannelNames" then
 		mumbleConfig[key] = value
 	end
+end
+
+function AddRadioChannelName(channel, name)
+    local channel = tonumber(channel)
+
+    if channel ~= nil and name ~= nil and name ~= "" then
+        if not mumbleConfig.radioChannelNames[channel] then
+            mumbleConfig.radioChannelNames[channel] = tostring(name)
+        end
+    end
 end
 
 -- Make exports available on first tick
 exports("SetMumbleProperty", SetMumbleProperty)
 exports("SetTokoProperty", SetMumbleProperty)
+exports("AddRadioChannelName", AddRadioChannelName)
