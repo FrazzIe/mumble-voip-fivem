@@ -42,99 +42,82 @@ AddEventHandler("onClientResourceStart", function (resourceName)
 	TriggerServerEvent("mumble:Initialise")
 end)
 
--- Keybinds
-RegisterCommand("+voiceMode", function()
-	local playerData = voiceData[playerServerId]
-	local voiceMode = 2
-
-	if playerData then
-		voiceMode = playerData.mode
-	end
-
-	local newMode = voiceMode + 1
-
-	if newMode > #mumbleConfig.voiceModes then
-		voiceMode = 1
-	else
-		voiceMode = newMode
-	end
-
-	SetVoiceData("mode", voiceMode)
-end)
-
-RegisterCommand("-voiceMode", function()
-	
-end)
-
-RegisterCommand("+radio", function()
-	if mumbleConfig.radioEnabled then
-		local playerData = voiceData[playerServerId]
-
-
-		if playerData then
-			if playerData.radio ~= nil then
-				if playerData.radio > 0 then
-					SetVoiceData("radioActive", true)
-					playerData.radioActive = true
-				end
-			end
-		end
-	end
-end)
-
-RegisterCommand("-radio", function()
-	local playerData = voiceData[playerServerId]
-
-
-	if playerData then
-		if playerData.radio ~= nil then
-			if playerData.radio > 0 then
-				if playerData.radioActive then
-					SetVoiceData("radioActive", false)
-					playerData.radioActive = false
-				end
-			end
-		end
-	end
-end)
-
-RegisterCommand("+speaker", function()
-	if mumbleConfig.radioSpeakerEnabled then
-		local playerData = voiceData[playerServerId]
-
-		if playerData then
-			if playerData.radio ~= nil then
-				if playerData.call > 0 then
-					SetVoiceData("callSpeaker", not playerData.callSpeaker)
-				end
-			end
-		end
-	end
-end)
-
-RegisterCommand("-speaker", function()
-
-end)
-
-RegisterKeyMapping("+voiceMode", "Change voice distance", "keyboard", mumbleConfig.controls.proximity)
-RegisterKeyMapping("+radio", "Talk on the radio", "keyboard", mumbleConfig.controls.radio)
-RegisterKeyMapping("+speaker", "Toggle speaker mode", "keyboard", mumbleConfig.controls.speaker)
-
 -- Simulate PTT when radio is active
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
 		local playerData = voiceData[playerServerId]
+		local playerMode = 2
+		local playerRadio = 0
 		local playerRadioActive = false
+		local playerCall = 0
+		local playerCallSpeaker = false
 
 		if playerData ~= nil then
+			playerMode = playerData.mode or 2
+			playerRadio = playerData.radio or 0
 			playerRadioActive = playerData.radioActive or false
+			playerCall = playerData.call or 0
+			playerCallSpeaker = playerData.callSpeaker or false
 		end
 
 		if playerRadioActive then -- Force PTT enabled
 			SetControlNormal(0, 249, 1.0)
 			SetControlNormal(1, 249, 1.0)
 			SetControlNormal(2, 249, 1.0)
+		end
+
+		if IsControlJustPressed(0, mumbleConfig.controls.proximity.key) then
+			if mumbleConfig.controls.speaker.key == mumbleConfig.controls.proximity.key and not ((mumbleConfig.controls.speaker.secondary == nil) and true or IsControlPressed(0, mumbleConfig.controls.speaker.secondary)) then
+				local voiceMode = playerMode
+			
+				local newMode = voiceMode + 1
+			
+				if newMode > #mumbleConfig.voiceModes then
+					voiceMode = 1
+				else
+					voiceMode = newMode
+				end
+			
+				SetVoiceData("mode", voiceMode)
+			end
+		end
+
+		if mumbleConfig.radioEnabled then
+			if not mumbleConfig.controls.radio.pressed then
+				if IsControlJustPressed(0, mumbleConfig.controls.radio.key) then
+					if playerRadio > 0 then
+						SetVoiceData("radioActive", true)
+						playerData.radioActive = true
+						mumbleConfig.controls.radio.pressed = true
+
+						Citizen.CreateThread(function()
+							while IsControlPressed(0, mumbleConfig.controls.radio.key) do
+								Citizen.Wait(0)
+							end
+
+							SetVoiceData("radioActive", false)
+							playerData.radioActive = false
+							mumbleConfig.controls.radio.pressed = false
+						end)
+					end
+				end
+			end
+		else
+			if playerRadioActive then
+				SetVoiceData("radioActive", false)
+				playerData.radioActive = false
+			end
+		end
+
+		if mumbleConfig.radioSpeakerEnabled then
+			if ((mumbleConfig.controls.speaker.secondary == nil) and true or IsControlPressed(0, mumbleConfig.controls.speaker.secondary)) then
+				if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) then
+					if playerCall > 0 then
+						SetVoiceData("callSpeaker", not playerCallSpeaker)
+					end
+				end
+			end
 		end
 	end
 end)

@@ -14,9 +14,17 @@ mumbleConfig = {
     micClickVolume = 0.1, -- How loud a mic click is
     radioClickMaxChannel = 100, -- Set the max amount of radio channels that will have local radio clicks enabled
     controls = { -- Change default key binds
-        proximity = "z", -- Switch proximity mode
-        radio = "capital", -- Use radio
-        speaker = "x" -- Toggle speaker mode (phone calls)
+        proximity = {
+            key = 20, -- Z
+        }, -- Switch proximity mode
+        radio = {
+            pressed = false, -- don't touch
+            key = 137, -- capital
+        }, -- Use radio
+        speaker = {
+            key = 20, -- Z
+            secondary = 21, -- LEFT SHIFT
+        } -- Toggle speaker mode (phone calls)
     },
     radioChannelNames = { -- Add named radio channels (Defaults to [channel number] MHz)
         [1] = "LEO Tac 1",
