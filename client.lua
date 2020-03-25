@@ -222,7 +222,7 @@ Citizen.CreateThread(function()
 						player = remotePlayerId,
 					}
 
-					if mumbleConfig.use3dAudio then
+					if not mumbleConfig.use3dAudio then
 						local volume = 1.0 - (distance / mumbleConfig.voiceModes[mode][1])^0.5
 
 						if volume < 0 then
