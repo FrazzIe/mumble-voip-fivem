@@ -116,6 +116,7 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
     DebugMsg("Player " .. source .. " changed " .. key .. " to: " .. tostring(value))
 
     TriggerClientEvent("mumble:SetVoiceData", -1, voiceData, radioChanged and radioData or false, callChanged and callData or false)
+end)
 
 RegisterCommand("mumbleRadioChannels", function(src, args, raw)
     for id, players in pairs(radioData) do
@@ -132,4 +133,28 @@ RegisterCommand("mumbleCallChannels", function(src, args, raw)
         end
     end
 end, true)
+
+AddEventHandler("playerDropped", function()
+    if voiceData[source] then
+        local radioChanged = false
+        local callChanged = false
+
+        if voiceData[source].radio > 0 then
+            if radioData[voiceData[source].radio] ~= nil then
+                radioData[voiceData[source].radio][source] = nil
+                radioChanged = true
+            end
+        end
+
+        if voiceData[source].call > 0 then
+            if callData[voiceData[source].call] ~= nil then
+                callData[voiceData[source].call][source] = nil
+                callChanged = true
+            end
+        end
+
+        voiceData[source] = nil
+        
+        TriggerClientEvent("mumble:SetVoiceData", -1, voiceData, radioChanged and radioData or false, callChanged and callData or false)
+    end
 end)
