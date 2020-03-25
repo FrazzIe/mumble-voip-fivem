@@ -116,4 +116,20 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
     DebugMsg("Player " .. source .. " changed " .. key .. " to: " .. tostring(value))
 
     TriggerClientEvent("mumble:SetVoiceData", -1, voiceData, radioChanged and radioData or false, callChanged and callData or false)
+
+RegisterCommand("mumbleRadioChannels", function(src, args, raw)
+    for id, players in pairs(radioData) do
+        for player, _ in pairs(players) do
+            RconPrint("\x1b[32m[" .. resourceName .. "]\x1b[0m Channel " .. id .. "-> id: " .. player .. ", name: " .. GetPlayerName(player) .. "\n")
+        end
+    end
+end, true)
+
+RegisterCommand("mumbleCallChannels", function(src, args, raw)
+    for id, players in pairs(callData) do
+        for player, _ in pairs(players) do
+            RconPrint("\x1b[32m[" .. resourceName .. "]\x1b[0m Call " .. id .. "-> id: " .. player .. ", name: " .. GetPlayerName(player) .. "\n")
+        end
+    end
+end, true)
 end)
