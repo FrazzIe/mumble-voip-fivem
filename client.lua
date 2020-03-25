@@ -157,21 +157,6 @@ end)
 
 -- Main thread
 Citizen.CreateThread(function()
-	local talkingAnim = { "mic_chatter", "mp_facial" }
-	local normalAnim = { "mood_normal_1", "facials@gen_male@base" }
-
-	RequestAnimDict(talkingAnim[3])
-
-	while not HasAnimDictLoaded(talkingAnim[2]) do
-		Citizen.Wait(150)
-	end
-
-	RequestAnimDict(normalAnim[2])
-
-	while not HasAnimDictLoaded(normalAnim[2]) do
-		Citizen.Wait(150)
-	end
-
 	while true do
 		Citizen.Wait(500)
 
