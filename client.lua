@@ -165,10 +165,12 @@ Citizen.CreateThread(function()
 		local playerPos = GetPedBoneCoords(playerPed, headBone)
 		local playerList = GetActivePlayers()
 		local playerData = voiceData[playerServerId]
+		local playerMode = 2
 		local playerRadio = 0
 		local playerCall = 0
 
 		if playerData ~= nil then
+			playerMode = playerData.mode or 2
 			playerRadio = playerData.radio or 0
 			playerCall = playerData.call or 0
 		end
@@ -178,6 +180,7 @@ Citizen.CreateThread(function()
 		local callList = {}
 		local radioList = {}
 
+		-- Check if a player is close to the source voice mode distance, if close send voice
 		for i = 1, #playerList do -- Proximity based voice (probably won't work for infinity?)
 			local remotePlayerId = playerList[i]
 
@@ -202,19 +205,32 @@ Citizen.CreateThread(function()
 					callSpeaker = remotePlayerData.callSpeaker or false
 				end
 
+				local inRange = false
+
+				if mumbleConfig.use3dAudio then
+					inRange = distance < mumbleConfig.voiceModes[playerMode][1]
+				else
+					inRange = distance < mumbleConfig.voiceModes[mode][1]
+				end
+
 				-- Check if player is in range
-				if distance < mumbleConfig.voiceModes[mode][1] then
-					local volume = 1.0 - (distance / mumbleConfig.voiceModes[mode][1])^0.5
+				if inRange then
+					local idx = #voiceList + 1
 
-					if volume < 0 then
-						volume = 0.0
-					end
-
-					voiceList[#voiceList + 1] = {
+					voiceList[idx] = {
 						id = remotePlayerServerId,
 						player = remotePlayerId,
-						volume = volume,
 					}
+
+					if mumbleConfig.use3dAudio then
+						local volume = 1.0 - (distance / mumbleConfig.voiceModes[mode][1])^0.5
+
+						if volume < 0 then
+							volume = 0.0
+						end
+
+						voiceList[idx].volume = volume
+					end
 
 					if mumbleConfig.callSpeakerEnabled then
 						if call > 0 then -- Collect all players in the phone call
@@ -247,7 +263,7 @@ Citizen.CreateThread(function()
 					muteList[#muteList + 1] = {
 						id = remotePlayerServerId,
 						player = remotePlayerId,
-						volume = 0.0,
+						volume = mumbleConfig.use3dAudio and -1.0 or 0.0,
 						radio = radio,
 						radioActive = radioActive,
 						distance = distance,
@@ -256,11 +272,22 @@ Citizen.CreateThread(function()
 				end
 			end
 		end
+		
+		if mumbleConfig.use3dAudio then
+			MumbleClearVoiceTarget(0)
 
-		for j = 1, #voiceList do
-			MumbleSetVolumeOverride(voiceList[j].player, voiceList[j].volume)
+			for j = 1, #voiceList do
+				MumbleSetVolumeOverride(voiceList[j].player, -1.0) -- Re-enable 3d audio
+				MumbleAddVoiceTargetPlayer(2, voiceList[j].player) -- Broadcast voice to player if they are in my voice range
+			end
+
+			MumbleSetVoiceTarget(0)
+		else
+			for j = 1, #voiceList do
+				MumbleSetVolumeOverride(voiceList[j].player, voiceList[j].volume)
+			end
 		end
-
+		
 		for j = 1, #muteList do
 			if callList[muteList[j].id] or radioList[muteList[j].id] then
 				if muteList[j].distance < mumbleConfig.speakerRange then
@@ -275,8 +302,8 @@ Citizen.CreateThread(function()
 			if muteList[j].call > 0 and muteList[j].call == playerCall then
 				muteList[j].volume = 1.2
 			end
-			
-			MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume)
+
+			MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume) -- Set player volume
 		end
 	end
 end)

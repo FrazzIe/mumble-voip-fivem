@@ -32,7 +32,8 @@ mumbleConfig = {
         [3] = "EMS Tac 1",
         [4] = "EMS Tac 2",
         [500] = "Hurr Durr 500 Hurr Durr",
-    }
+    },
+    use3dAudio = false, -- make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg
 }
 
 -- Update config properties from another script
