@@ -230,28 +230,32 @@ Citizen.CreateThread(function()
 						voiceList[idx].volume = volume
 					end
 
-					if mumbleConfig.callSpeakerEnabled then
-						if call > 0 then -- Collect all players in the phone call
-							if callSpeaker then
-								local callParticipants = callData[call]
-								if callParticipants ~= nil then
-									for id, _ in pairs(callParticipants) do
-										if id ~= remotePlayerServerId then
-											callList[id] = true
+					if distance < mumbleConfig.speakerRange then
+						local volume = 1.0 - (distance / mumbleConfig.speakerRange)^0.5
+
+						if mumbleConfig.callSpeakerEnabled then
+							if call > 0 then -- Collect all players in the phone call
+								if callSpeaker then
+									local callParticipants = callData[call]
+									if callParticipants ~= nil then
+										for id, _ in pairs(callParticipants) do
+											if id ~= remotePlayerServerId then
+												callList[id] = volume
+											end
 										end
 									end
 								end
 							end
 						end
-					end
-					
-					if mumbleConfig.radioSpeakerEnabled then
-						if radio > 0 then -- Collect all players in the radio channel
-							local radioParticipants = radioData[radio]
-							if radioParticipants then
-								for id, _ in pairs(radioParticipants) do
-									if id ~= remotePlayerServerId then
-										radioList[id] = true
+						
+						if mumbleConfig.radioSpeakerEnabled then
+							if radio > 0 then -- Collect all players in the radio channel
+								local radioParticipants = radioData[radio]
+								if radioParticipants then
+									for id, _ in pairs(radioParticipants) do
+										if id ~= remotePlayerServerId then
+											radioList[id] = volume
+										end
 									end
 								end
 							end
@@ -287,9 +291,15 @@ Citizen.CreateThread(function()
 		end
 		
 		for j = 1, #muteList do
-			if callList[muteList[j].id] or radioList[muteList[j].id] then
-				if muteList[j].distance < mumbleConfig.speakerRange then
-					muteList[j].volume = 1.0 - (muteList[j].distance / mumbleConfig.speakerRange)^0.5
+			if callList[muteList[j].id] ~= nil then
+				if callList[muteList[j].id] > muteList[j].volume then
+					muteList[j].volume = callList[muteList[j].id]
+				end
+			end
+
+			if radioList[muteList[j].id] ~= nil then
+				if radioList[muteList[j].id] > muteList[j].volume then
+					muteList[j].volume = radioList[muteList[j].id]
 				end
 			end
 
