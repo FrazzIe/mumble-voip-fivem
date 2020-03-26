@@ -1,7 +1,3 @@
-local voiceData = {}
-local radioData = {}
-local callData = {}
-
 local playerServerId = GetPlayerServerId(PlayerId())
 
 -- Functions
@@ -34,12 +30,14 @@ AddEventHandler("mumble:RadioSound", function(snd, channel)
 	end
 end)
 
-AddEventHandler("onClientResourceStart", function (resourceName)
-	if GetCurrentResourceName() ~= resourceName then
+AddEventHandler("onClientResourceStart", function(resName)
+	if GetCurrentResourceName() ~= resName then
 		return
 	end
 
 	TriggerServerEvent("mumble:Initialise")
+
+	DebugMsg("Initialising")
 end)
 
 -- Simulate PTT when radio is active

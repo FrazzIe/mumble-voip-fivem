@@ -1,4 +1,8 @@
+voiceData = {}
+radioData = {}
+callData = {}
 mumbleConfig = {
+    debug = true, -- enable debug msgs
     voiceModes = {
         {2.5, "Whisper"}, -- Whisper speech distance in gta distance units
         {8, "Normal"}, -- Normal speech distance in gta distance units
@@ -35,25 +39,40 @@ mumbleConfig = {
     },
     use3dAudio = false, -- make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg
 }
+resourceName = GetCurrentResourceName()
 
--- Update config properties from another script
-function SetMumbleProperty(key, value)
-	if mumbleConfig[key] ~= nil and mumbleConfig[key] ~= "controls" and mumbleConfig[key] ~= "radioChannelNames" then
-		mumbleConfig[key] = value
-	end
-end
-
-function AddRadioChannelName(channel, name)
-    local channel = tonumber(channel)
-
-    if channel ~= nil and name ~= nil and name ~= "" then
-        if not mumbleConfig.radioChannelNames[channel] then
-            mumbleConfig.radioChannelNames[channel] = tostring(name)
+if IsDuplicityVersion() then
+    function DebugMsg(msg)
+        if mumbleConfig.debug then
+            print("\x1b[32m[" .. resourceName .. "]\x1b[0m ".. msg)
         end
     end
-end
+else
+    function DebugMsg(msg)
+        if mumbleConfig.debug then
+            print("[" .. resourceName .. "] ".. msg)
+        end
+    end
 
--- Make exports available on first tick
-exports("SetMumbleProperty", SetMumbleProperty)
-exports("SetTokoProperty", SetMumbleProperty)
-exports("AddRadioChannelName", AddRadioChannelName)
+    -- Update config properties from another script
+    function SetMumbleProperty(key, value)
+        if mumbleConfig[key] ~= nil and mumbleConfig[key] ~= "controls" and mumbleConfig[key] ~= "radioChannelNames" then
+            mumbleConfig[key] = value
+        end
+    end
+
+    function AddRadioChannelName(channel, name)
+        local channel = tonumber(channel)
+
+        if channel ~= nil and name ~= nil and name ~= "" then
+            if not mumbleConfig.radioChannelNames[channel] then
+                mumbleConfig.radioChannelNames[channel] = tostring(name)
+            end
+        end
+    end
+
+    -- Make exports available on first tick
+    exports("SetMumbleProperty", SetMumbleProperty)
+    exports("SetTokoProperty", SetMumbleProperty)
+    exports("AddRadioChannelName", AddRadioChannelName)
+end

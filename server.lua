@@ -1,24 +1,3 @@
-local voiceData = {}
-local radioData = {}
-local callData = {}
-
-local resourceName = ""
-local debug = false
-
-function DebugMsg(msg)
-    if debug then
-        print("\x1b[32m[" .. resourceName .. "]\x1b[0m ".. msg)
-    end
-end
-
-AddEventHandler("onServerResourceStart", function(resName)
-	if GetCurrentResourceName() ~= resName then
-		return
-	end
-
-	resourceName = resName
-end)
-
 RegisterNetEvent("mumble:Initialise")
 AddEventHandler("mumble:Initialise", function()
     DebugMsg("Initialised player: " .. source)

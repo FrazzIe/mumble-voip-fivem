@@ -14,8 +14,11 @@ files {
 	"ui/mic_click_off.ogg",
 }
 
-client_scripts {
+shared_scripts {
 	"config.lua",
+}
+
+client_scripts {
     "client.lua",
 }
 
