@@ -19,6 +19,7 @@ Setters
 | SetRadioChannel     | Set radio channel         | int          |
 | SetCallChannel      | Set call channel          | int          |
 | SetRadioChannelName | Set name of radio channel | int, string  |
+| SetCallChannelName  | Set name of call channel  | int, string  |
 
 Supported TokoVOIP Exports
 

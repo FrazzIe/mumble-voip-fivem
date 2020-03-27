@@ -154,7 +154,7 @@ Citizen.CreateThread(function()
 			mode = mumbleConfig.voiceModes[playerMode][2],
 			radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
 			radioActive = playerRadioActive,
-			call = playerCall,
+			call = mumbleConfig.callChannelNames[playerCall] ~= nil and mumbleConfig.callChannelNames[playerCall] or playerCall,
 			speaker = playerCallSpeaker,
 		})
 	end

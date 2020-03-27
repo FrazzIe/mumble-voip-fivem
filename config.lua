@@ -37,6 +37,9 @@ mumbleConfig = {
         [4] = "EMS Tac 2",
         [500] = "Hurr Durr 500 Hurr Durr",
     },
+    callChannelNames = { -- Add named call channels (Defaults to [channel number])
+
+    },
     use3dAudio = false, -- make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg
 }
 resourceName = GetCurrentResourceName()
@@ -75,8 +78,19 @@ else
         end
     end
 
+    function SetCallChannelName(channel, name)
+        local channel = tonumber(channel)
+
+        if channel ~= nil and name ~= nil and name ~= "" then
+            if not mumbleConfig.callChannelNames[channel] then
+                mumbleConfig.callChannelNames[channel] = tostring(name)
+            end
+        end
+    end
+
     -- Make exports available on first tick
     exports("SetMumbleProperty", SetMumbleProperty)
     exports("SetTokoProperty", SetMumbleProperty)
     exports("SetRadioChannelName", SetRadioChannelName)
+    exports("SetCallChannelName", SetCallChannelName)
 end
