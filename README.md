@@ -18,7 +18,7 @@ Setters
 | SetMumbleProperty   | Set config options        | string, any  |
 | SetRadioChannel     | Set radio channel         | int          |
 | SetCallChannel      | Set call channel          | int          |
-| AddRadioChannelName | Add name to radio channel | int, string  |
+| SetRadioChannelName | Set name of radio channel | int, string  |
 
 Supported TokoVOIP Exports
 

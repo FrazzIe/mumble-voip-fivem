@@ -65,7 +65,7 @@ else
         end
     end
 
-    function AddRadioChannelName(channel, name)
+    function SetRadioChannelName(channel, name)
         local channel = tonumber(channel)
 
         if channel ~= nil and name ~= nil and name ~= "" then
@@ -78,5 +78,5 @@ else
     -- Make exports available on first tick
     exports("SetMumbleProperty", SetMumbleProperty)
     exports("SetTokoProperty", SetMumbleProperty)
-    exports("AddRadioChannelName", AddRadioChannelName)
+    exports("SetRadioChannelName", SetRadioChannelName)
 end
