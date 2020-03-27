@@ -58,6 +58,10 @@ else
     function SetMumbleProperty(key, value)
         if mumbleConfig[key] ~= nil and mumbleConfig[key] ~= "controls" and mumbleConfig[key] ~= "radioChannelNames" then
             mumbleConfig[key] = value
+
+            if key == "callSpeakerEnabled" then
+                SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
+            end
         end
     end
 

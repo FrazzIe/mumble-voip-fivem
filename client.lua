@@ -43,6 +43,8 @@ AddEventHandler("onClientResourceStart", function(resName)
 	TriggerServerEvent("mumble:Initialise")
 
 	DebugMsg("Initialising")
+
+	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 end)
 
 -- Simulate PTT when radio is active
