@@ -29,11 +29,16 @@ AddEventHandler("mumble:RadioSound", function(snd, channel)
 		end
 	end
 end)
+AddEventHandler("onClientMapStart", function()
+	NetworkSetTalkerProximity(1.0)
+end)
 
 AddEventHandler("onClientResourceStart", function(resName)
 	if GetCurrentResourceName() ~= resName then
 		return
 	end
+
+	NetworkSetTalkerProximity(0.0)
 
 	TriggerServerEvent("mumble:Initialise")
 
