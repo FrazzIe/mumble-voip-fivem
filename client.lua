@@ -298,8 +298,10 @@ Citizen.CreateThread(function()
 			end
 
 			if radioList[muteList[j].id] ~= nil then
-				if radioList[muteList[j].id] > muteList[j].volume then
-					muteList[j].volume = radioList[muteList[j].id]
+				if muteList[j].radioActive then
+					if radioList[muteList[j].id] > muteList[j].volume then
+						muteList[j].volume = radioList[muteList[j].id]
+					end
 				end
 			end
 
