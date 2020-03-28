@@ -40,7 +40,7 @@ mumbleConfig = {
     callChannelNames = { -- Add named call channels (Defaults to [channel number])
 
     },
-    use3dAudio = false, -- make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg
+    use3dAudio = false, -- make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg (currently doesn't work properly)
 }
 resourceName = GetCurrentResourceName()
 
@@ -94,3 +94,59 @@ else
     exports("SetRadioChannelName", SetRadioChannelName)
     exports("SetCallChannelName", SetCallChannelName)
 end
+
+function GetPlayersInRadioChannel(channel)
+    local channel = tonumber(channel)
+    local players = false
+
+    if channel ~= nil then
+        if radioData[channel] ~= nil then
+            players = radioData[channel]
+        end
+    end
+
+    return players
+end
+
+function GetPlayersInRadioChannels(...)
+    local channels = { ... }
+    local players = {}
+
+    for i = 1, #channels do
+        local channel = tonumber(channels[i])
+
+        if channel ~= nil then
+            if radioData[channel] ~= nil then
+                players[#players + 1] = radioData[channel]
+            end
+        end
+    end
+
+    return players
+end
+
+function GetPlayersInAllRadioChannels()
+    return radioData
+end
+
+function GetPlayersInPlayerRadioChannel(serverId)
+    local players = false
+
+    if serverId ~= nil then
+        if voiceData[serverId] ~= nil then
+            local channel = voiceData[serverId].radio
+            if channel > 0 then
+                if radioData[channel] ~= nil then
+                    players = radioData[channel]
+                end
+            end
+        end
+    end
+
+    return players
+end
+
+exports("GetPlayersInRadioChannel", GetPlayersInRadioChannel)
+exports("GetPlayersInRadioChannels", GetPlayersInRadioChannels)
+exports("GetPlayersInAllRadioChannels", GetPlayersInAllRadioChannels)
+exports("GetPlayersInPlayerRadioChannel", GetPlayersInPlayerRadioChannel)
