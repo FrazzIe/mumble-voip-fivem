@@ -33,12 +33,12 @@ Supported TokoVOIP Exports
 
 Getters
 
-| Export                         | Description                               | Parameter(s)  | Return type    |   |
-|--------------------------------|-------------------------------------------|---------------|----------------|---|
-| GetPlayersInRadioChannel       | Returns players in a radio channel        | int           | table or false |   |
-| GetPlayersInRadioChannels      | Returns players in radio channels         | int, int, ... | table          |   |
-| GetPlayersInAllRadioChannels   | Returns players in every radio channel    |               | table          |   |
-| GetPlayersInPlayerRadioChannel | Returns players in a player radio channel | int           | table or false |   |
+| Export                         | Description                               | Parameter(s)  | Return type    |
+|--------------------------------|-------------------------------------------|---------------|----------------|
+| GetPlayersInRadioChannel       | Returns players in a radio channel        | int           | table or false |
+| GetPlayersInRadioChannels      | Returns players in radio channels         | int, int, ... | table          |
+| GetPlayersInAllRadioChannels   | Returns players in every radio channel    |               | table          |
+| GetPlayersInPlayerRadioChannel | Returns players in a player radio channel | int           | table or false |
 
 ### Credits
 
