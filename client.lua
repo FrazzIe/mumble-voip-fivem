@@ -1,4 +1,5 @@
 local playerServerId = GetPlayerServerId(PlayerId())
+local mutedPlayers = {}
 
 -- Functions
 function SetVoiceData(key, value)
@@ -286,7 +287,11 @@ Citizen.CreateThread(function()
 			MumbleClearVoiceTarget(0)
 
 			for j = 1, #voiceList do
-				MumbleSetVolumeOverride(voiceList[j].player, -1.0) -- Re-enable 3d audio
+				if mutedPlayers[voiceList[j].id] ~= nil then -- Only re-enable 3d audio if player was muted
+					mutedPlayers[voiceList[j].id] = nil
+					MumbleSetVolumeOverride(voiceList[j].player, -1.0) -- Re-enable 3d audio
+				end
+
 				MumbleAddVoiceTargetPlayer(2, voiceList[j].player) -- Broadcast voice to player if they are in my voice range
 			end
 
@@ -320,7 +325,11 @@ Citizen.CreateThread(function()
 				muteList[j].volume = 1.2
 			end
 
-			MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume) -- Set player volume
+			if mutedPlayers[muteList[j].id] ~= muteList[j].volume then -- Only update volume if its changed
+				mutedPlayers[muteList[j].id] = muteList[j].volume
+				MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume) -- Set player volume
+			end
+
 		end
 	end
 end)
