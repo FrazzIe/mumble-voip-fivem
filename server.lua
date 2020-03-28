@@ -12,7 +12,7 @@ AddEventHandler("mumble:Initialise", function()
         }
     end
 
-    TriggerClientEvent("mumble:SetVoiceData", -1, voiceData, radioData, callData)
+    TriggerClientEvent("mumble:SyncVoiceData", -1, voiceData, radioData, callData)
 end)
 
 RegisterNetEvent("mumble:SetVoiceData")
@@ -27,19 +27,16 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
         }
     end
 
-    local radio = voiceData[source]["radio"]
-    local call = voiceData[source]["call"]
+    local radioChannel = voiceData[source]["radio"]
+    local callChannel = voiceData[source]["call"]
     local radioActive = voiceData[source]["radioActive"]
 
-    local radioChanged = false
-    local callChanged = false
-
-    if key == "radio" and radio ~= value then -- Check if channel has changed
-        if radio > 0 then -- Check if player was in a radio channel
-            if radioData[radio] then  -- Remove player from radio channel
-                if radioData[radio][source] then
-                    DebugMsg("Player " .. source .. " was removed from radio channel " .. radio)
-                    radioData[radio][source] = nil
+    if key == "radio" and radioChannel ~= value then -- Check if channel has changed
+        if radioChannel > 0 then -- Check if player was in a radio channel
+            if radioData[radioChannel] then  -- Remove player from radio channel
+                if radioData[radioChannel][source] then
+                    DebugMsg("Player " .. source .. " was removed from radio channel " .. radioChannel)
+                    radioData[radioChannel][source] = nil
                 end
             end
         end
@@ -53,14 +50,12 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
             DebugMsg("Player " .. source .. " was added to channel: " .. value)
             radioData[value][source] = true -- Add player to channel
         end
-
-        radioChanged = true
-    elseif key == "call" and call ~= value then
-        if call > 0 then -- Check if player was in a call channel
-            if callData[call] then  -- Remove player from call channel
-                if callData[call][source] then
-                    DebugMsg("Player " .. source .. " was removed from call channel " .. call)
-                    callData[call][source] = nil
+    elseif key == "call" and callChannel ~= value then
+        if callChannel > 0 then -- Check if player was in a call channel
+            if callData[callChannel] then  -- Remove player from call channel
+                if callData[callChannel][source] then
+                    DebugMsg("Player " .. source .. " was removed from call channel " .. callChannel)
+                    callData[callChannel][source] = nil
                 end
             end
         end
@@ -74,27 +69,13 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
             DebugMsg("Player " .. source .. " was added to call: " .. value)
             callData[value][source] = true -- Add player to call
         end
-
-        callChanged = true
-    elseif key == "radioActive" and radioActive ~= value then
-        DebugMsg("Player " .. source .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
-        if radio > 0 then
-            local channel = radioData[radio]
-
-            if channel ~= nil then
-                for id, _ in pairs(channel) do
-                    DebugMsg("Sending sound to player" .. id)
-                    TriggerClientEvent("mumble:RadioSound", id, value, radio)
-                end
-            end
-        end
     end
 
     voiceData[source][key] = value
 
     DebugMsg("Player " .. source .. " changed " .. key .. " to: " .. tostring(value))
 
-    TriggerClientEvent("mumble:SetVoiceData", -1, voiceData, radioChanged and radioData or false, callChanged and callData or false)
+    TriggerClientEvent("mumble:SetVoiceData", -1, source, key, value)
 end)
 
 RegisterCommand("mumbleRadioChannels", function(src, args, raw)

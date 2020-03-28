@@ -6,30 +6,97 @@ function SetVoiceData(key, value)
 	TriggerServerEvent("mumble:SetVoiceData", key, value)
 end
 
--- Events
-RegisterNetEvent("mumble:SetVoiceData")
-AddEventHandler("mumble:SetVoiceData", function(voice, radio, call)
-	voiceData = voice
-
-	if radio then
-		radioData = radio
-	end
-
-	if call then
-		callData = call
-	end
-end)
-
-RegisterNetEvent("mumble:RadioSound")
-AddEventHandler("mumble:RadioSound", function(snd, channel)
+function PlayMicClick(channel, value)
+	print(channel, tostring(value))
 	if channel <= mumbleConfig.radioClickMaxChannel then
 		if mumbleConfig.micClicks then
-			if (snd and mumbleConfig.micClickOn) or (not snd and mumbleConfig.micClickOff) then
-				SendNUIMessage({ sound = (snd and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
+			if (value and mumbleConfig.micClickOn) or (not value and mumbleConfig.micClickOff) then
+				SendNUIMessage({ sound = (value and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
 			end
 		end
+	end	
+end
+
+-- Events
+RegisterNetEvent("mumble:SetVoiceData")
+AddEventHandler("mumble:SetVoiceData", function(player, key, value)
+    if not voiceData[player] then
+        voiceData[player] = {
+            mode = 2,
+            radio = 0,
+            radioActive = false,
+            call = 0,
+            callSpeaker = false,
+        }
 	end
+
+	local radioChannel = voiceData[player]["radio"]
+    local callChannel = voiceData[player]["call"]
+	local radioActive = voiceData[player]["radioActive"]
+
+    if key == "radio" and radioChannel ~= value then -- Check if channel has changed
+        if radioChannel > 0 then -- Check if player was in a radio channel
+            if radioData[radioChannel] then  -- Remove player from radio channel
+                if radioData[radioChannel][player] then
+                    DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
+                    radioData[radioChannel][player] = nil
+                end
+            end
+        end
+
+        if value > 0 then
+            if not radioData[value] then -- Create channel if it does not exist
+                DebugMsg("Player " .. player .. " is creating channel: " .. value)
+                radioData[value] = {}
+            end
+            
+            DebugMsg("Player " .. player .. " was added to channel: " .. value)
+            radioData[value][player] = true -- Add player to channel
+        end
+    elseif key == "call" and callChannel ~= value then
+        if callChannel > 0 then -- Check if player was in a call channel
+            if callData[callChannel] then  -- Remove player from call channel
+                if callData[callChannel][player] then
+                    DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
+                    callData[callChannel][player] = nil
+                end
+            end
+        end
+
+        if value > 0 then
+            if not callData[value] then -- Create call if it does not exist
+                DebugMsg("Player " .. player .. " is creating call: " .. value)
+                callData[value] = {}
+            end
+            
+            DebugMsg("Player " .. player .. " was added to call: " .. value)
+            callData[value][player] = true -- Add player to call
+        end
+    elseif key == "radioActive" and radioActive ~= value then
+        DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
+        if radioChannel > 0 then
+			local playerData = voiceData[playerServerId]
+
+			if playerData.radio ~= nil then
+				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you
+					PlayMicClick(radioChannel, value)
+				end
+			end
+        end
+    end
+
+	voiceData[player][key] = value
+
+    DebugMsg("Player " .. player .. " changed " .. key .. " to: " .. tostring(value))
 end)
+
+RegisterNetEvent("mumble:SyncVoiceData")
+AddEventHandler("mumble:SyncVoiceData", function(voice, radio, call)
+	voiceData = voice
+	radioData = radio
+	callData = call
+end)
+
 AddEventHandler("onClientMapStart", function()
 	NetworkSetTalkerProximity(1.0)
 end)
@@ -84,8 +151,9 @@ Citizen.CreateThread(function()
 				else
 					voiceMode = newMode
 				end
-			
+				
 				SetVoiceData("mode", voiceMode)
+				playerData.mode = voiceMode
 			end
 		end
 
@@ -95,6 +163,7 @@ Citizen.CreateThread(function()
 					if playerRadio > 0 then
 						SetVoiceData("radioActive", true)
 						playerData.radioActive = true
+						PlayMicClick(playerRadio, true)
 						mumbleConfig.controls.radio.pressed = true
 
 						Citizen.CreateThread(function()
@@ -103,6 +172,7 @@ Citizen.CreateThread(function()
 							end
 
 							SetVoiceData("radioActive", false)
+							PlayMicClick(playerRadio, false)
 							playerData.radioActive = false
 							mumbleConfig.controls.radio.pressed = false
 						end)
@@ -121,6 +191,7 @@ Citizen.CreateThread(function()
 				if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) then
 					if playerCall > 0 then
 						SetVoiceData("callSpeaker", not playerCallSpeaker)
+						playerData.callSpeaker = not playerCallSpeaker
 					end
 				end
 			end
@@ -329,7 +400,6 @@ Citizen.CreateThread(function()
 				mutedPlayers[muteList[j].id] = muteList[j].volume
 				MumbleSetVolumeOverride(muteList[j].player, muteList[j].volume) -- Set player volume
 			end
-
 		end
 	end
 end)
