@@ -107,9 +107,9 @@ AddEventHandler("onClientResourceStart", function(resName)
 	end
 
 	if mumbleConfig.use3dAudio then
-		NetworkSetTalkerProximity(0.0)
-	else
 		NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1])
+	else
+		NetworkSetTalkerProximity(0.0)
 	end
 
 	TriggerServerEvent("mumble:Initialise")
