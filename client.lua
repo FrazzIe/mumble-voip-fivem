@@ -106,7 +106,11 @@ AddEventHandler("onClientResourceStart", function(resName)
 		return
 	end
 
-	NetworkSetTalkerProximity(0.0)
+	if mumbleConfig.use3dAudio then
+		NetworkSetTalkerProximity(0.0)
+	else
+		NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1])
+	end
 
 	TriggerServerEvent("mumble:Initialise")
 
@@ -152,6 +156,10 @@ Citizen.CreateThread(function()
 					voiceMode = newMode
 				end
 				
+				if mumbleConfig.use3dAudio then
+					NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1])
+				end
+
 				SetVoiceData("mode", voiceMode)
 				playerData.mode = voiceMode
 			end
