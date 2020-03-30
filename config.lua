@@ -2,11 +2,11 @@ voiceData = {}
 radioData = {}
 callData = {}
 mumbleConfig = {
-    debug = true, -- enable debug msgs
+    debug = false, -- enable debug msgs
     voiceModes = {
         {2.5, "Whisper"}, -- Whisper speech distance in gta distance units
-        {8, "Normal"}, -- Normal speech distance in gta distance units
-        {20, "Shouting"}, -- Shout speech distance in gta distance units
+        {8.0, "Normal"}, -- Normal speech distance in gta distance units
+        {20.0, "Shouting"}, -- Shout speech distance in gta distance units
     },
     speakerRange = 1.5, -- Speaker distance in gta distance units (how close you need to be to another player to hear other players on the radio or phone)
     callSpeakerEnabled = true, -- Allow players to hear all talking participants of a phone call if standing next to someone that is on the phone
@@ -40,7 +40,7 @@ mumbleConfig = {
     callChannelNames = { -- Add named call channels (Defaults to [channel number])
 
     },
-    use3dAudio = false, -- make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg (currently doesn't work properly)
+    use3dAudio = false, -- (currently doesn't work properly) make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg (currently doesn't work properly)
 }
 resourceName = GetCurrentResourceName()
 
