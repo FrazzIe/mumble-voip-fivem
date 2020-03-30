@@ -405,6 +405,10 @@ Citizen.CreateThread(function()
 			MumbleSetVoiceTarget(0)
 		else
 			for j = 1, #voiceList do
+				if mutedPlayers[voiceList[j].id] ~= nil then
+					mutedPlayers[voiceList[j].id] = nil
+				end
+
 				MumbleSetVolumeOverride(voiceList[j].player, voiceList[j].volume)
 			end
 		end
