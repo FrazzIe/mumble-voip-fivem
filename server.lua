@@ -115,6 +115,6 @@ AddEventHandler("playerDropped", function()
 
         voiceData[source] = nil
         
-        TriggerClientEvent("mumble:SetVoiceData", -1, voiceData, radioChanged and radioData or false, callChanged and callData or false)
+        TriggerClientEvent("mumble:RemoveVoiceData", -1, source)
     end
 end)

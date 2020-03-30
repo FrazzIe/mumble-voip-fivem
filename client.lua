@@ -97,6 +97,34 @@ AddEventHandler("mumble:SyncVoiceData", function(voice, radio, call)
 	callData = call
 end)
 
+RegisterNetEvent("mumble:RemoveVoiceData")
+AddEventHandler("mumble:RemoveVoiceData", function(player)
+    if voiceData[player] then
+		local radioChannel = voiceData[player]["radio"] or 0
+		local callChannel = voiceData[player]["call"] or 0
+
+        if radioChannel > 0 then -- Check if player was in a radio channel
+            if radioData[radioChannel] then  -- Remove player from radio channel
+                if radioData[radioChannel][player] then
+                    DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
+                    radioData[radioChannel][player] = nil
+                end
+            end
+        end
+
+        if callChannel > 0 then -- Check if player was in a call channel
+            if callData[callChannel] then  -- Remove player from call channel
+                if callData[callChannel][player] then
+                    DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
+                    callData[callChannel][player] = nil
+                end
+            end
+        end
+
+        voiceData[player] = nil
+    end
+end)
+
 AddEventHandler("onClientMapStart", function()
 	NetworkSetTalkerProximity(1.0)
 end)
