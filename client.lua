@@ -7,7 +7,6 @@ function SetVoiceData(key, value)
 end
 
 function PlayMicClick(channel, value)
-	print(channel, tostring(value))
 	if channel <= mumbleConfig.radioClickMaxChannel then
 		if mumbleConfig.micClicks then
 			if (value and mumbleConfig.micClickOn) or (not value and mumbleConfig.micClickOff) then
