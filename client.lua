@@ -19,61 +19,61 @@ end
 -- Events
 RegisterNetEvent("mumble:SetVoiceData")
 AddEventHandler("mumble:SetVoiceData", function(player, key, value)
-    if not voiceData[player] then
-        voiceData[player] = {
-            mode = 2,
-            radio = 0,
-            radioActive = false,
-            call = 0,
-            callSpeaker = false,
-        }
+	if not voiceData[player] then
+		voiceData[player] = {
+			mode = 2,
+			radio = 0,
+			radioActive = false,
+			call = 0,
+			callSpeaker = false,
+		}
 	end
 
 	local radioChannel = voiceData[player]["radio"]
-    local callChannel = voiceData[player]["call"]
+	local callChannel = voiceData[player]["call"]
 	local radioActive = voiceData[player]["radioActive"]
 
-    if key == "radio" and radioChannel ~= value then -- Check if channel has changed
-        if radioChannel > 0 then -- Check if player was in a radio channel
-            if radioData[radioChannel] then  -- Remove player from radio channel
-                if radioData[radioChannel][player] then
-                    DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
-                    radioData[radioChannel][player] = nil
-                end
-            end
-        end
+	if key == "radio" and radioChannel ~= value then -- Check if channel has changed
+		if radioChannel > 0 then -- Check if player was in a radio channel
+			if radioData[radioChannel] then  -- Remove player from radio channel
+				if radioData[radioChannel][player] then
+					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
+					radioData[radioChannel][player] = nil
+				end
+			end
+		end
 
-        if value > 0 then
-            if not radioData[value] then -- Create channel if it does not exist
-                DebugMsg("Player " .. player .. " is creating channel: " .. value)
-                radioData[value] = {}
-            end
-            
-            DebugMsg("Player " .. player .. " was added to channel: " .. value)
-            radioData[value][player] = true -- Add player to channel
-        end
-    elseif key == "call" and callChannel ~= value then
-        if callChannel > 0 then -- Check if player was in a call channel
-            if callData[callChannel] then  -- Remove player from call channel
-                if callData[callChannel][player] then
-                    DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
-                    callData[callChannel][player] = nil
-                end
-            end
-        end
+		if value > 0 then
+			if not radioData[value] then -- Create channel if it does not exist
+				DebugMsg("Player " .. player .. " is creating channel: " .. value)
+				radioData[value] = {}
+			end
+			
+			DebugMsg("Player " .. player .. " was added to channel: " .. value)
+			radioData[value][player] = true -- Add player to channel
+		end
+	elseif key == "call" and callChannel ~= value then
+		if callChannel > 0 then -- Check if player was in a call channel
+			if callData[callChannel] then  -- Remove player from call channel
+				if callData[callChannel][player] then
+					DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
+					callData[callChannel][player] = nil
+				end
+			end
+		end
 
-        if value > 0 then
-            if not callData[value] then -- Create call if it does not exist
-                DebugMsg("Player " .. player .. " is creating call: " .. value)
-                callData[value] = {}
-            end
-            
-            DebugMsg("Player " .. player .. " was added to call: " .. value)
-            callData[value][player] = true -- Add player to call
-        end
-    elseif key == "radioActive" and radioActive ~= value then
-        DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
-        if radioChannel > 0 then
+		if value > 0 then
+			if not callData[value] then -- Create call if it does not exist
+				DebugMsg("Player " .. player .. " is creating call: " .. value)
+				callData[value] = {}
+			end
+			
+			DebugMsg("Player " .. player .. " was added to call: " .. value)
+			callData[value][player] = true -- Add player to call
+		end
+	elseif key == "radioActive" and radioActive ~= value then
+		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
+		if radioChannel > 0 then
 			local playerData = voiceData[playerServerId]
 
 			if playerData.radio ~= nil then
@@ -81,12 +81,12 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					PlayMicClick(radioChannel, value)
 				end
 			end
-        end
-    end
+		end
+	end
 
 	voiceData[player][key] = value
 
-    DebugMsg("Player " .. player .. " changed " .. key .. " to: " .. tostring(value))
+	DebugMsg("Player " .. player .. " changed " .. key .. " to: " .. tostring(value))
 end)
 
 RegisterNetEvent("mumble:SyncVoiceData")
@@ -98,30 +98,30 @@ end)
 
 RegisterNetEvent("mumble:RemoveVoiceData")
 AddEventHandler("mumble:RemoveVoiceData", function(player)
-    if voiceData[player] then
+	if voiceData[player] then
 		local radioChannel = voiceData[player]["radio"] or 0
 		local callChannel = voiceData[player]["call"] or 0
 
-        if radioChannel > 0 then -- Check if player was in a radio channel
-            if radioData[radioChannel] then  -- Remove player from radio channel
-                if radioData[radioChannel][player] then
-                    DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
-                    radioData[radioChannel][player] = nil
-                end
-            end
-        end
+		if radioChannel > 0 then -- Check if player was in a radio channel
+			if radioData[radioChannel] then  -- Remove player from radio channel
+				if radioData[radioChannel][player] then
+					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
+					radioData[radioChannel][player] = nil
+				end
+			end
+		end
 
-        if callChannel > 0 then -- Check if player was in a call channel
-            if callData[callChannel] then  -- Remove player from call channel
-                if callData[callChannel][player] then
-                    DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
-                    callData[callChannel][player] = nil
-                end
-            end
-        end
+		if callChannel > 0 then -- Check if player was in a call channel
+			if callData[callChannel] then  -- Remove player from call channel
+				if callData[callChannel][player] then
+					DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
+					callData[callChannel][player] = nil
+				end
+			end
+		end
 
-        voiceData[player] = nil
-    end
+		voiceData[player] = nil
+	end
 end)
 
 AddEventHandler("onClientMapStart", function()

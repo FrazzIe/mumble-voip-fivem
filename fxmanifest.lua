@@ -19,11 +19,11 @@ shared_scripts {
 }
 
 client_scripts {
-    "client.lua",
+	"client.lua",
 }
 
 server_scripts {
-    "server.lua",
+	"server.lua",
 }
 
 provide "tokovoip_script"
