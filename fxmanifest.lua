@@ -16,6 +16,7 @@ files {
 
 shared_scripts {
 	"config.lua",
+	"grid.lua",
 }
 
 client_scripts {
