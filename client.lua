@@ -57,9 +57,9 @@ function SetRadioChannel(channel)
 	if channel ~= nil then
 		SetVoiceData("radio", channel)
 
-		if radioData[radioChannel] then -- Check if anyone is talking and unmute if so
-			for i = 1, #radioData[radioChannel] do
-				local player = radioData[radioChannel][i]
+		if radioData[channel] then -- Check if anyone is talking and unmute if so
+			for i = 1, #radioData[channel] do
+				local player = radioData[channel][i]
 				if player then
 					local playerData = voiceData[player]
 
