@@ -144,10 +144,6 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 	end
 end)
 
-AddEventHandler("onClientMapStart", function()
-	NetworkSetTalkerProximity(1.0)
-end)
-
 AddEventHandler("onClientResourceStart", function(resName)
 	if GetCurrentResourceName() ~= resName then
 		return

@@ -40,7 +40,6 @@ mumbleConfig = {
 	callChannelNames = { -- Add named call channels (Defaults to [channel number])
 
 	},
-	-- use3dAudio = false, -- (currently doesn't work properly) make sure setr voice_use3dAudio true and setr voice_useSendingRangeOnly true is in your server.cfg (currently doesn't work properly)
 }
 resourceName = GetCurrentResourceName()
 
