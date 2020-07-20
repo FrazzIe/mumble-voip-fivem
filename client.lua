@@ -61,11 +61,13 @@ function SetRadioChannel(channel)
 			for i = 1, #radioData[channel] do
 				local player = radioData[channel][i]
 				if player then
-					local playerData = voiceData[player]
+					if player ~= playerServerId then
+						local playerData = voiceData[player]
 
-					if playerData ~= nil then
-						if playerData.radioActive then
-							TogglePlayerVoice(player, value)
+						if playerData ~= nil then
+							if playerData.radioActive then
+								TogglePlayerVoice(player, value)
+							end
 						end
 					end
 				end
