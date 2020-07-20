@@ -37,7 +37,7 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 end
 
 -- Events
-RegisterNetEvent("mumble:SetVoiceData")
+RegisterNetEvent("mumble:SetVoiceData") -- Used to sync players data each time something changes
 AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	if not voiceData[player] then
 		voiceData[player] = {
@@ -109,14 +109,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	DebugMsg("Player " .. player .. " changed " .. key .. " to: " .. tostring(value))
 end)
 
-RegisterNetEvent("mumble:SyncVoiceData")
+RegisterNetEvent("mumble:SyncVoiceData") -- Used to sync players data on initialising
 AddEventHandler("mumble:SyncVoiceData", function(voice, radio, call)
 	voiceData = voice
 	radioData = radio
 	callData = call
 end)
 
-RegisterNetEvent("mumble:RemoveVoiceData")
+RegisterNetEvent("mumble:RemoveVoiceData") -- Used to remove redundant data when a player disconnects
 AddEventHandler("mumble:RemoveVoiceData", function(player)
 	if voiceData[player] then
 		local radioChannel = voiceData[player]["radio"] or 0
