@@ -1,6 +1,8 @@
 local playerServerId = GetPlayerServerId(PlayerId())
 local mutedPlayers = {}
 
+local playerChunk = nil
+
 -- Functions
 function SetVoiceData(key, value)
 	TriggerServerEvent("mumble:SetVoiceData", key, value)
@@ -14,6 +16,24 @@ function PlayMicClick(channel, value)
 			end
 		end
 	end	
+end
+
+function SetGridTargets(pos) -- Used to set the players voice targets depending on where they are in the map
+	local currentChunk = GetCurrentChunk(pos)
+
+	if playerChunk ~= currentChunk then
+		local nearbyChunks = GetNearbyChunks(pos)
+
+		MumbleClearVoiceTargetChannels(2)
+
+		for i = 1, #nearbyChunks do
+			MumbleAddVoiceTargetChannel(2, nearbyChunks[i])
+		end
+
+		NetworkSetVoiceChannel(currentChunk)
+
+		playerChunk = currentChunk
+	end
 end
 
 -- Events
