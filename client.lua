@@ -152,6 +152,10 @@ AddEventHandler("onClientResourceStart", function(resName)
 
 	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
 
+	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
+	MumbleSetVoiceTarget(voiceTarget)
+	SetGridTargets(GetEntityCoords(PlayerPedId())) -- Add voice targets
+
 	TriggerServerEvent("mumble:Initialise")
 
 	DebugMsg("Initialising")
