@@ -146,8 +146,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			local playerData = voiceData[playerServerId]
 
 			if playerData.radio ~= nil then
-				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you
+				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you					
 					PlayMicClick(radioChannel, value)
+					TogglePlayerVoice(player, value)
 				end
 			end
 		end
