@@ -2,6 +2,7 @@ local playerServerId = GetPlayerServerId(PlayerId())
 local mutedPlayers = {}
 
 local playerChunk = nil
+local voiceTarget = 2
 
 -- Functions
 function SetVoiceData(key, value)
@@ -24,10 +25,10 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 	if playerChunk ~= currentChunk then
 		local nearbyChunks = GetNearbyChunks(pos)
 
-		MumbleClearVoiceTargetChannels(2)
+		MumbleClearVoiceTargetChannels(voiceTarget)
 
 		for i = 1, #nearbyChunks do
-			MumbleAddVoiceTargetChannel(2, nearbyChunks[i])
+			MumbleAddVoiceTargetChannel(voiceTarget, nearbyChunks[i])
 		end
 
 		NetworkSetVoiceChannel(currentChunk)
