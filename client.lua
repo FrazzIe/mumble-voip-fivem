@@ -1,5 +1,5 @@
 local playerServerId = GetPlayerServerId(PlayerId())
-local mutedPlayers = {}
+local unmutedPlayers = {}
 
 local playerChunk = nil
 local voiceTarget = 2
@@ -16,7 +16,7 @@ function PlayMicClick(channel, value)
 				SendNUIMessage({ sound = (value and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
 			end
 		end
-	end	
+	end
 end
 
 function SetGridTargets(pos) -- Used to set the players voice targets depending on where they are in the map
@@ -34,6 +34,20 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 		NetworkSetVoiceChannel(currentChunk)
 
 		playerChunk = currentChunk
+	end
+end
+
+function TogglePlayerVoice(serverId, value)
+	if value then
+		if not unmutedPlayers[serverId] then
+			unmutedPlayers[serverId] = true
+			MumbleSetVolumeOverrideByServerId(serverId, 1.0)
+		end
+	else
+		if unmutedPlayers[serverId] then
+			unmutedPlayers[serverId] = nil
+			MumbleSetVolumeOverrideByServerId(serverId, -1.0)			
+		end		
 	end
 end
 
