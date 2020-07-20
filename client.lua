@@ -116,6 +116,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	local radioChannel = voiceData[player]["radio"]
 	local callChannel = voiceData[player]["call"]
 	local radioActive = voiceData[player]["radioActive"]
+	local playerData = voiceData[playerServerId]
 
 	if key == "radio" and radioChannel ~= value then -- Check if channel has changed
 		if radioChannel > 0 then -- Check if player was in a radio channel
@@ -123,8 +124,6 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 				if radioData[radioChannel][player] then
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
-
-					local playerData = voiceData[playerServerId]
 
 					if playerData.radio ~= nil then -- mute player on radio channel leave
 						if playerData.radio == radioChannel then
@@ -151,13 +150,11 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
 					callData[callChannel][player] = nil
 
-					local playerData = voiceData[playerServerId]
-
 					if playerData.call ~= nil then -- mute player on call channel leave
 						if playerData.call == callChannel then
 							TogglePlayerVoice(player, false)
 						end
-					end					
+					end
 				end
 			end
 		end
@@ -170,12 +167,16 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			
 			DebugMsg("Player " .. player .. " was added to call: " .. value)
 			callData[value][player] = true -- Add player to call
+
+			if playerData.call ~= nil then -- unmute player on call channel join
+				if playerData.call == value then
+					TogglePlayerVoice(player, value)
+				end
+			end			
 		end
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
 		if radioChannel > 0 then
-			local playerData = voiceData[playerServerId]
-
 			if playerData.radio ~= nil then
 				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you					
 					PlayMicClick(radioChannel, value)
