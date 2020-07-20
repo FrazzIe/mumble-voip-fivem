@@ -367,6 +367,18 @@ Citizen.CreateThread(function()
 	end
 end)
 
+-- Manage Grid Target Channels
+Citizen.CreateThread(function()
+	while true do
+		local playerPed = PlayerPedId()
+		local playerCoords = GetEntityCoords(playerPed)
+
+		SetGridTargets(playerCoords)
+
+		Citizen.Wait(2500)
+	end
+end)
+
 -- Exports
 exports("SetRadioChannel", SetRadioChannel)
 exports("addPlayerToRadio", SetRadioChannel)
