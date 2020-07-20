@@ -125,9 +125,11 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
 
-					if playerData.radio ~= nil then -- mute player on radio channel leave
-						if playerData.radio == radioChannel then
-							TogglePlayerVoice(player, false)
+					if player ~= playerServerId then
+						if playerData.radio ~= nil then -- mute player on radio channel leave
+							if playerData.radio == radioChannel then
+								TogglePlayerVoice(player, false)
+							end
 						end
 					end
 				end
@@ -150,9 +152,11 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
 					callData[callChannel][player] = nil
 
-					if playerData.call ~= nil then -- mute player on call channel leave
-						if playerData.call == callChannel then
-							TogglePlayerVoice(player, false)
+					if player ~= playerServerId then
+						if playerData.call ~= nil then -- mute player on call channel leave
+							if playerData.call == callChannel then
+								TogglePlayerVoice(player, false)
+							end
 						end
 					end
 				end
@@ -168,11 +172,13 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			DebugMsg("Player " .. player .. " was added to call: " .. value)
 			callData[value][player] = true -- Add player to call
 
-			if playerData.call ~= nil then -- unmute player on call channel join
-				if playerData.call == value then
-					TogglePlayerVoice(player, value)
+			if player ~= playerServerId then
+				if playerData.call ~= nil then -- unmute player on call channel join
+					if playerData.call == value then
+						TogglePlayerVoice(player, value)
+					end
 				end
-			end			
+			end		
 		end
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
@@ -180,7 +186,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			if playerData.radio ~= nil then
 				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you					
 					PlayMicClick(radioChannel, value)
-					TogglePlayerVoice(player, value)
+
+					if player ~= playerServerId then
+						TogglePlayerVoice(player, value)
+					end
 				end
 			end
 		end
