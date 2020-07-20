@@ -145,7 +145,25 @@ function GetPlayersInPlayerRadioChannel(serverId)
 	return players
 end
 
+function GetPlayerRadioChannel(serverId)
+	if serverId ~= nil then
+		if voiceData[serverId] ~= nil then
+			return voiceData[serverId].radio
+		end
+	end
+end
+
+function GetPlayerCallChannel(serverId)
+	if serverId ~= nil then
+		if voiceData[serverId] ~= nil then
+			return voiceData[serverId].call
+		end
+	end
+end
+
 exports("GetPlayersInRadioChannel", GetPlayersInRadioChannel)
 exports("GetPlayersInRadioChannels", GetPlayersInRadioChannels)
 exports("GetPlayersInAllRadioChannels", GetPlayersInAllRadioChannels)
 exports("GetPlayersInPlayerRadioChannel", GetPlayersInPlayerRadioChannel)
+exports("GetPlayerRadioChannel", GetPlayerRadioChannel)
+exports("GetPlayerCallChannel", GetPlayerCallChannel)
