@@ -81,6 +81,17 @@ function SetCallChannel(channel)
 
 	if channel ~= nil then
 		SetVoiceData("call", channel)
+
+		if callData[channel] then -- Unmute current call participants
+			for i = 1, #callData[channel] do
+				local player = callData[channel][i]
+				if player then
+					if player ~= playerServerId then
+						TogglePlayerVoice(player, true)
+					end
+				end
+			end
+		end
 	end
 end
 
