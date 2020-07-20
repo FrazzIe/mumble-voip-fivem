@@ -38,6 +38,24 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 end
 
 -- Events
+AddEventHandler("onClientResourceStart", function(resName) -- Initialises the script, sets up voice range, voice targets and request sync with server
+	if GetCurrentResourceName() ~= resName then
+		return
+	end
+
+	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
+
+	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
+	MumbleSetVoiceTarget(voiceTarget)
+	SetGridTargets(GetEntityCoords(PlayerPedId())) -- Add voice targets
+
+	TriggerServerEvent("mumble:Initialise")
+
+	DebugMsg("Initialising")
+
+	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
+end)
+
 RegisterNetEvent("mumble:SetVoiceData") -- Used to sync players data each time something changes
 AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	if not voiceData[player] then
@@ -143,24 +161,6 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 
 		voiceData[player] = nil
 	end
-end)
-
-AddEventHandler("onClientResourceStart", function(resName)
-	if GetCurrentResourceName() ~= resName then
-		return
-	end
-
-	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
-
-	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
-	MumbleSetVoiceTarget(voiceTarget)
-	SetGridTargets(GetEntityCoords(PlayerPedId())) -- Add voice targets
-
-	TriggerServerEvent("mumble:Initialise")
-
-	DebugMsg("Initialising")
-
-	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 end)
 
 -- Simulate PTT when radio is active
