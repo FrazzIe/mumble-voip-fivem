@@ -37,6 +37,22 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 	end
 end
 
+function SetRadioChannel(channel)
+	local channel = tonumber(channel)
+
+	if channel ~= nil then
+		SetVoiceData("radio", channel)
+	end
+end
+
+function SetCallChannel(channel)
+	local channel = tonumber(channel)
+
+	if channel ~= nil then
+		SetVoiceData("call", channel)
+	end
+end
+
 -- Events
 AddEventHandler("onClientResourceStart", function(resName) -- Initialises the script, sets up voice range, voice targets and request sync with server
 	if GetCurrentResourceName() ~= resName then
@@ -283,22 +299,6 @@ Citizen.CreateThread(function()
 end)
 
 -- Exports
-function SetRadioChannel(channel)
-	local channel = tonumber(channel)
-
-	if channel ~= nil then
-		SetVoiceData("radio", channel)
-	end
-end
-
-function SetCallChannel(channel)
-	local channel = tonumber(channel)
-
-	if channel ~= nil then
-		SetVoiceData("call", channel)
-	end
-end
-
 exports("SetRadioChannel", SetRadioChannel)
 exports("addPlayerToRadio", SetRadioChannel)
 exports("removePlayerFromRadio", function()
