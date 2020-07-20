@@ -56,6 +56,21 @@ function SetRadioChannel(channel)
 
 	if channel ~= nil then
 		SetVoiceData("radio", channel)
+
+		if radioData[radioChannel] then -- Check if anyone is talking and unmute if so
+			for i = 1, #radioData[radioChannel] do
+				local player = radioData[radioChannel][i]
+				if player then
+					local playerData = voiceData[player]
+
+					if playerData ~= nil then
+						if playerData.radioActive then
+							TogglePlayerVoice(player, value)
+						end
+					end
+				end
+			end
+		end
 	end
 end
 
