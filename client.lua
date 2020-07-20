@@ -108,6 +108,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 				if radioData[radioChannel][player] then
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
+
+					local playerData = voiceData[playerServerId]
+
+					if playerData.radio ~= nil then
+						if playerData.radio == radioChannel then
+							TogglePlayerVoice(player, false)
+						end
+					end
 				end
 			end
 		end
