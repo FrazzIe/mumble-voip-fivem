@@ -121,6 +121,8 @@ function CheckVoiceSetting(varName, msg)
 			SendNUIMessage({ warningId = varName })
 		end)
 	end
+
+	DebugMsg("Checking setting: " .. varName .. " = " .. setting)
 end
 
 -- Events
@@ -142,7 +144,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	Citizen.Wait(1000)
 
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
-	
+
 	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
 	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
 end)
