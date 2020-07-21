@@ -225,6 +225,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						TogglePlayerVoice(player, value)
 					end
 				end
+			else
+				for id, _ in pairs(callData[value]) do
+					if id ~= playerServerId then
+						if not unmutedPlayers[id] then
+							TogglePlayerVoice(id, true)
+						end
+					end
+				end
 			end		
 		end
 	elseif key == "radioActive" and radioActive ~= value then
