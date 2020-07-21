@@ -24,7 +24,7 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 
 	if playerChunk ~= currentChunk then
 		local nearbyChunks = GetNearbyChunks(pos)
-		local nearybyChunksStr = "None"
+		local nearbyChunksStr = "None"
 
 		MumbleClearVoiceTargetChannels(voiceTarget)
 
@@ -32,10 +32,10 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 			MumbleAddVoiceTargetChannel(voiceTarget, nearbyChunks[i])
 
 			if nearbyChunks[i] ~= currentChunk then
-				if nearybyChunksStr ~= "None" then
-					nearybyChunksStr = nearybyChunksStr .. ", " .. nearbyChunks[i]
+				if nearbyChunksStr ~= "None" then
+					nearbyChunksStr = nearbyChunksStr .. ", " .. nearbyChunks[i]
 				else
-					nearybyChunksStr = nearbyChunks[i]
+					nearbyChunksStr = nearbyChunks[i]
 				end
 			end
 		end
@@ -44,7 +44,7 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 
 		playerChunk = currentChunk
 
-		DebugMsg("Entered Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearybyChunksStr)
+		DebugMsg("Entered Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
 	end
 end
 
