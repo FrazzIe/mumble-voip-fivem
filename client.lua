@@ -138,6 +138,8 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	TriggerServerEvent("mumble:Initialise")
 
 	DebugMsg("Initialising")
+	
+	Citizen.Wait(1000)
 
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 	
