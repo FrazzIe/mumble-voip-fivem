@@ -89,6 +89,28 @@
 						callElem.textContent = "";
 					}
 				}
+
+				if (item.warningId != null) {
+					let warningElem = document.getElementById("voip-warning");
+
+					if (item.warningMsg != null) {
+						let warningItem = document.createElement("div");
+						let warningItemTitle = document.createElement("span");
+						let warningItemContent = document.createElement("span");
+
+						warningItem.id = item.warningId;
+						warningItemTitle.textContent = "[Warning] ";
+						warningItemTitle.className = "talking";
+						warningItemContent.textContent = item.warningMsg;
+
+						warningItem.appendChild(warningItemTitle);
+						warningItem.appendChild(warningItemContent);
+						warningElem.appendChild(warningItem);
+					} else {
+						let warningItem = document.getElementById(item.warningId);
+						warningElem.removeChild(warningItem);
+					}
+				}
 			});
 		</script>
 	</head>
@@ -102,6 +124,7 @@
 			<div>[Mumble] <span id="voip-mode"></span></div>
 			<div id="voip-radio"></div>
 			<div id="voip-call"></div>
+			<div id="voip-warning"></div>
 		</div>
 	</body>
 </html>

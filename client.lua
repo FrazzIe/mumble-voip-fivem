@@ -106,6 +106,23 @@ function SetCallChannel(channel)
 	end
 end
 
+function CheckVoiceSetting(varName, msg)
+	local setting = GetConvarInt(varName, -1)
+
+	if setting == 0 then
+		SendNUIMessage({ warningId = varName, warningMsg = msg })
+
+		Citizen.CreateThread(function()
+			local varName = varName
+			while GetConvarInt(varName, -1) == 0 do
+				Citizen.Wait(1000)
+			end
+
+			SendNUIMessage({ warningId = varName })
+		end)
+	end
+end
+
 -- Events
 AddEventHandler("onClientResourceStart", function(resName) -- Initialises the script, sets up voice range, voice targets and request sync with server
 	if GetCurrentResourceName() ~= resName then
@@ -123,6 +140,9 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	DebugMsg("Initialising")
 
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
+	
+	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
+	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
 end)
 
 RegisterNetEvent("mumble:SetVoiceData") -- Used to sync players data each time something changes
