@@ -49,6 +49,7 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 end
 
 function TogglePlayerVoice(serverId, value)
+	DebugMsg((value and "Unmuting" or "Muting") .. " Player " .. serverId)
 	if value then
 		if not unmutedPlayers[serverId] then
 			unmutedPlayers[serverId] = true
