@@ -70,15 +70,14 @@ function SetRadioChannel(channel)
 		SetVoiceData("radio", channel)
 
 		if radioData[channel] then -- Check if anyone is talking and unmute if so
-			for i = 1, #radioData[channel] do
-				local player = radioData[channel][i]
-				if player then
-					if player ~= playerServerId then
-						local playerData = voiceData[player]
+			for id, _ in pairs(radioData[channel]) do
+				if id ~= playerServerId then					
+					if not unmutedPlayers[id] then
+						local playerData = voiceData[id]
 
 						if playerData ~= nil then
 							if playerData.radioActive then
-								TogglePlayerVoice(player, value)
+								TogglePlayerVoice(player, true)
 							end
 						end
 					end
@@ -95,11 +94,10 @@ function SetCallChannel(channel)
 		SetVoiceData("call", channel)
 
 		if callData[channel] then -- Unmute current call participants
-			for i = 1, #callData[channel] do
-				local player = callData[channel][i]
-				if player then
-					if player ~= playerServerId then
-						TogglePlayerVoice(player, true)
+			for id, _ in pairs(callData[channel]) do
+				if id ~= playerServerId then
+					if not unmutedPlayers[id] then
+						TogglePlayerVoice(id, true)
 					end
 				end
 			end
