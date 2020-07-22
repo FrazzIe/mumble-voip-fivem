@@ -211,7 +211,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			callSpeaker = false,
 		}
 	end
-	
+
 	if key == "radio" and radioChannel ~= value then -- Check if channel has changed
 		if radioChannel > 0 then -- Check if player was in a radio channel
 			if radioData[radioChannel] then  -- Remove player from radio channel
@@ -219,11 +219,12 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
 
-					if player ~= playerServerId then
-						if playerData.radio ~= nil then -- mute player on radio channel leave
-							if playerData.radio == radioChannel then
-								TogglePlayerVoice(player, false)
-							end
+					if CompareChannels(playerData, player, "radio", radioChannel) then
+						TogglePlayerVoice(player, false) -- mute player on radio channel leave
+
+						if radioTargets[player] then
+							radioTargets[player] = nil									
+							-- Maybe clear player targets here? might cut the audio for other people on the radio until the func is complete?
 						end
 					end
 				end
@@ -246,12 +247,8 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
 					callData[callChannel][player] = nil
 
-					if player ~= playerServerId then
-						if playerData.call ~= nil then -- mute player on call channel leave
-							if playerData.call == callChannel then
-								TogglePlayerVoice(player, false)
-							end
-						end
+					if CompareChannels(playerData, player, "call", callChannel) then
+						TogglePlayerVoice(player, false) -- mute player on call channel leave
 					end
 				end
 			end
@@ -266,13 +263,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			DebugMsg("Player " .. player .. " was added to call: " .. value)
 			callData[value][player] = true -- Add player to call
 
-			if player ~= playerServerId then
-				if playerData.call ~= nil then -- unmute player on call channel join
-					if playerData.call == value then
-						TogglePlayerVoice(player, value)
-					end
-				end
-			else
+			if CompareChannels(playerData, player, "call", value) then
+				TogglePlayerVoice(player, value)
+			elseif playerServerId == player then
 				for id, _ in pairs(callData[value]) do
 					if id ~= playerServerId then
 						if not unmutedPlayers[id] then
@@ -280,19 +273,19 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						end
 					end
 				end
-			end		
+			end			
 		end
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
 		if radioChannel > 0 then
-			if playerData.radio ~= nil then
-				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you
-					if player ~= playerServerId then
-						TogglePlayerVoice(player, value)
-					end
-
-					PlayMicClick(radioChannel, value)
+			if CompareChannels(playerData, player, "radio", radioChannel, true) then -- Check if player is in the same radio channel as you
+				if player ~= playerServerId then
+					TogglePlayerVoice(player, value)
+				else
+					SetPlayerTargets(callTargets, radioTargets) -- Send voice to everyone in the radio and call
 				end
+
+				PlayMicClick(radioChannel, value)
 			end
 		end
 	end
