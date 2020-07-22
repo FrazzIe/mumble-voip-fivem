@@ -49,6 +49,18 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 	end
 end
 
+function SetPlayerTargets(...)
+	local targets = { ... }
+
+	MumbleClearVoiceTargetPlayers(voiceTarget)
+
+	for i = 1, #targets do
+		for id, _ in pairs(targets[i]) do
+			MumbleAddVoiceTargetPlayerByServerId(id)
+		end
+	end
+end
+
 function TogglePlayerVoice(serverId, value)
 	DebugMsg((value and "Unmuting" or "Muting") .. " Player " .. serverId)
 	if value then
