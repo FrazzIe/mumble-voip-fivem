@@ -253,12 +253,12 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
 		if radioChannel > 0 then
 			if playerData.radio ~= nil then
-				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you					
-					PlayMicClick(radioChannel, value)
-
+				if playerData.radio == radioChannel then -- Check if player is in the same radio channel as you
 					if player ~= playerServerId then
 						TogglePlayerVoice(player, value)
 					end
+
+					PlayMicClick(radioChannel, value)
 				end
 			end
 		end
