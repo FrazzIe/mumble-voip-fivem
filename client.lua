@@ -303,14 +303,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
 		if radioChannel > 0 then
-			if CompareChannels(playerData, player, "radio", radioChannel, true) then -- Check if player is in the same radio channel as you
-				if player ~= playerServerId then
-					TogglePlayerVoice(player, value)
-				else
-					SetPlayerTargets(callTargets, radioTargets) -- Send voice to everyone in the radio and call
-				end
-
-				PlayMicClick(radioChannel, value)
+			if CompareChannels(playerData, player, "radio", radioChannel) then -- Check if player is in the same radio channel as you
+				TogglePlayerVoice(player, value) -- unmute/mute player
+				PlayMicClick(radioChannel, value) -- play on/off clicks
 			end
 		end
 	end
@@ -405,6 +400,7 @@ Citizen.CreateThread(function()
 					if playerRadio > 0 then
 						SetVoiceData("radioActive", true)
 						playerData.radioActive = true
+						SetPlayerTargets(callTargets, radioTargets) -- Send voice to everyone in the radio and call
 						PlayMicClick(playerRadio, true)
 						mumbleConfig.controls.radio.pressed = true
 
@@ -414,6 +410,7 @@ Citizen.CreateThread(function()
 							end
 
 							SetVoiceData("radioActive", false)
+							SetPlayerTargets(callTargets) -- Stop sending voice to everyone in the radio
 							PlayMicClick(playerRadio, false)
 							playerData.radioActive = false
 							mumbleConfig.controls.radio.pressed = false
