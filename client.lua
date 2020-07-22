@@ -239,6 +239,16 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			
 			DebugMsg("Player " .. player .. " was added to channel: " .. value)
 			radioData[value][player] = true -- Add player to channel
+
+			if CompareChannels(playerData, player, "radio", value) then
+				if not radioTargets[player] then
+					radioTargets[player] = true							
+					
+					if playerData.radioActive then -- Send voice to newly joined player if we are currently talking
+						MumbleAddVoiceTargetPlayerByServerId(player)
+					end
+				end
+			end
 		end
 	elseif key == "call" and callChannel ~= value then
 		if callChannel > 0 then -- Check if player was in a call channel
