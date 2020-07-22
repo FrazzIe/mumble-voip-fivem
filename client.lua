@@ -147,6 +147,20 @@ function CheckVoiceSetting(varName, msg)
 	DebugMsg("Checking setting: " .. varName .. " = " .. setting)
 end
 
+function CompareChannels(playerData, player, type, channel)
+	local match = false
+
+	if player ~= playerServerId then
+		if playerData[type] ~= nil then
+			if playerData[type] == channel then
+				match = true
+			end
+		end
+	end
+
+	return match
+end
+
 -- Events
 AddEventHandler("onClientResourceStart", function(resName) -- Initialises the script, sets up voice range, voice targets and request sync with server
 	if GetCurrentResourceName() ~= resName then
