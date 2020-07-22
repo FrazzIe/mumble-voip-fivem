@@ -188,6 +188,16 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	local radioActive = voiceData[player]["radioActive"]
 	local playerData = voiceData[playerServerId]
 
+	if not playerData then
+		playerData  = {
+			mode = 2,
+			radio = 0,
+			radioActive = false,
+			call = 0,
+			callSpeaker = false,
+		}
+	end
+	
 	if key == "radio" and radioChannel ~= value then -- Check if channel has changed
 		if radioChannel > 0 then -- Check if player was in a radio channel
 			if radioData[radioChannel] then  -- Remove player from radio channel
