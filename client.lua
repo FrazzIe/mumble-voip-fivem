@@ -52,14 +52,23 @@ end
 
 function SetPlayerTargets(...)
 	local targets = { ... }
+	local targetList = ""
 
 	MumbleClearVoiceTargetPlayers(voiceTarget)
 
 	for i = 1, #targets do
 		for id, _ in pairs(targets[i]) do
 			MumbleAddVoiceTargetPlayerByServerId(id)
+
+			if targetList == "" then
+				targetList = targetList .. id
+			else
+				targetList = targetList .. ", " .. id
+			end
 		end
 	end
+
+	DebugMsg("Sending voice to Player " .. targetList)
 end
 
 function TogglePlayerVoice(serverId, value)
