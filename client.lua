@@ -1,7 +1,7 @@
 local playerServerId = GetPlayerServerId(PlayerId())
 local unmutedPlayers = {}
 local radioTargets = {}
-local phoneTargets = {}
+local callTargets = {}
 local playerChunk = nil
 local voiceTarget = 2
 
