@@ -291,6 +291,11 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						if not unmutedPlayers[id] then
 							TogglePlayerVoice(id, true)
 						end
+
+						if not callTargets[id] then
+							callTargets[id] = true
+							MumbleAddVoiceTargetPlayerByServerId(id) -- Send voice to call participant
+						end
 					end
 				end
 			end			
