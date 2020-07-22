@@ -259,6 +259,11 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 					if CompareChannels(playerData, player, "call", callChannel) then
 						TogglePlayerVoice(player, false) -- mute player on call channel leave
+
+						if callTargets[player] then
+							callTargets[player] = nil
+							SetPlayerTargets(callTargets, playerData.radioActive and radioTargets or nil)
+						end
 					end
 				end
 			end
