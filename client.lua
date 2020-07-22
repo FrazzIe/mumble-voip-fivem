@@ -280,6 +280,11 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 			if CompareChannels(playerData, player, "call", value) then
 				TogglePlayerVoice(player, value)
+
+				if not callTargets[player] then
+					callTargets[player] = true
+					MumbleAddVoiceTargetPlayerByServerId(player) -- Send voice to player who just joined call
+				end
 			elseif playerServerId == player then
 				for id, _ in pairs(callData[value]) do
 					if id ~= playerServerId then
