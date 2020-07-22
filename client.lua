@@ -68,7 +68,11 @@ function SetPlayerTargets(...)
 		end
 	end
 
-	DebugMsg("Sending voice to Player " .. targetList)
+	if targetList ~= "" then
+		DebugMsg("Sending voice to Player " .. targetList)
+	else
+		DebugMsg("Sending voice to Nobody")
+	end
 end
 
 function TogglePlayerVoice(serverId, value)
