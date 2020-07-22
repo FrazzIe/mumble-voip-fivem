@@ -147,10 +147,10 @@ function CheckVoiceSetting(varName, msg)
 	DebugMsg("Checking setting: " .. varName .. " = " .. setting)
 end
 
-function CompareChannels(playerData, player, type, channel)
+function CompareChannels(playerData, player, type, channel, ignoreId)
 	local match = false
 
-	if player ~= playerServerId then
+	if ignoreId and true or (player ~= playerServerId) then
 		if playerData[type] ~= nil then
 			if playerData[type] == channel then
 				match = true
