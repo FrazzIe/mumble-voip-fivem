@@ -252,6 +252,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						MumbleAddVoiceTargetPlayerByServerId(player)
 					end
 				end
+			elseif playerServerId == player then
+				for id, _ in pairs(radioData[value]) do
+					if id ~= playerServerId then
+						if not radioTargets[id] then
+							radioTargets[id] = true
+						end
+					end
+				end
 			end
 		end
 	elseif key == "call" and callChannel ~= value then
