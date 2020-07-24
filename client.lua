@@ -151,14 +151,12 @@ function CheckVoiceSetting(varName, msg)
 	DebugMsg("Checking setting: " .. varName .. " = " .. setting)
 end
 
-function CompareChannels(playerData, player, type, channel, ignoreId)
+function CompareChannels(playerData, player, type, channel)
 	local match = false
 
-	if ignoreId and true or (player ~= playerServerId) then
-		if playerData[type] ~= nil then
-			if playerData[type] == channel then
-				match = true
-			end
+	if playerData[type] ~= nil then
+		if playerData[type] == channel then
+			match = true
 		end
 	end
 
@@ -223,7 +221,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
 
-					if CompareChannels(playerData, player, "radio", radioChannel, true) then
+					if CompareChannels(playerData, player, "radio", radioChannel) then
 						if playerServerId ~= player then
 							TogglePlayerVoice(player, false) -- mute player on radio channel leave
 
@@ -235,7 +233,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
 										if playerData.call > 0 then -- Check if the client is in a call
-											if not CompareChannels(voiceData[id], id, "call", playerData.call, true) then -- Check if the client is in a call with the unmuted player
+											if not CompareChannels(voiceData[id], id, "call", playerData.call) then -- Check if the client is in a call with the unmuted player
 												TogglePlayerVoice(id, false)
 											end
 										else
@@ -277,7 +275,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						end
 					end
 				elseif playerServerId == player then
-					for id, _ in pairs(radioData[value]) do
+					for id, _ in pairs(radioData[value]) do -- Add radio targets of existing players in channel
 						if id ~= playerServerId then
 							if not radioTargets[id] then
 								radioTargets[id] = true
@@ -315,7 +313,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			DebugMsg("Player " .. player .. " was added to call: " .. value)
 			callData[value][player] = true -- Add player to call
 
-			if CompareChannels(playerData, player, "call", value, true) then
+			if CompareChannels(playerData, player, "call", value) then
 				if playerServerId ~= player then
 					TogglePlayerVoice(player, value)
 
@@ -343,8 +341,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
 		if radioChannel > 0 then
 			if CompareChannels(playerData, player, "radio", radioChannel) then -- Check if player is in the same radio channel as you
-				TogglePlayerVoice(player, value) -- unmute/mute player
-				PlayMicClick(radioChannel, value) -- play on/off clicks
+				if playerServerId ~= player then
+					TogglePlayerVoice(player, value) -- unmute/mute player
+					PlayMicClick(radioChannel, value) -- play on/off clicks
+				end
 			end
 		end
 	end
