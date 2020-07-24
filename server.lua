@@ -4,10 +4,12 @@ AddEventHandler("onResourceStart", function(resName) -- Initialises the script, 
 	end
 
 	-- Set voice related convars
-	SetConvarReplicated("voice_useNativeAudio", 0)
-	SetConvarReplicated("voice_use2dAudio", mumbleConfig.use3dAudio and 0 or 1)
-	SetConvarReplicated("voice_use3dAudio", mumbleConfig.use3dAudio and 1 or 0)	
-	SetConvarReplicated("voice_useSendingRangeOnly", mumbleConfig.useSendingRangeOnly and 1 or 0)	
+	SetConvarReplicated("voice_useNativeAudio", "false")
+	SetConvarReplicated("voice_use2dAudio", mumbleConfig.use3dAudio and "false" or "true")
+	SetConvarReplicated("voice_use3dAudio", mumbleConfig.use3dAudio and "true" or "false")	
+	SetConvarReplicated("voice_useSendingRangeOnly", mumbleConfig.useSendingRangeOnly and "true" or "false")	
+
+	DebugMsg("Initialised Script")
 end)
 
 RegisterNetEvent("mumble:Initialise")
