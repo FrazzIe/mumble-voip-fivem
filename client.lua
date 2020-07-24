@@ -58,7 +58,7 @@ function SetPlayerTargets(...)
 
 	for i = 1, #targets do
 		for id, _ in pairs(targets[i]) do
-			MumbleAddVoiceTargetPlayerByServerId(id)
+			MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id)
 
 			if targetList == "" then
 				targetList = targetList .. id
@@ -249,7 +249,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					radioTargets[player] = true							
 					
 					if playerData.radioActive then -- Send voice to newly joined player if we are currently talking
-						MumbleAddVoiceTargetPlayerByServerId(player)
+						MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player)
 					end
 				end
 			elseif playerServerId == player then
@@ -295,7 +295,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 				if not callTargets[player] then
 					callTargets[player] = true
-					MumbleAddVoiceTargetPlayerByServerId(player) -- Send voice to player who just joined call
+					MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player) -- Send voice to player who just joined call
 				end
 			elseif playerServerId == player then
 				for id, _ in pairs(callData[value]) do
@@ -306,7 +306,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 						if not callTargets[id] then
 							callTargets[id] = true
-							MumbleAddVoiceTargetPlayerByServerId(id) -- Send voice to call participant
+							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
 						end
 					end
 				end
