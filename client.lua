@@ -294,12 +294,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player)
 						end
 					end
-				elseif playerServerId == player then
-					for id, _ in pairs(radioData[value]) do -- Add radio targets of existing players in channel
-						if id ~= playerServerId then
-							if not radioTargets[id] then
-								radioTargets[id] = true
-							end
+				end
+			end
+
+			if playerServerId == player then
+				for id, _ in pairs(radioData[value]) do -- Add radio targets of existing players in channel
+					if id ~= playerServerId then
+						if not radioTargets[id] then
+							radioTargets[id] = true
 						end
 					end
 				end
@@ -369,21 +371,23 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						callTargets[player] = true
 						MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player) -- Send voice to player who just joined call
 					end
-				elseif playerServerId == player then
-					for id, _ in pairs(callData[value]) do
-						if id ~= playerServerId then
-							if not unmutedPlayers[id] then
-								TogglePlayerVoice(id, true)
-							end
-	
-							if not callTargets[id] then
-								callTargets[id] = true
-								MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
-							end
+				end
+			end
+			
+			if playerServerId == player then
+				for id, _ in pairs(callData[value]) do
+					if id ~= playerServerId then
+						if not unmutedPlayers[id] then
+							TogglePlayerVoice(id, true)
+						end
+
+						if not callTargets[id] then
+							callTargets[id] = true
+							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
 						end
 					end
 				end
-			end		
+			end
 		end
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
