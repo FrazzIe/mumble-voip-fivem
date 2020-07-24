@@ -322,7 +322,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 									end
 								end
 							end
+							
+							callTargets = {} -- Remove all call targets as client has left the call
 
+							SetPlayerTargets(callTargets, playerData.radioActive and radioTargets or nil) -- Reset player targets
 						end
 					end
 				end
