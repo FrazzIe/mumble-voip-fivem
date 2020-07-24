@@ -246,6 +246,12 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 									end
 								end
 							end
+							
+							radioTargets = {} -- Remove all radio targets as client has left the radio channel
+
+							if playerData.radioActive then
+								SetPlayerTargets(callTargets) -- Reset active targets if for some reason if the client was talking on the radio when the client left
+							end
 						end
 					end
 				end
