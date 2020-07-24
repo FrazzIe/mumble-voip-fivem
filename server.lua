@@ -118,3 +118,17 @@ AddEventHandler("playerDropped", function()
         TriggerClientEvent("mumble:RemoveVoiceData", -1, source)
     end
 end)
+
+RegisterServerEvent('mumble-voip:setSpectate')
+AddEventHandler('mumble-voip:setSpectate', function(targetId)
+	local _source = source
+	DebugMsg('Received Spectate Override from [' .. _source .. '] to [' .. targetId .. ']')
+	TriggerClientEvent('mumble-voip:setSpectate', -1, source, targetId)
+end)
+
+RegisterServerEvent('mumble-voip:clearSpectate')
+AddEventHandler('mumble-voip:clearSpectate', function(targetId)
+	local _source = source
+	DebugMsg('Received Spectate Clear from [' .. _source .. ']')
+	TriggerClientEvent('mumble-voip:clearSpectate', -1, source)
+end)

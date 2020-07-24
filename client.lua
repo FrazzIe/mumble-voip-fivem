@@ -273,7 +273,7 @@ Citizen.CreateThread(function()
 		Citizen.Wait(500)
 
 		local playerId = PlayerId()
-		local playerPed = PlayerPedId()
+		local playerPed = GetPlayerPed(playerSpectates[playerServerId] and GetPlayerFromServerId(playerSpectates[playerServerId]) or playerId)
 		local playerPos = GetPedBoneCoords(playerPed, headBone)
 		local playerList = GetActivePlayers()
 		local playerData = voiceData[playerServerId]
@@ -298,7 +298,7 @@ Citizen.CreateThread(function()
 
 			if playerId ~= remotePlayerId then
 				local remotePlayerServerId = GetPlayerServerId(remotePlayerId)
-				local remotePlayerPed = GetPlayerPed(remotePlayerId)
+				local remotePlayerPed = GetPlayerPed(playerSpectates[remotePlayerServerId] and GetPlayerFromServerId(playerSpectates[remotePlayerServerId]) or remotePlayerId)
 				local remotePlayerPos = GetPedBoneCoords(remotePlayerPed, headBone)
 				local remotePlayerData = voiceData[remotePlayerServerId]
 
@@ -474,4 +474,64 @@ exports("SetCallChannel", SetCallChannel)
 exports("addPlayerToCall", SetCallChannel)
 exports("removePlayerFromCall", function()
 	SetCallChannel(0)
+end)
+
+
+RegisterNetEvent('mumble-voip:setSpectate')
+AddEventHandler('mumble-voip:setSpectate', function(sourceId, targetId)
+	playerSpectates[sourceId] = targetId
+end)
+
+RegisterNetEvent('mumble-voip:clearSpectate')
+AddEventHandler('mumble-voip:clearSpectate', function(sourceId)
+	playerSpectates[sourceId] = nil
+end)
+
+function GetClosestPlayer(coords)
+	local players         = GetActivePlayers()
+	local closestDistance = -1
+	local closestPlayer   = -1
+	local usePlayerPed    = false
+	local playerPed       = PlayerPedId()
+	local playerId        = PlayerId()
+
+	if not coords then
+		usePlayerPed = true
+		coords       = GetEntityCoords(playerPed)
+	end
+
+	for _, remoteId in pairs(players) do
+		local target = GetPlayerPed(remoteId)
+
+		if not usePlayerPed or (usePlayerPed and remoteId ~= playerId) then
+			local targetCoords = GetEntityCoords(target)
+			local distance     = GetDistanceBetweenCoords(targetCoords, coords.x, coords.y, coords.z, true)
+
+			if closestDistance == -1 or closestDistance > distance then
+				closestPlayer   = remoteId
+				closestDistance = distance
+			end
+		end
+	end
+	return closestPlayer, closestDistance
+end
+
+Citizen.CreateThread(function()
+	if not mumbleConfig.spectateAudioEnabled then return end
+	while true do
+		Citizen.Wait(1000)
+		local cameraPos = GetFinalRenderedCamCoord()
+		local camDistance = GetDistanceBetweenCoords(cameraPos, GetEntityCoords(GetPlayerPed(-1)))
+		if camDistance > 15.0 then
+			local closestPlayer, closestPlayerDistance = GetClosestPlayer(cameraPos)
+			local closestPlayerServerId = GetPlayerServerId(closestPlayer)
+			if (closestPlayer ~= -1) and (playerSpectates[playerServerId] ~= closestPlayerServerId) then
+				print('Setting spectate override: ' .. closestPlayerServerId)
+				TriggerServerEvent('mumble-voip:setSpectate', closestPlayerServerId)
+			end
+		elseif playerSpectates[playerServerId] then
+			print('Clearing spectate override.')
+			TriggerServerEvent('mumble-voip:clearSpectate')
+		end
+	end
 end)
