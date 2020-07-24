@@ -171,7 +171,7 @@ function CheckVoiceSetting(varName, msg)
 	DebugMsg("Checking setting: " .. varName .. " = " .. setting)
 end
 
-function CompareChannels(playerData, player, type, channel)
+function CompareChannels(playerData, type, channel)
 	local match = false
 
 	if playerData[type] ~= nil then
@@ -241,7 +241,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
 
-					if CompareChannels(playerData, player, "radio", radioChannel) then
+					if CompareChannels(playerData, "radio", radioChannel) then
 						if playerServerId ~= player then
 							TogglePlayerVoice(player, false) -- mute player on radio channel leave
 
@@ -253,7 +253,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
 										if playerData.call > 0 then -- Check if the client is in a call
-											if not CompareChannels(voiceData[id], id, "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+											if not CompareChannels(voiceData[id], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
 												TogglePlayerVoice(id, false)
 											end
 										else
@@ -285,7 +285,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			DebugMsg("Player " .. player .. " was added to channel: " .. value)
 			radioData[value][player] = true -- Add player to channel
 
-			if CompareChannels(playerData, player, "radio", value) then
+			if CompareChannels(playerData, "radio", value) then
 				if playerServerId ~= player then
 					if not radioTargets[player] then
 						radioTargets[player] = true							
@@ -312,7 +312,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from call channel " .. callChannel)
 					callData[callChannel][player] = nil
 
-					if CompareChannels(playerData, player, "call", callChannel) then
+					if CompareChannels(playerData, "call", callChannel) then
 						if playerServerId ~= player then
 							TogglePlayerVoice(player, false) -- mute player on call channel leave
 
@@ -325,7 +325,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
 										if playerData.radio > 0 then -- Check if the client is in a radio channel
-											if not CompareChannels(voiceData[id], id, "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
+											if not CompareChannels(voiceData[id], "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
 												TogglePlayerVoice(id, false)
 											else -- Client is in the same radio channel with unmuted player
 												if voiceData[id] ~= nil then
@@ -361,7 +361,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			DebugMsg("Player " .. player .. " was added to call: " .. value)
 			callData[value][player] = true -- Add player to call
 
-			if CompareChannels(playerData, player, "call", value) then
+			if CompareChannels(playerData, "call", value) then
 				if playerServerId ~= player then
 					TogglePlayerVoice(player, value)
 
@@ -388,7 +388,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
 		if radioChannel > 0 then
-			if CompareChannels(playerData, player, "radio", radioChannel) then -- Check if player is in the same radio channel as you
+			if CompareChannels(playerData, "radio", radioChannel) then -- Check if player is in the same radio channel as you
 				if playerServerId ~= player then
 					TogglePlayerVoice(player, value) -- unmute/mute player
 					PlayMicClick(radioChannel, value) -- play on/off clicks

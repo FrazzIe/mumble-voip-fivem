@@ -30,7 +30,7 @@ AddEventHandler("mumble:Initialise", function()
 end)
 
 RegisterNetEvent("mumble:SetVoiceData")
-AddEventHandler("mumble:SetVoiceData", function(key, value)
+AddEventHandler("mumble:SetVoiceData", function(key, value, target)
 	if not voiceData[source] then
 		voiceData[source] = {
 			mode = 2,
@@ -88,8 +88,12 @@ AddEventHandler("mumble:SetVoiceData", function(key, value)
 	voiceData[source][key] = value
 
 	DebugMsg("Player " .. source .. " changed " .. key .. " to: " .. tostring(value))
-
-	TriggerClientEvent("mumble:SetVoiceData", -1, source, key, value)
+	
+	if key == "speakerTargets" then
+		TriggerClientEvent("mumble:SetVoiceData", -1, target, key, value)
+	else
+		TriggerClientEvent("mumble:SetVoiceData", -1, source, key, value)
+	end
 end)
 
 RegisterCommand("mumbleRadioChannels", function(src, args, raw)
