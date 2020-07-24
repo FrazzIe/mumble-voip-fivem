@@ -223,12 +223,29 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					DebugMsg("Player " .. player .. " was removed from radio channel " .. radioChannel)
 					radioData[radioChannel][player] = nil
 
-					if CompareChannels(playerData, player, "radio", radioChannel) then
-						TogglePlayerVoice(player, false) -- mute player on radio channel leave
+					if CompareChannels(playerData, player, "radio", radioChannel, true) then
+						if playerServerId ~= player then
+							TogglePlayerVoice(player, false) -- mute player on radio channel leave
 
-						if radioTargets[player] then
-							radioTargets[player] = nil									
-							-- Maybe clear player targets here? might cut the audio for other people on the radio until the func is complete?
+							if radioTargets[player] then
+								radioTargets[player] = nil
+							end
+						elseif playerServerId == player then
+							for id, _ in pairs(radioData[radioChannel]) do -- Mute players that aren't supposed to be unmuted
+								if id ~= playerServerId then
+									if unmutedPlayers[id] then -- Check if a player isn't muted
+										if playerData.call > 0 then -- Check if the client is in a call
+											if not CompareChannels(voiceData[id], id, "call", playerData.call, true) then -- Check if the client is in a call with the unmuted player
+												TogglePlayerVoice(id, false)
+											end
+										else
+											if unmutedPlayers[id] then
+												TogglePlayerVoice(id, false)
+											end
+										end
+									end
+								end
+							end
 						end
 					end
 				end
