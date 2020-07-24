@@ -293,11 +293,36 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					callData[callChannel][player] = nil
 
 					if CompareChannels(playerData, player, "call", callChannel) then
-						TogglePlayerVoice(player, false) -- mute player on call channel leave
+						if playerServerId ~= player then
+							TogglePlayerVoice(player, false) -- mute player on call channel leave
 
-						if callTargets[player] then
-							callTargets[player] = nil
-							SetPlayerTargets(callTargets, playerData.radioActive and radioTargets or nil)
+							if callTargets[player] then
+								callTargets[player] = nil
+								SetPlayerTargets(callTargets, playerData.radioActive and radioTargets or nil)
+							end
+						elseif playerServerId == player then
+							for id, _ in pairs(callData[callChannel]) do -- Mute players that aren't supposed to be unmuted
+								if id ~= playerServerId then
+									if unmutedPlayers[id] then -- Check if a player isn't muted
+										if playerData.radio > 0 then -- Check if the client is in a radio channel
+											if not CompareChannels(voiceData[id], id, "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
+												TogglePlayerVoice(id, false)
+											else -- Client is in the same radio channel with unmuted player
+												if voiceData[id] ~= nil then
+													if not voiceData[id].radioActive then -- Check if the unmuted player isn't talking
+														TogglePlayerVoice(id, false)
+													end
+												end
+											end
+										else
+											if unmutedPlayers[id] then
+												TogglePlayerVoice(id, false)
+											end
+										end
+									end
+								end
+							end
+
 						end
 					end
 				end
