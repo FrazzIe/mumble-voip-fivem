@@ -245,18 +245,20 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			radioData[value][player] = true -- Add player to channel
 
 			if CompareChannels(playerData, player, "radio", value) then
-				if not radioTargets[player] then
-					radioTargets[player] = true							
-					
-					if playerData.radioActive then -- Send voice to newly joined player if we are currently talking
-						MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player)
+				if playerServerId ~= player then
+					if not radioTargets[player] then
+						radioTargets[player] = true							
+						
+						if playerData.radioActive then -- Send voice to newly joined player if we are currently talking
+							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player)
+						end
 					end
-				end
-			elseif playerServerId == player then
-				for id, _ in pairs(radioData[value]) do
-					if id ~= playerServerId then
-						if not radioTargets[id] then
-							radioTargets[id] = true
+				elseif playerServerId == player then
+					for id, _ in pairs(radioData[value]) do
+						if id ~= playerServerId then
+							if not radioTargets[id] then
+								radioTargets[id] = true
+							end
 						end
 					end
 				end
@@ -290,27 +292,29 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			DebugMsg("Player " .. player .. " was added to call: " .. value)
 			callData[value][player] = true -- Add player to call
 
-			if CompareChannels(playerData, player, "call", value) then
-				TogglePlayerVoice(player, value)
+			if CompareChannels(playerData, player, "call", value, true) then
+				if playerServerId ~= player then
+					TogglePlayerVoice(player, value)
 
-				if not callTargets[player] then
-					callTargets[player] = true
-					MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player) -- Send voice to player who just joined call
-				end
-			elseif playerServerId == player then
-				for id, _ in pairs(callData[value]) do
-					if id ~= playerServerId then
-						if not unmutedPlayers[id] then
-							TogglePlayerVoice(id, true)
-						end
-
-						if not callTargets[id] then
-							callTargets[id] = true
-							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
+					if not callTargets[player] then
+						callTargets[player] = true
+						MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player) -- Send voice to player who just joined call
+					end
+				elseif playerServerId == player then
+					for id, _ in pairs(callData[value]) do
+						if id ~= playerServerId then
+							if not unmutedPlayers[id] then
+								TogglePlayerVoice(id, true)
+							end
+	
+							if not callTargets[id] then
+								callTargets[id] = true
+								MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
+							end
 						end
 					end
 				end
-			end			
+			end		
 		end
 	elseif key == "radioActive" and radioActive ~= value then
 		DebugMsg("Player " .. player .. " radio talking state was changed from: " .. tostring(radioActive):upper() .. " to: " .. tostring(value):upper())
