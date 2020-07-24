@@ -1,5 +1,6 @@
 local playerServerId = GetPlayerServerId(PlayerId())
 local unmutedPlayers = {}
+local gridTargets = {}
 local radioTargets = {}
 local callTargets = {}
 local playerChunk = nil
@@ -22,31 +23,50 @@ end
 
 function SetGridTargets(pos) -- Used to set the players voice targets depending on where they are in the map
 	local currentChunk = GetCurrentChunk(pos)
+	local nearbyChunks = GetNearbyChunks(pos)
+	local nearbyChunksStr = "None"
+	local targets = {}
 
-	if playerChunk ~= currentChunk then
-		local nearbyChunks = GetNearbyChunks(pos)
-		local nearbyChunksStr = "None"
+	for i = 1, #nearbyChunks do
+		if nearbyChunks[i] ~= currentChunk then
+			targets[nearbyChunks[i]] = true
 
+			if gridTargets[nearbyChunks[i]] then
+				gridTargets[nearbyChunks[i]] = nil
+			end
+
+			if nearbyChunksStr ~= "None" then
+				nearbyChunksStr = nearbyChunksStr .. ", " .. nearbyChunks[i]
+			else
+				nearbyChunksStr = nearbyChunks[i]
+			end
+		end
+	end
+
+	local newGridTargets = false
+
+	for channel, exists in pairs(gridTargets) do
+		if exists then
+			newGridTargets = true
+			break
+		end
+	end
+
+	if playerChunk ~= currentChunk or newGridTargets then -- Only reset target channels if the current chunk or any nearby chunks have changed
 		MumbleClearVoiceTargetChannels(voiceTarget)
+
 		MumbleAddVoiceTargetChannel(voiceTarget, currentChunk)
 
-		for i = 1, #nearbyChunks do
-			if nearbyChunks[i] ~= currentChunk then
-				MumbleAddVoiceTargetChannel(voiceTarget, nearbyChunks[i])
-
-				if nearbyChunksStr ~= "None" then
-					nearbyChunksStr = nearbyChunksStr .. ", " .. nearbyChunks[i]
-				else
-					nearbyChunksStr = nearbyChunks[i]
-				end
-			end
+		for channel, _ in pairs(targets) do
+			MumbleAddVoiceTargetChannel(voiceTarget, channel)
 		end
 
 		NetworkSetVoiceChannel(currentChunk)
 
 		playerChunk = currentChunk
+		gridTargets = targets
 
-		DebugMsg("Entered Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
+		DebugMsg("Current Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
 	end
 end
 
