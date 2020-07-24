@@ -40,6 +40,8 @@ mumbleConfig = {
 	callChannelNames = { -- Add named call channels (Defaults to [channel number])
 
 	},
+	use3dAudio = true, -- Enable 3D Audio
+	useSendingRangeOnly = true, -- Use sending range only for proximity voice (don't recommend setting this to false)
 }
 resourceName = GetCurrentResourceName()
 

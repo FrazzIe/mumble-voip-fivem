@@ -1,3 +1,15 @@
+AddEventHandler("onResourceStart", function(resName) -- Initialises the script, sets up voice related convars
+	if GetCurrentResourceName() ~= resName then
+		return
+	end
+
+	-- Set voice related convars
+	SetConvarReplicated("voice_useNativeAudio", 0)
+	SetConvarReplicated("voice_use2dAudio", mumbleConfig.use3dAudio and 0 or 1)
+	SetConvarReplicated("voice_use3dAudio", mumbleConfig.use3dAudio and 1 or 0)	
+	SetConvarReplicated("voice_useSendingRangeOnly", mumbleConfig.useSendingRangeOnly and 1 or 0)	
+end)
+
 RegisterNetEvent("mumble:Initialise")
 AddEventHandler("mumble:Initialise", function()
 	DebugMsg("Initialised player: " .. source)
