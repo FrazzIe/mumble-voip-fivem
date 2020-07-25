@@ -404,7 +404,6 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			end
 		end
 	elseif key == "speakerTargets" then
-		print("OK WE GOT A SPEAKER TARGET BOI")
 		local speakerTargetsRemoved = false
 		local speakerTargetsAdded = {}
 
@@ -454,6 +453,39 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					MumbleAddVoiceTargetPlayerByServerId(voiceTarget, speakerTargetsAdded[i])
 				end
 			end
+		end
+	elseif key == "callSpeaker" and not value then
+		if voiceData[player] ~= nil then
+			if voiceData[player].call ~= nil then
+				if voiceData[player].call > 0  then
+					if callData[voiceData[player].call] ~= nil then -- Check if the call exists
+						for id, _ in pairs(callData[voiceData[player].call]) do -- Loop through each call participant
+							if voiceData[id] ~= nil then
+								if voiceData[id].speakerTargets ~= nil then
+									local speakerTargetsRemoved = false
+
+									for targetId, _ in pairs(voiceData[id].speakerTargets) do -- Loop through each call participants speaker targets
+										if playerServerId == targetId then -- Check if the client was a target and mute the call
+											TogglePlayerVoice(id, false) -- Mute
+										end
+
+										if playerServerId == id then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
+											if speakerTargets[targetId] then -- Stop sending voice to player
+												speakerTargets[targetId] = nil
+												speakerTargetsRemoved = true
+											end
+										end	
+									end
+
+									if speakerTargetsRemoved then
+										SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+									end
+								end
+							end
+						end
+					end
+				end
+			end 
 		end
 	end
 
