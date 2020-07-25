@@ -3,12 +3,14 @@ local unmutedPlayers = {}
 local gridTargets = {}
 local radioTargets = {}
 local callTargets = {}
+local speakerTargets = {}
+local nearbySpeakerTargets = {}
 local playerChunk = nil
 local voiceTarget = 2
 
 -- Functions
-function SetVoiceData(key, value)
-	TriggerServerEvent("mumble:SetVoiceData", key, value)
+function SetVoiceData(key, value, target)
+	TriggerServerEvent("mumble:SetVoiceData", key, value, target)
 end
 
 function PlayMicClick(channel, value)
@@ -216,6 +218,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			radioActive = false,
 			call = 0,
 			callSpeaker = false,
+			speakerTargets = {},
 		}
 	end
 
@@ -231,6 +234,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			radioActive = false,
 			call = 0,
 			callSpeaker = false,
+			speakerTargets = {},
 		}
 	end
 
@@ -268,7 +272,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							radioTargets = {} -- Remove all radio targets as client has left the radio channel
 
 							if playerData.radioActive then
-								SetPlayerTargets(callTargets) -- Reset active targets if for some reason if the client was talking on the radio when the client left
+								SetPlayerTargets(callTargets, speakerTargets) -- Reset active targets if for some reason if the client was talking on the radio when the client left
 							end
 						end
 					end
@@ -320,7 +324,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 							if callTargets[player] then
 								callTargets[player] = nil
-								SetPlayerTargets(callTargets, playerData.radioActive and radioTargets or nil)
+								SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
 							end
 						elseif playerServerId == player then
 							for id, _ in pairs(callData[callChannel]) do -- Mute players that aren't supposed to be unmuted
@@ -347,7 +351,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							
 							callTargets = {} -- Remove all call targets as client has left the call
 
-							SetPlayerTargets(callTargets, playerData.radioActive and radioTargets or nil) -- Reset player targets
+							SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil) -- Reset player targets
 						end
 					end
 				end
@@ -396,6 +400,58 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 				if playerServerId ~= player then
 					TogglePlayerVoice(player, value) -- unmute/mute player
 					PlayMicClick(radioChannel, value) -- play on/off clicks
+				end
+			end
+		end
+	elseif key == "speakerTargets" then
+		print("OK WE GOT A SPEAKER TARGET BOI")
+		local speakerTargetsRemoved = false
+		local speakerTargetsAdded = {}
+
+		for id, _ in pairs(value) do
+			if voiceData[player] ~= nil then
+				if voiceData[player][key] ~= nil then
+					if voiceData[player][key][id] then
+						voiceData[player][key][id] = nil
+					else
+						if playerServerId == id then -- Check if the client is gonna hear a nearby call
+							TogglePlayerVoice(player, true) -- Unmute
+						end
+
+						if playerServerId == player then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
+							if not speakerTargets[id] then -- Send voice to player
+								speakerTargets[id] = true
+								speakerTargetsAdded[#speakerTargetsAdded + 1] = id
+							end
+						end
+					end
+				end
+			end
+		end
+
+		if voiceData[player] ~= nil then
+			if voiceData[player][key] ~= nil then
+				for id, _ in pairs(voiceData[player][key]) do
+					if playerServerId == id then -- Check if the client has been removed from a nearby call
+						TogglePlayerVoice(player, false) -- Mute
+					end
+
+					if playerServerId == player then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
+						if speakerTargets[id] then -- Stop sending voice to player
+							speakerTargets[id] = nil
+							speakerTargetsRemoved = true
+						end
+					end	
+				end
+			end
+		end
+
+		if speakerTargetsRemoved or #speakerTargetsAdded > 0 then
+			if speakerTargetsRemoved then
+				SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+			else
+				for i = 1, #speakerTargetsAdded do
+					MumbleAddVoiceTargetPlayerByServerId(voiceTarget, speakerTargetsAdded[i])
 				end
 			end
 		end
@@ -491,7 +547,7 @@ Citizen.CreateThread(function()
 					if playerRadio > 0 then
 						SetVoiceData("radioActive", true)
 						playerData.radioActive = true
-						SetPlayerTargets(callTargets, radioTargets) -- Send voice to everyone in the radio and call
+						SetPlayerTargets(callTargets, speakerTargets, radioTargets) -- Send voice to everyone in the radio and call
 						PlayMicClick(playerRadio, true)
 						mumbleConfig.controls.radio.pressed = true
 
@@ -501,7 +557,7 @@ Citizen.CreateThread(function()
 							end
 
 							SetVoiceData("radioActive", false)
-							SetPlayerTargets(callTargets) -- Stop sending voice to everyone in the radio
+							SetPlayerTargets(callTargets, speakerTargets) -- Stop sending voice to everyone in the radio
 							PlayMicClick(playerRadio, false)
 							playerData.radioActive = false
 							mumbleConfig.controls.radio.pressed = false
@@ -571,6 +627,77 @@ Citizen.CreateThread(function()
 		SetGridTargets(playerCoords)
 
 		Citizen.Wait(2500)
+	end
+end)
+
+-- Manage hearing nearby players on call
+Citizen.CreateThread(function()
+	while true do
+		if mumbleConfig.callSpeakerEnabled then
+			local playerData = voiceData[playerServerId]
+
+			if not playerData then
+				playerData  = {
+					mode = 2,
+					radio = 0,
+					radioActive = false,
+					call = 0,
+					callSpeaker = false,
+				}
+			end
+			
+			if playerData.call > 0 then -- Check if player is in call
+				if playerData.callSpeaker then -- Check if they have loud speaker on
+					local playerId = PlayerId()
+					local playerPed = PlayerPedId()
+					local playerPos = GetEntityCoords(playerPed)
+					local playerList = GetActivePlayers()
+					local nearbyPlayers = {}
+					local nearbyPlayerAdded = false
+					local nearbyPlayerRemoved = false
+
+					for i = 1, #playerList do -- Get a list of all players within loud speaker range
+						local remotePlayerId = playerList[i]
+						if playerId ~= remotePlayerId then
+							local remotePlayerServerId = GetPlayerServerId(remotePlayerId)
+							local remotePlayerPed = GetPlayerPed(remotePlayerId)
+							local remotePlayerPos = GetEntityCoords(remotePlayerPed)
+							local distance = #(playerPos - remotePlayerPos)
+							
+							if distance <= mumbleConfig.speakerRange then
+								nearbyPlayers[remotePlayerServerId] = true							
+
+								if nearbySpeakerTargets[remotePlayerServerId] then
+									nearbySpeakerTargets[remotePlayerServerId] = nil
+								else
+									nearbyPlayerAdded = true
+								end
+							end
+						end
+					end
+					
+					for id, exists in pairs(nearbySpeakerTargets) do
+						if exists then
+							nearbyPlayerRemoved = true
+						end
+					end
+
+					if nearbyPlayerAdded or nearbyPlayerRemoved then -- Check that we don't send an empty list
+						if callData[playerData.call] ~= nil then -- Check if the call still exists
+							for id, _ in pairs(callData[playerData.call]) do -- Send a copy of the nearby players to each participant in the call
+								if playerServerId ~= id then
+									SetVoiceData("speakerTargets", nearbyPlayers, id)
+								end
+							end
+						end
+					end
+
+					nearbySpeakerTargets = nearbyPlayers
+				end
+			end
+		end
+
+		Citizen.Wait(1000)
 	end
 end)
 

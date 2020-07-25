@@ -23,6 +23,7 @@ AddEventHandler("mumble:Initialise", function()
 			radioActive = false,
 			call = 0,
 			callSpeaker = false,
+			speakerTargets = {},
 		}
 	end
 
@@ -38,6 +39,7 @@ AddEventHandler("mumble:SetVoiceData", function(key, value, target)
 			radioActive = false,
 			call = 0,
 			callSpeaker = false,
+			speakerTargets = {},
 		}
 	end
 
