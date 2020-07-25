@@ -525,7 +525,7 @@ Citizen.CreateThread(function()
 		if camDistance > 15.0 then
 			local closestPlayer, closestPlayerDistance = GetClosestPlayer(cameraPos)
 			local closestPlayerServerId = GetPlayerServerId(closestPlayer)
-			if (closestPlayer ~= -1) and (playerSpectates[playerServerId] ~= closestPlayerServerId) then
+			if (closestPlayer ~= -1) and (playerSpectates[playerServerId] ~= closestPlayerServerId) and closestPlayerDistance < 25.0 then
 				DebugMsg('Setting spectate override: ' .. closestPlayerServerId)
 				TriggerServerEvent('mumble-voip:setSpectate', closestPlayerServerId)
 			end
