@@ -72,20 +72,25 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 	end
 end
 
-function SetPlayerTargets(...)
+function SetPlayerTargets(...)	
 	local targets = { ... }
 	local targetList = ""
-
+	local addedTargets = {}
+	
 	MumbleClearVoiceTargetPlayers(voiceTarget)
 
 	for i = 1, #targets do
 		for id, _ in pairs(targets[i]) do
-			MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id)
+			if not addedTargets[id] then
+				MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id)
 
-			if targetList == "" then
-				targetList = targetList .. id
-			else
-				targetList = targetList .. ", " .. id
+				if targetList == "" then
+					targetList = targetList .. id
+				else
+					targetList = targetList .. ", " .. id
+				end
+
+				addedTargets[id] = true
 			end
 		end
 	end
