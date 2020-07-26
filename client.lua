@@ -196,6 +196,11 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 		return
 	end
 
+	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
+	MumbleSetVoiceTarget(voiceTarget)
+
+	Citizen.Wait(2500)
+
 	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
 
 	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
@@ -205,8 +210,6 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	TriggerServerEvent("mumble:Initialise")
 
 	DebugMsg("Initialising")
-	
-	Citizen.Wait(1000)
 
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 
@@ -378,6 +381,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 					if not callTargets[player] then
 						callTargets[player] = true
+						print("Adding Player " .. player .. " to voice targets")
 						MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player) -- Send voice to player who just joined call
 					end
 				end
@@ -392,6 +396,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 						if not callTargets[id] then
 							callTargets[id] = true
+							print("Adding Player " .. id .. " to voice targets")
 							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
 						end
 					end
