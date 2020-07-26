@@ -8,17 +8,19 @@ local deltas = {
 	vector2(1, 1),
 	vector2(0, 1),
 }
+local bitShift = 2
+local zoneRadius = 128
 
 function GetGridChunk(x)
-	return math.floor((x + 8192) / 128)
+	return math.floor((x + 8192) / zoneRadius)
 end
 
 function GetGridBase(x)
-	return (x * 128) - 8192
+	return (x * zoneRadius) - 8192
 end
 
 function GetChunkId(v)
-	return (v.x << 8) | v.y
+	return v.x << bitShift | v.y
 end
 
 function GetCurrentChunk(pos)
