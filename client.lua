@@ -302,8 +302,8 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if not radioTargets[player] then
 						radioTargets[player] = true							
 						
-						if playerData.radioActive then -- Send voice to newly joined player if we are currently talking
-							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player)
+						if playerData.radioActive then
+							SetPlayerTargets(callTargets, speakerTargets, radioTargets)
 						end
 					end
 				end
@@ -381,8 +381,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 					if not callTargets[player] then
 						callTargets[player] = true
-						print("Adding Player " .. player .. " to voice targets")
-						MumbleAddVoiceTargetPlayerByServerId(voiceTarget, player) -- Send voice to player who just joined call
+						SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
 					end
 				end
 			end
@@ -396,8 +395,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 						if not callTargets[id] then
 							callTargets[id] = true
-							print("Adding Player " .. id .. " to voice targets")
-							MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id) -- Send voice to call participant
+							SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
 						end
 					end
 				end
@@ -456,13 +454,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 		end
 
 		if speakerTargetsRemoved or #speakerTargetsAdded > 0 then
-			if speakerTargetsRemoved then
-				SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
-			else
-				for i = 1, #speakerTargetsAdded do
-					MumbleAddVoiceTargetPlayerByServerId(voiceTarget, speakerTargetsAdded[i])
-				end
-			end
+			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
 		end
 	elseif key == "callSpeaker" and not value then
 		if voiceData[player] ~= nil then
