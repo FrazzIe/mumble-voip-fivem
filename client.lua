@@ -715,12 +715,20 @@ Citizen.CreateThread(function()
 							local distance = #(playerPos - remotePlayerPos)
 							
 							if distance <= mumbleConfig.speakerRange then
-								nearbyPlayers[remotePlayerServerId] = true							
+								local remotePlayerData = voiceData[remotePlayerServerId]
 
-								if nearbySpeakerTargets[remotePlayerServerId] then
-									nearbySpeakerTargets[remotePlayerServerId] = nil
-								else
-									nearbyPlayerAdded = true
+								if remotePlayerData ~= nil then
+									if remotePlayerData.call ~= nil then
+										if remotePlayerData.call ~= playerData.call then
+											nearbyPlayers[remotePlayerServerId] = true
+											
+											if nearbySpeakerTargets[remotePlayerServerId] then
+												nearbySpeakerTargets[remotePlayerServerId] = nil
+											else
+												nearbyPlayerAdded = true
+											end
+										end
+									end
 								end
 							end
 						end
