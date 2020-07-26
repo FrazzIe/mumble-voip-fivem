@@ -9,7 +9,13 @@ AddEventHandler("onResourceStart", function(resName) -- Initialises the script, 
 	SetConvarReplicated("voice_use3dAudio", mumbleConfig.use3dAudio and "true" or "false")	
 	SetConvarReplicated("voice_useSendingRangeOnly", mumbleConfig.useSendingRangeOnly and "true" or "false")	
 
-	DebugMsg("Initialised Script")
+	local maxChannel = GetMaxChunkId() << 1 -- Double the max just in case
+
+	for i = 1, maxChannel do
+		MumbleCreateChannel(i)
+	end
+
+	DebugMsg("Initialised Script, " .. maxChannel .. " channels created")
 end)
 
 RegisterNetEvent("mumble:Initialise")
