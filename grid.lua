@@ -23,6 +23,10 @@ function GetChunkId(v)
 	return v.x << bitShift | v.y
 end
 
+function GetMaxChunkId()
+	return zoneRadius << bitShift
+end
+
 function GetCurrentChunk(pos)
 	local chunk = vector2(GetGridChunk(pos.x), GetGridChunk(pos.y))
 	local chunkId = GetChunkId(chunk)
