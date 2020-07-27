@@ -131,7 +131,7 @@ function SetRadioChannel(channel)
 
 						if playerData ~= nil then
 							if playerData.radioActive then
-								TogglePlayerVoice(player, true)
+								TogglePlayerVoice(id, true)
 							end
 						end
 					end
