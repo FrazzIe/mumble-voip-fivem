@@ -47,6 +47,6 @@ Getters
 | GetPlayerCallChannel           | Returns player call channel               | int           | int            |
 ### Credits
 
-@Itokoyamato for TokoVOIP 
-@Nardah and @crunchFiveM for Testing
-@blattersturm for the grid concept
+- @Itokoyamato for TokoVOIP 
+- @Nardah and @crunchFiveM for Testing
+- @blattersturm for the grid concept
