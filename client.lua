@@ -573,7 +573,7 @@ Citizen.CreateThread(function()
 		end
 
 		if IsControlJustPressed(0, mumbleConfig.controls.proximity.key) then
-			if mumbleConfig.controls.speaker.key == mumbleConfig.controls.proximity.key and not ((mumbleConfig.controls.speaker.secondary == nil) and true or IsControlPressed(0, mumbleConfig.controls.speaker.secondary)) then
+			if mumbleConfig.controls.speaker.key ~= mumbleConfig.controls.proximity.key or ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
 				local voiceMode = playerMode
 			
 				local newMode = voiceMode + 1
@@ -622,8 +622,8 @@ Citizen.CreateThread(function()
 			end
 		end
 
-		if mumbleConfig.radioSpeakerEnabled then
-			if ((mumbleConfig.controls.speaker.secondary == nil) and true or IsControlPressed(0, mumbleConfig.controls.speaker.secondary)) then
+		if mumbleConfig.callSpeakerEnabled then
+			if ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
 				if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) then
 					if playerCall > 0 then
 						SetVoiceData("callSpeaker", not playerCallSpeaker)
