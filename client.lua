@@ -82,6 +82,7 @@ function SetPlayerTargets(...)
 	for i = 1, #targets do
 		for id, _ in pairs(targets[i]) do
 			if not addedTargets[id] then
+				print(id, _)
 				MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id)
 
 				if targetList == "" then
