@@ -236,7 +236,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	local playerData = voiceData[playerServerId]
 
 	if not playerData then
-		playerData  = {
+		playerData = {
 			mode = 2,
 			radio = 0,
 			radioActive = false,
