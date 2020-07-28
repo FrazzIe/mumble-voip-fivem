@@ -543,6 +543,27 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 			end
 		end
 
+		if radioTargets[player] or callTargets[player] or speakerTargets[player] then
+			local playerData = voiceData[playerServerId]
+
+			if not playerData then
+				playerData = {
+					mode = 2,
+					radio = 0,
+					radioActive = false,
+					call = 0,
+					callSpeaker = false,
+					speakerTargets = {},
+				}
+			end
+
+			radioTargets[player] = nil
+			callTargets[player] = nil
+			speakerTargets[player] = nil
+
+			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+		end
+
 		voiceData[player] = nil
 	end
 end)
