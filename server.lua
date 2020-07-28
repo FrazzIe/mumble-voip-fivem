@@ -122,9 +122,6 @@ end, true)
 
 AddEventHandler("playerDropped", function()
 	if voiceData[source] then
-		local radioChanged = false
-		local callChanged = false
-
 		if voiceData[source].radio > 0 then
 			if radioData[voiceData[source].radio] ~= nil then
 				radioData[voiceData[source].radio][source] = nil
