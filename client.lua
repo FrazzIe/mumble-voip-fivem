@@ -82,7 +82,6 @@ function SetPlayerTargets(...)
 	for i = 1, #targets do
 		for id, _ in pairs(targets[i]) do
 			if not addedTargets[id] then
-				print(id, _)
 				MumbleAddVoiceTargetPlayerByServerId(voiceTarget, id)
 
 				if targetList == "" then
@@ -216,6 +215,8 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
 	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
+
+	TriggerEvent("mumble:Initialised")
 end)
 
 RegisterNetEvent("mumble:SetVoiceData") -- Used to sync players data each time something changes
