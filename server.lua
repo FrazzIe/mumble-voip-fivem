@@ -4,7 +4,7 @@ AddEventHandler("onResourceStart", function(resName) -- Initialises the script, 
 	end
 
 	-- Set voice related convars
-	SetConvarReplicated("voice_useNativeAudio", "false")
+	SetConvarReplicated("voice_useNativeAudio", mumbleConfig.useNativeAudio and "true" or "false")
 	SetConvarReplicated("voice_use2dAudio", mumbleConfig.use3dAudio and "false" or "true")
 	SetConvarReplicated("voice_use3dAudio", mumbleConfig.use3dAudio and "true" or "false")	
 	SetConvarReplicated("voice_useSendingRangeOnly", mumbleConfig.useSendingRangeOnly and "true" or "false")	

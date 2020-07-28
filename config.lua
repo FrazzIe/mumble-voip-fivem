@@ -41,6 +41,7 @@ mumbleConfig = {
 	},
 	use3dAudio = true, -- Enable 3D Audio
 	useSendingRangeOnly = true, -- Use sending range only for proximity voice (don't recommend setting this to false)
+	useNativeAudio = false, -- Use native audio (audio occlusion in interiors)
 }
 resourceName = GetCurrentResourceName()
 
