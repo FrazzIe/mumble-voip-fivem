@@ -72,6 +72,10 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 	end
 end
 
+RegisterCommand("voipfix", function()
+	SetGridTargets(GetEntityCoords(PlayerPedId())
+end, false)
+
 function SetPlayerTargets(...)
 	local targets = { ... }
 	local targetList = ""
