@@ -7,8 +7,12 @@ A tokovoip replacement that uses fivems mumble voip
 - Calls
 - Facial animations when talking
 - Phone Speaker mode toggle
-- Hear nearby calls and radios
+- Hear nearby calls
 - HTML UI
+- Voice chat & Microphone disabled warning messages
+- 3D Proximity base audio
+- Onesync/Infinity/Beyond support
+- Grid system for voice channels
 
 ### Exports
 Setters
@@ -39,8 +43,10 @@ Getters
 | GetPlayersInRadioChannels      | Returns players in radio channels         | int, int, ... | table          |
 | GetPlayersInAllRadioChannels   | Returns players in every radio channel    |               | table          |
 | GetPlayersInPlayerRadioChannel | Returns players in a player radio channel | int           | table or false |
-
+| GetPlayerRadioChannel          | Returns player radio channel              | int           | int            |
+| GetPlayerCallChannel           | Returns player call channel               | int           | int            |
 ### Credits
 
-@Itokoyamato for TokoVOIP 
-@Nardah and @crunchFiveM for Testing
+- @Itokoyamato for TokoVOIP 
+- @Nardah and @crunchFiveM for Testing
+- @blattersturm for the grid concept

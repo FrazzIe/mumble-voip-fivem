@@ -55,7 +55,7 @@
 				if (item.mode) {					
 					let modeElem = document.getElementById("voip-mode");
 
-					modeElem.innerHTML = item.mode + (item.radioActive ? " on radio" : "");
+					modeElem.textContent = item.mode + (item.radioActive ? " on radio" : "");
 
 					if (item.talking != null) {
 						if (item.talking) {
@@ -70,9 +70,9 @@
 					let radioElem = document.getElementById("voip-radio");
 
 					if (item.radio > 0 || isNaN(item.radio)) {
-						radioElem.innerHTML = "[Radio] " + item.radio + (!isNaN(item.radio) ? " MHz" : "");					
+						radioElem.textContent = "[Radio] " + item.radio + (!isNaN(item.radio) ? " MHz" : "");					
 					} else {
-						radioElem.innerHTML = "";
+						radioElem.textContent = "";
 					}
 				}
 
@@ -81,12 +81,34 @@
 					
 					if (item.call > 0) {
 						if (speakerEnabled) {
-							callElem.innerHTML = "[Call] [" + (item.speaker ? "🔊" : "🔈") + "] " + item.call;
+							callElem.textContent = "[Call] [" + (item.speaker ? "🔊" : "🔈") + "] " + item.call;
 						} else {
-							callElem.innerHTML = "[Call] " + item.call;
+							callElem.textContent = "[Call] " + item.call;
 						}
 					} else {
-						callElem.innerHTML = "";
+						callElem.textContent = "";
+					}
+				}
+
+				if (item.warningId != null) {
+					let warningElem = document.getElementById("voip-warning");
+
+					if (item.warningMsg != null) {
+						let warningItem = document.createElement("div");
+						let warningItemTitle = document.createElement("span");
+						let warningItemContent = document.createElement("span");
+
+						warningItem.id = item.warningId;
+						warningItemTitle.textContent = "[Warning] ";
+						warningItemTitle.className = "talking";
+						warningItemContent.textContent = item.warningMsg;
+
+						warningItem.appendChild(warningItemTitle);
+						warningItem.appendChild(warningItemContent);
+						warningElem.appendChild(warningItem);
+					} else {
+						let warningItem = document.getElementById(item.warningId);
+						warningElem.removeChild(warningItem);
 					}
 				}
 			});
@@ -102,6 +124,7 @@
 			<div>[Mumble] <span id="voip-mode"></span></div>
 			<div id="voip-radio"></div>
 			<div id="voip-call"></div>
+			<div id="voip-warning"></div>
 		</div>
 	</body>
 </html>
