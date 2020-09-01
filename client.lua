@@ -1,3 +1,4 @@
+local initialised = false
 local playerServerId = GetPlayerServerId(PlayerId())
 local unmutedPlayers = {}
 local gridTargets = {}
@@ -23,7 +24,7 @@ function PlayMicClick(channel, value)
 	end
 end
 
-function SetGridTargets(pos) -- Used to set the players voice targets depending on where they are in the map
+function SetGridTargets(pos, reset) -- Used to set the players voice targets depending on where they are in the map
 	local currentChunk = GetCurrentChunk(pos)
 	local nearbyChunks = GetNearbyChunks(pos)
 	local nearbyChunksStr = "None"
@@ -54,7 +55,12 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 		end
 	end
 
-	if playerChunk ~= currentChunk or newGridTargets then -- Only reset target channels if the current chunk or any nearby chunks have changed
+	if reset then
+		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
+		MumbleSetVoiceTarget(voiceTarget)
+	end
+
+	if playerChunk ~= currentChunk or newGridTargets or reset then -- Only reset target channels if the current chunk or any nearby chunks have changed
 		MumbleClearVoiceTargetChannels(voiceTarget)
 
 		MumbleAddVoiceTargetChannel(voiceTarget, currentChunk)
@@ -69,6 +75,12 @@ function SetGridTargets(pos) -- Used to set the players voice targets depending 
 		gridTargets = targets
 
 		DebugMsg("Current Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
+
+		if reset then
+			local playerData = voiceData[playerServerId]
+			local radioActive = playerData.radioActive or false
+			SetPlayerTargets(callTargets, speakerTargets, radioActive and radioTargets or nil)
+		end
 	end
 end
 
@@ -205,7 +217,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	if mumbleConfig.useExternalServer then
 		MumbleSetServerAddress(mumbleConfig.externalAddress, mumbleConfig.externalPort)
 	end
-	
+
 	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
 	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
 
@@ -218,7 +230,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 		SendNUIMessage({ warningId = "mumble_is_connected" })
 	end
-	
+
 	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
 
 	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
@@ -230,6 +242,8 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 
 	TriggerEvent("mumble:Initialised")
+
+	initialised = true
 end)
 
 RegisterNetEvent("mumble:SetVoiceData") -- Used to sync players data each time something changes
@@ -706,13 +720,30 @@ end)
 
 -- Manage Grid Target Channels
 Citizen.CreateThread(function()
+	local resetTargets = false
 	while true do
-		local playerPed = PlayerPedId()
-		local playerCoords = GetEntityCoords(playerPed)
+		if initialised then
+			if not MumbleIsConnected() then
+				SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "Not connected to mumble" })
 
-		SetGridTargets(playerCoords)
+				while not MumbleIsConnected() do
+					Citizen.Wait(250)
+				end
 
-		Citizen.Wait(2500)
+				SendNUIMessage({ warningId = "mumble_is_connected" })
+
+				resetTargets = true
+			end
+
+			local playerPed = PlayerPedId()
+			local playerCoords = GetEntityCoords(playerPed)
+			
+			SetGridTargets(playerCoords, resetTargets)
+
+			Citizen.Wait(2500)
+		else
+			Citizen.Wait(0)
+		end
 	end
 end)
 
