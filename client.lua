@@ -176,6 +176,8 @@ function CheckVoiceSetting(varName, msg)
 	end
 
 	DebugMsg("Checking setting: " .. varName .. " = " .. setting)
+
+	return setting == 1
 end
 
 function CompareChannels(playerData, type, channel)
