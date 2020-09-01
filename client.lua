@@ -200,6 +200,9 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	Citizen.Wait(2500)
 
+	if mumbleConfig.useExternalServer then
+		MumbleSetServerAddress(mumbleConfig.externalAddress, mumbleConfig.externalPort)
+	end
 	
 	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
 	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")

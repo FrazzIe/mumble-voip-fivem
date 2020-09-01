@@ -42,6 +42,9 @@ mumbleConfig = {
 	use3dAudio = true, -- Enable 3D Audio
 	useSendingRangeOnly = true, -- Use sending range only for proximity voice (don't recommend setting this to false)
 	useNativeAudio = false, -- Use native audio (audio occlusion in interiors)
+	useExternalServer = false, -- Use an external voice server (bigger servers need this), tutorial: https://forum.cfx.re/t/how-to-host-fivems-voice-chat-mumble-in-another-server/1487449?u=frazzle
+	externalAddress = "127.0.0.1",
+	externalPort = 30120,
 }
 resourceName = GetCurrentResourceName()
 
