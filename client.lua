@@ -196,11 +196,24 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 		return
 	end
 
-	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
-	MumbleSetVoiceTarget(voiceTarget)
+	DebugMsg("Initialising")
 
 	Citizen.Wait(2500)
 
+	
+	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
+	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
+
+	if not MumbleIsConnected() then
+		SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "Not connected to mumble" })
+
+		while not MumbleIsConnected() do
+			Citizen.Wait(250)
+		end
+
+		SendNUIMessage({ warningId = "mumble_is_connected" })
+	end
+	
 	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
 
 	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
@@ -209,12 +222,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	TriggerServerEvent("mumble:Initialise")
 
-	DebugMsg("Initialising")
-
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
-
-	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
-	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
 
 	TriggerEvent("mumble:Initialised")
 end)
