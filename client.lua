@@ -733,6 +733,8 @@ Citizen.CreateThread(function()
 				SendNUIMessage({ warningId = "mumble_is_connected" })
 
 				resetTargets = true
+			elseif resetTargets then
+				resetTargets = false
 			end
 
 			local playerPed = PlayerPedId()
