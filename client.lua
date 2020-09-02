@@ -610,83 +610,84 @@ end)
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
-		local playerData = voiceData[playerServerId]
-		local playerMode = 2
-		local playerRadio = 0
-		local playerRadioActive = false
-		local playerCall = 0
-		local playerCallSpeaker = false
 
-		if playerData ~= nil then
-			playerMode = playerData.mode or 2
-			playerRadio = playerData.radio or 0
-			playerRadioActive = playerData.radioActive or false
-			playerCall = playerData.call or 0
-			playerCallSpeaker = playerData.callSpeaker or false
-		end
+		if initialised then
+			local playerData = voiceData[playerServerId]
 
-		if playerRadioActive then -- Force PTT enabled
-			SetControlNormal(0, 249, 1.0)
-			SetControlNormal(1, 249, 1.0)
-			SetControlNormal(2, 249, 1.0)
-		end
-
-		if IsControlJustPressed(0, mumbleConfig.controls.proximity.key) then
-			if mumbleConfig.controls.speaker.key ~= mumbleConfig.controls.proximity.key or ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
-				local voiceMode = playerMode
-			
-				local newMode = voiceMode + 1
-			
-				if newMode > #mumbleConfig.voiceModes then
-					voiceMode = 1
-				else
-					voiceMode = newMode
-				end
-				
-				NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1])
-
-				SetVoiceData("mode", voiceMode)
-				playerData.mode = voiceMode
+			if not playerData then
+				playerData = {
+					mode = 2,
+					radio = 0,
+					radioActive = false,
+					call = 0,
+					callSpeaker = false,
+					speakerTargets = {},
+				}
 			end
-		end
 
-		if mumbleConfig.radioEnabled then
-			if not mumbleConfig.controls.radio.pressed then
-				if IsControlJustPressed(0, mumbleConfig.controls.radio.key) then
-					if playerRadio > 0 then
-						SetVoiceData("radioActive", true)
-						playerData.radioActive = true
-						SetPlayerTargets(callTargets, speakerTargets, radioTargets) -- Send voice to everyone in the radio and call
-						PlayMicClick(playerRadio, true)
-						mumbleConfig.controls.radio.pressed = true
+			if playerData.radioActive then -- Force PTT enabled
+				SetControlNormal(0, 249, 1.0)
+				SetControlNormal(1, 249, 1.0)
+				SetControlNormal(2, 249, 1.0)
+			end
 
-						Citizen.CreateThread(function()
-							while IsControlPressed(0, mumbleConfig.controls.radio.key) do
-								Citizen.Wait(0)
-							end
+			if IsControlJustPressed(0, mumbleConfig.controls.proximity.key) then
+				if mumbleConfig.controls.speaker.key ~= mumbleConfig.controls.proximity.key or ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
+					local voiceMode = playerData.mode
+				
+					local newMode = voiceMode + 1
+				
+					if newMode > #mumbleConfig.voiceModes then
+						voiceMode = 1
+					else
+						voiceMode = newMode
+					end
+					
+					NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1] + 0.0)
 
-							SetVoiceData("radioActive", false)
-							SetPlayerTargets(callTargets, speakerTargets) -- Stop sending voice to everyone in the radio
-							PlayMicClick(playerRadio, false)
-							playerData.radioActive = false
-							mumbleConfig.controls.radio.pressed = false
-						end)
+					SetVoiceData("mode", voiceMode)
+					playerData.mode = voiceMode
+				end
+			end
+
+			if mumbleConfig.radioEnabled then
+				if not mumbleConfig.controls.radio.pressed then
+					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) then
+						if playerRadio > 0 then
+							SetVoiceData("radioActive", true)
+							playerData.radioActive = true
+							SetPlayerTargets(callTargets, speakerTargets, radioTargets) -- Send voice to everyone in the radio and call
+							PlayMicClick(playerRadio, true)
+							mumbleConfig.controls.radio.pressed = true
+
+							Citizen.CreateThread(function()
+								while IsControlPressed(0, mumbleConfig.controls.radio.key) do
+									Citizen.Wait(0)
+								end
+
+								SetVoiceData("radioActive", false)
+								SetPlayerTargets(callTargets, speakerTargets) -- Stop sending voice to everyone in the radio
+								PlayMicClick(playerRadio, false)
+								playerData.radioActive = false
+								mumbleConfig.controls.radio.pressed = false
+							end)
+						end
 					end
 				end
+			else
+				if playerData.radioActive then
+					SetVoiceData("radioActive", false)
+					playerData.radioActive = false
+				end
 			end
-		else
-			if playerRadioActive then
-				SetVoiceData("radioActive", false)
-				playerData.radioActive = false
-			end
-		end
 
-		if mumbleConfig.callSpeakerEnabled then
-			if ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
-				if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) then
-					if playerCall > 0 then
-						SetVoiceData("callSpeaker", not playerCallSpeaker)
-						playerData.callSpeaker = not playerCallSpeaker
+			if mumbleConfig.callSpeakerEnabled then
+				if ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
+					if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) then
+						if playerCall > 0 then
+							SetVoiceData("callSpeaker", not playerData.callSpeaker)
+							playerData.callSpeaker = not playerData.callSpeaker
+						end
 					end
 				end
 			end
@@ -697,33 +698,38 @@ end)
 -- UI
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(200)
-		local playerId = PlayerId()
-		local playerData = voiceData[playerServerId]
-		local playerTalking = NetworkIsPlayerTalking(playerId)
-		local playerMode = 2
-		local playerRadio = 0
-		local playerRadioActive = false
-		local playerCall = 0
-		local playerCallSpeaker = false
+		if initialised then
+			local playerId = PlayerId()
+			local playerData = voiceData[playerServerId]
+			local playerTalking = NetworkIsPlayerTalking(playerId)
+			local playerMode = 2
+			local playerRadio = 0
+			local playerRadioActive = false
+			local playerCall = 0
+			local playerCallSpeaker = false
 
-		if playerData ~= nil then
-			playerMode = playerData.mode or 2
-			playerRadio = playerData.radio or 0
-			playerRadioActive = playerData.radioActive or false
-			playerCall = playerData.call or 0
-			playerCallSpeaker = playerData.callSpeaker or false
+			if playerData ~= nil then
+				playerMode = playerData.mode or 2
+				playerRadio = playerData.radio or 0
+				playerRadioActive = playerData.radioActive or false
+				playerCall = playerData.call or 0
+				playerCallSpeaker = playerData.callSpeaker or false
+			end
+
+			-- Update UI
+			SendNUIMessage({
+				talking = playerTalking,
+				mode = mumbleConfig.voiceModes[playerMode][2],
+				radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
+				radioActive = playerRadioActive,
+				call = mumbleConfig.callChannelNames[playerCall] ~= nil and mumbleConfig.callChannelNames[playerCall] or playerCall,
+				speaker = playerCallSpeaker,
+			})
+
+			Citizen.Wait(200)
+		else
+			Citizen.Wait(0)
 		end
-
-		-- Update UI
-		SendNUIMessage({
-			talking = playerTalking,
-			mode = mumbleConfig.voiceModes[playerMode][2],
-			radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
-			radioActive = playerRadioActive,
-			call = mumbleConfig.callChannelNames[playerCall] ~= nil and mumbleConfig.callChannelNames[playerCall] or playerCall,
-			speaker = playerCallSpeaker,
-		})
 	end
 end)
 
@@ -761,79 +767,83 @@ end)
 -- Manage hearing nearby players on call
 Citizen.CreateThread(function()
 	while true do
-		if mumbleConfig.callSpeakerEnabled then
-			local playerData = voiceData[playerServerId]
+		if initialised then
+			if mumbleConfig.callSpeakerEnabled then
+				local playerData = voiceData[playerServerId]
 
-			if not playerData then
-				playerData  = {
-					mode = 2,
-					radio = 0,
-					radioActive = false,
-					call = 0,
-					callSpeaker = false,
-				}
-			end
-			
-			if playerData.call > 0 then -- Check if player is in call
-				if playerData.callSpeaker then -- Check if they have loud speaker on
-					local playerId = PlayerId()
-					local playerPed = PlayerPedId()
-					local playerPos = GetEntityCoords(playerPed)
-					local playerList = GetActivePlayers()
-					local nearbyPlayers = {}
-					local nearbyPlayerAdded = false
-					local nearbyPlayerRemoved = false
+				if not playerData then
+					playerData  = {
+						mode = 2,
+						radio = 0,
+						radioActive = false,
+						call = 0,
+						callSpeaker = false,
+					}
+				end
+				
+				if playerData.call > 0 then -- Check if player is in call
+					if playerData.callSpeaker then -- Check if they have loud speaker on
+						local playerId = PlayerId()
+						local playerPed = PlayerPedId()
+						local playerPos = GetEntityCoords(playerPed)
+						local playerList = GetActivePlayers()
+						local nearbyPlayers = {}
+						local nearbyPlayerAdded = false
+						local nearbyPlayerRemoved = false
 
-					for i = 1, #playerList do -- Get a list of all players within loud speaker range
-						local remotePlayerId = playerList[i]
-						if playerId ~= remotePlayerId then
-							local remotePlayerServerId = GetPlayerServerId(remotePlayerId)
-							local remotePlayerPed = GetPlayerPed(remotePlayerId)
-							local remotePlayerPos = GetEntityCoords(remotePlayerPed)
-							local distance = #(playerPos - remotePlayerPos)
-							
-							if distance <= mumbleConfig.speakerRange then
-								local remotePlayerData = voiceData[remotePlayerServerId]
+						for i = 1, #playerList do -- Get a list of all players within loud speaker range
+							local remotePlayerId = playerList[i]
+							if playerId ~= remotePlayerId then
+								local remotePlayerServerId = GetPlayerServerId(remotePlayerId)
+								local remotePlayerPed = GetPlayerPed(remotePlayerId)
+								local remotePlayerPos = GetEntityCoords(remotePlayerPed)
+								local distance = #(playerPos - remotePlayerPos)
+								
+								if distance <= mumbleConfig.speakerRange then
+									local remotePlayerData = voiceData[remotePlayerServerId]
 
-								if remotePlayerData ~= nil then
-									if remotePlayerData.call ~= nil then
-										if remotePlayerData.call ~= playerData.call then
-											nearbyPlayers[remotePlayerServerId] = true
-											
-											if nearbySpeakerTargets[remotePlayerServerId] then
-												nearbySpeakerTargets[remotePlayerServerId] = nil
-											else
-												nearbyPlayerAdded = true
+									if remotePlayerData ~= nil then
+										if remotePlayerData.call ~= nil then
+											if remotePlayerData.call ~= playerData.call then
+												nearbyPlayers[remotePlayerServerId] = true
+												
+												if nearbySpeakerTargets[remotePlayerServerId] then
+													nearbySpeakerTargets[remotePlayerServerId] = nil
+												else
+													nearbyPlayerAdded = true
+												end
 											end
 										end
 									end
 								end
 							end
 						end
-					end
-					
-					for id, exists in pairs(nearbySpeakerTargets) do
-						if exists then
-							nearbyPlayerRemoved = true
+						
+						for id, exists in pairs(nearbySpeakerTargets) do
+							if exists then
+								nearbyPlayerRemoved = true
+							end
 						end
-					end
 
-					if nearbyPlayerAdded or nearbyPlayerRemoved then -- Check that we don't send an empty list
-						if callData[playerData.call] ~= nil then -- Check if the call still exists
-							for id, _ in pairs(callData[playerData.call]) do -- Send a copy of the nearby players to each participant in the call
-								if playerServerId ~= id then
-									SetVoiceData("speakerTargets", nearbyPlayers, id)
+						if nearbyPlayerAdded or nearbyPlayerRemoved then -- Check that we don't send an empty list
+							if callData[playerData.call] ~= nil then -- Check if the call still exists
+								for id, _ in pairs(callData[playerData.call]) do -- Send a copy of the nearby players to each participant in the call
+									if playerServerId ~= id then
+										SetVoiceData("speakerTargets", nearbyPlayers, id)
+									end
 								end
 							end
 						end
-					end
 
-					nearbySpeakerTargets = nearbyPlayers
+						nearbySpeakerTargets = nearbyPlayers
+					end
 				end
 			end
-		end
 
-		Citizen.Wait(1000)
+			Citizen.Wait(1000)
+		else
+			Citizen.Wait(0)
+		end
 	end
 end)
 
