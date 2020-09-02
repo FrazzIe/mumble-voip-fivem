@@ -343,12 +343,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if CompareChannels(playerData, "radio", radioChannel) then
 						if playerServerId ~= player then
 							if unmutedPlayers[player] then
-								if playerData.call > 0 then -- Check if the client is in a call
-									if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
-										TogglePlayerVoice(player, false)
+								if not vehiclePassengers[player] then -- Mute if player is not in client vehicle
+									if playerData.call > 0 then -- Check if the client is in a call
+										if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+											TogglePlayerVoice(player, false)
+										end
+									else
+										TogglePlayerVoice(player, false) -- mute player on radio channel leave
 									end
-								else
-									TogglePlayerVoice(player, false) -- mute player on radio channel leave
 								end
 							end
 
@@ -359,12 +361,12 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							for id, _ in pairs(radioData[radioChannel]) do -- Mute players that aren't supposed to be unmuted
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
-										if playerData.call > 0 then -- Check if the client is in a call
-											if not CompareChannels(voiceData[id], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
-												TogglePlayerVoice(id, false)
-											end
-										else
-											if unmutedPlayers[id] then
+										if not vehiclePassengers[id] then -- Mute if player is not in client vehicle
+											if playerData.call > 0 then -- Check if the client is in a call
+												if not CompareChannels(voiceData[id], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+													TogglePlayerVoice(id, false)
+												end
+											else
 												TogglePlayerVoice(id, false)
 											end
 										end
@@ -424,12 +426,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if CompareChannels(playerData, "call", callChannel) then
 						if playerServerId ~= player then
 							if unmutedPlayers[player] then
-								if playerData.radio > 0 then -- Check if the client is in a call
-									if not CompareChannels(voiceData[player], "radio", playerData.radio) then -- Check if the client is in a call with the unmuted player
-										TogglePlayerVoice(player, false)
+								if not vehiclePassengers[player] then -- Mute if player is not in client vehicle
+									if playerData.radio > 0 then -- Check if the client is in a call
+										if not CompareChannels(voiceData[player], "radio", playerData.radio) then -- Check if the client is in a call with the unmuted player
+											TogglePlayerVoice(player, false)
+										end
+									else
+										TogglePlayerVoice(player, false) -- mute player on radio channel leave
 									end
-								else
-									TogglePlayerVoice(player, false) -- mute player on radio channel leave
 								end
 							end
 
@@ -441,19 +445,21 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							for id, _ in pairs(callData[callChannel]) do -- Mute players that aren't supposed to be unmuted
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
-										if playerData.radio > 0 then -- Check if the client is in a radio channel
-											if not CompareChannels(voiceData[id], "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
-												TogglePlayerVoice(id, false)
-											else -- Client is in the same radio channel with unmuted player
-												if voiceData[id] ~= nil then
-													if not voiceData[id].radioActive then -- Check if the unmuted player isn't talking
-														TogglePlayerVoice(id, false)
+										if not vehiclePassengers[id] then -- Mute if player is not in client vehicle
+											if playerData.radio > 0 then -- Check if the client is in a radio channel
+												if not CompareChannels(voiceData[id], "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
+													TogglePlayerVoice(id, false)
+												else -- Client is in the same radio channel with unmuted player
+													if voiceData[id] ~= nil then
+														if not voiceData[id].radioActive then -- Check if the unmuted player isn't talking
+															TogglePlayerVoice(id, false)
+														end
 													end
 												end
-											end
-										else
-											if unmutedPlayers[id] then
-												TogglePlayerVoice(id, false)
+											else
+												if unmutedPlayers[id] then
+													TogglePlayerVoice(id, false)
+												end
 											end
 										end
 									end
@@ -543,7 +549,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			if voiceData[player][key] ~= nil then
 				for id, _ in pairs(voiceData[player][key]) do
 					if playerServerId == id then -- Check if the client has been removed from a nearby call
-						TogglePlayerVoice(player, false) -- Mute
+						if not vehiclePassengers[id] then -- Mute if player is not in client vehicle
+							TogglePlayerVoice(player, false) -- Mute
+						end
 					end
 
 					if playerServerId == player then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
@@ -571,7 +579,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 									for targetId, _ in pairs(voiceData[id].speakerTargets) do -- Loop through each call participants speaker targets
 										if playerServerId == targetId then -- Check if the client was a target and mute the call
-											TogglePlayerVoice(id, false) -- Mute
+											if not vehiclePassengers[id] then -- Mute if player is not in client vehicle
+												TogglePlayerVoice(id, false) -- Mute
+											end
 										end
 
 										if playerServerId == id then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
