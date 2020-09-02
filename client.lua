@@ -6,6 +6,7 @@ local radioTargets = {}
 local callTargets = {}
 local speakerTargets = {}
 local nearbySpeakerTargets = {}
+local resetTargets = false
 local playerChunk = nil
 local voiceTarget = 2
 
@@ -90,6 +91,8 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 
 		if reset then
 			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+
+			resetTargets = false
 		end
 	end
 end
@@ -741,7 +744,6 @@ end)
 
 -- Manage Grid Target Channels
 Citizen.CreateThread(function()
-	local resetTargets = false
 	while true do
 		if initialised then
 			if not MumbleIsConnected() then
@@ -754,8 +756,6 @@ Citizen.CreateThread(function()
 				SendNUIMessage({ warningId = "mumble_is_connected" })
 
 				resetTargets = true
-			elseif resetTargets then
-				resetTargets = false
 			end
 
 			local playerPed = PlayerPedId()
