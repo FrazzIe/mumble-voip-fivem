@@ -9,6 +9,8 @@ local nearbySpeakerTargets = {}
 local resetTargets = false
 local playerChunk = nil
 local voiceTarget = 2
+local vehiclePassengers = {}
+local wasPlayerInVehicle = false
 
 -- Functions
 function SetVoiceData(key, value, target)
@@ -215,6 +217,44 @@ function CompareChannels(playerData, type, channel)
 	end
 
 	return match
+end
+
+function GetVehiclePassengers(vehicle)
+	local passengers = {}
+	local passengerCount = 0
+	local seatCount = GetVehicleNumberOfPassengers(vehicle)
+
+	for seat = -1, seatCount do
+		if not IsVehicleSeatFree(vehicle, seat) then
+			passengers[GetPedInVehicleSeat(vehicle, seat)] = true
+			passengerCount = passengerCount + 1
+		end
+	end
+
+	return passengerCount, passengers
+end
+
+function MuteVehiclePassengers(playerData)
+	for id, exists in pairs(vehiclePassengers) do
+		if exists then
+			if playerData.radio > 0 or playerData.call > 0 then -- Only mute player if they are not in call or radio channel with client
+				local remotePlayerData = voiceData[id]				
+				if remotePlayerData ~= nil then
+					if playerData.radio == remotePlayerData.radio then
+						if not remotePlayerData.radioActive then
+							TogglePlayerVoice(id, false)
+						end
+					elseif playerData.call ~= remotePlayerData.call then
+						TogglePlayerVoice(id, false)
+					end
+				else
+					TogglePlayerVoice(id, false)
+				end
+			else
+				TogglePlayerVoice(id, false)
+			end
+		end
+	end
 end
 
 -- Events
@@ -842,6 +882,88 @@ Citizen.CreateThread(function()
 						end
 
 						nearbySpeakerTargets = nearbyPlayers
+					end
+				end
+			end
+
+			Citizen.Wait(1000)
+		else
+			Citizen.Wait(0)
+		end
+	end
+end)
+
+-- Set vehicle passengers to 2D voice and ignore distance checks
+Citizen.CreateThread(function()
+	while true do
+		if initialised then
+			if mumbleConfig.use2dAudioInVehicles then
+				local playerPed = PlayerPedId()
+				local playerData = voiceData[playerServerId]
+
+				if not playerData then
+					playerData = {
+						mode = 2,
+						radio = 0,
+						radioActive = false,
+						call = 0,
+						callSpeaker = false,
+						speakerTargets = {},
+					}
+				end
+
+				if IsPedInAnyVehicle(playerPed, false) then
+					local playerVehicle = GetVehiclePedIsIn(playerPed, false)
+					local passengerCount, passengers = GetVehiclePassengers(playerVehicle)
+
+					if passengerCount > 1 then
+						local playerId = PlayerId()
+						local playerList = GetActivePlayers()
+						local targets = {}
+						local newPassengers = false
+
+						for i = 1, #playerList do
+							local remotePlayerId = playerList[i]
+							if playerId ~= remotePlayerId then
+								local remotePlayerPed = GetPlayerPed(remotePlayerId)
+								if passengers[remotePlayerPed] then
+									local remotePlayerServerId = GetPlayerServerId(remotePlayerId)
+
+									targets[remotePlayerServerId] = true
+
+									if vehiclePassengers[remotePlayerServerId] then
+										vehiclePassengers[remotePlayerServerId] = nil
+									else
+										newPassengers = true
+									end
+								end
+							end
+						end
+
+						MuteVehiclePassengers(playerData)
+
+						if newPassengers then
+							for id, exists in pairs(targets) do
+								if exists then								
+									TogglePlayerVoice(id, true)
+								end
+							end
+						end
+
+						vehiclePassengers = targets
+						wasPlayerInVehicle = true
+					else
+						if wasPlayerInVehicle then					
+							MuteVehiclePassengers(playerData)
+							vehiclePassengers = {}
+							wasPlayerInVehicle = false
+						end
+					end
+				else
+					if wasPlayerInVehicle then
+						MuteVehiclePassengers(playerData)
+						vehiclePassengers = {}
+						wasPlayerInVehicle = false
 					end
 				end
 			end
