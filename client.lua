@@ -712,11 +712,11 @@ Citizen.CreateThread(function()
 			if mumbleConfig.radioEnabled then
 				if not mumbleConfig.controls.radio.pressed then
 					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) then
-						if playerRadio > 0 then
+						if playerData.radio > 0 then
 							SetVoiceData("radioActive", true)
 							playerData.radioActive = true
 							SetPlayerTargets(callTargets, speakerTargets, radioTargets) -- Send voice to everyone in the radio and call
-							PlayMicClick(playerRadio, true)
+							PlayMicClick(playerData.radio, true)
 							mumbleConfig.controls.radio.pressed = true
 
 							Citizen.CreateThread(function()
@@ -726,7 +726,7 @@ Citizen.CreateThread(function()
 
 								SetVoiceData("radioActive", false)
 								SetPlayerTargets(callTargets, speakerTargets) -- Stop sending voice to everyone in the radio
-								PlayMicClick(playerRadio, false)
+								PlayMicClick(playerData.radio, false)
 								playerData.radioActive = false
 								mumbleConfig.controls.radio.pressed = false
 							end)
