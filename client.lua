@@ -29,6 +29,17 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 	local nearbyChunks = GetNearbyChunks(pos)
 	local nearbyChunksStr = "None"
 	local targets = {}
+	local playerData = voiceData[playerServerId]
+
+	if not playerData then
+		playerData  = {
+			mode = 2,
+			radio = 0,
+			radioActive = false,
+			call = 0,
+			callSpeaker = false,
+		}
+	end
 
 	for i = 1, #nearbyChunks do
 		if nearbyChunks[i] ~= currentChunk then
@@ -58,6 +69,7 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 	if reset then
 		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
 		MumbleSetVoiceTarget(voiceTarget)
+		NetworkSetTalkerProximity(mumbleConfig.voiceModes[playerData.mode][1] + 0.0) -- Set voice proximity
 	end
 
 	if playerChunk ~= currentChunk or newGridTargets or reset then -- Only reset target channels if the current chunk or any nearby chunks have changed
@@ -77,9 +89,7 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 		DebugMsg("Current Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
 
 		if reset then
-			local playerData = voiceData[playerServerId]
-			local radioActive = playerData.radioActive or false
-			SetPlayerTargets(callTargets, speakerTargets, radioActive and radioTargets or nil)
+			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
 		end
 	end
 end
