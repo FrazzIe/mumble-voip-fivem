@@ -241,16 +241,6 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 		SendNUIMessage({ warningId = "mumble_is_connected" })
 	end
 
-	NetworkSetTalkerProximity(mumbleConfig.voiceModes[2][1] + 0.0)
-
-	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
-	MumbleSetVoiceTarget(voiceTarget)
-	SetGridTargets(GetEntityCoords(PlayerPedId())) -- Add voice targets
-
-	TriggerServerEvent("mumble:Initialise")
-
-	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
-
 	voiceData[playerServerId] = {
 		mode = 2,
 		radio = 0,
@@ -259,6 +249,12 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 		callSpeaker = false,
 		speakerTargets = {},
 	}
+
+	SetGridTargets(GetEntityCoords(PlayerPedId()), true) -- Add voice targets
+
+	TriggerServerEvent("mumble:Initialise")
+
+	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 
 	TriggerEvent("mumble:Initialised")
 
