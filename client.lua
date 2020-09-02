@@ -241,6 +241,15 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 
+	voiceData[playerServerId] = {
+		mode = 2,
+		radio = 0,
+		radioActive = false,
+		call = 0,
+		callSpeaker = false,
+		speakerTargets = {},
+	}
+
 	TriggerEvent("mumble:Initialised")
 
 	initialised = true
