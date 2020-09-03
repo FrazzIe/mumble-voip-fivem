@@ -9,6 +9,8 @@ local nearbySpeakerTargets = {}
 local resetTargets = false
 local playerChunk = nil
 local voiceTarget = 2
+local vehicleTargets = {}
+local wasPlayerInVehicle = false
 
 -- Functions
 function SetVoiceData(key, value, target)
@@ -68,9 +70,8 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 	end
 
 	if reset then
-		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
-		MumbleSetVoiceTarget(voiceTarget)
 		NetworkSetTalkerProximity(mumbleConfig.voiceModes[playerData.mode][1] + 0.0) -- Set voice proximity
+		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
 	end
 
 	if playerChunk ~= currentChunk or newGridTargets or reset then -- Only reset target channels if the current chunk or any nearby chunks have changed
@@ -90,7 +91,7 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 		DebugMsg("Current Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
 
 		if reset then
-			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+			SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 
 			resetTargets = false
 		end
@@ -217,6 +218,50 @@ function CompareChannels(playerData, type, channel)
 	return match
 end
 
+function GetVehiclePassengers(vehicle)
+	local passengers = {}
+	local passengerCount = 0
+	local seatCount = GetVehicleNumberOfPassengers(vehicle)
+
+	for seat = -1, seatCount do
+		if not IsVehicleSeatFree(vehicle, seat) then
+			passengers[GetPedInVehicleSeat(vehicle, seat)] = true
+			passengerCount = passengerCount + 1
+		end
+	end
+
+	return passengerCount, passengers
+end
+
+function MuteVehiclePassengers(playerData)
+	local changed = false
+
+	for id, exists in pairs(vehicleTargets) do
+		if exists then
+			changed = true
+
+			if playerData.radio > 0 or playerData.call > 0 then -- Only mute player if they are not in call or radio channel with client
+				local remotePlayerData = voiceData[id]				
+				if remotePlayerData ~= nil then
+					if playerData.radio == remotePlayerData.radio then
+						if not remotePlayerData.radioActive then
+							TogglePlayerVoice(id, false)
+						end
+					elseif playerData.call ~= remotePlayerData.call then
+						TogglePlayerVoice(id, false)
+					end
+				else
+					TogglePlayerVoice(id, false)
+				end
+			else
+				TogglePlayerVoice(id, false)
+			end
+		end
+	end
+
+	return changed
+end
+
 -- Events
 AddEventHandler("onClientResourceStart", function(resName) -- Initialises the script, sets up voice range, voice targets and request sync with server
 	if GetCurrentResourceName() ~= resName then
@@ -225,7 +270,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	DebugMsg("Initialising")
 
-	Citizen.Wait(2500)
+	Citizen.Wait(1000)
 
 	if mumbleConfig.useExternalServer then
 		MumbleSetServerAddress(mumbleConfig.externalAddress, mumbleConfig.externalPort)
@@ -243,6 +288,13 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 		SendNUIMessage({ warningId = "mumble_is_connected" })
 	end
+
+	Citizen.Wait(1000)
+
+	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
+	MumbleSetVoiceTarget(voiceTarget)
+
+	Citizen.Wait(1000)
 
 	voiceData[playerServerId] = {
 		mode = 2,
@@ -303,12 +355,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if CompareChannels(playerData, "radio", radioChannel) then
 						if playerServerId ~= player then
 							if unmutedPlayers[player] then
-								if playerData.call > 0 then -- Check if the client is in a call
-									if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
-										TogglePlayerVoice(player, false)
+								if not vehicleTargets[player] then -- Mute if player is not in client vehicle
+									if playerData.call > 0 then -- Check if the client is in a call
+										if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+											TogglePlayerVoice(player, false)
+										end
+									else
+										TogglePlayerVoice(player, false) -- mute player on radio channel leave
 									end
-								else
-									TogglePlayerVoice(player, false) -- mute player on radio channel leave
 								end
 							end
 
@@ -319,12 +373,12 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							for id, _ in pairs(radioData[radioChannel]) do -- Mute players that aren't supposed to be unmuted
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
-										if playerData.call > 0 then -- Check if the client is in a call
-											if not CompareChannels(voiceData[id], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
-												TogglePlayerVoice(id, false)
-											end
-										else
-											if unmutedPlayers[id] then
+										if not vehicleTargets[id] then -- Mute if player is not in client vehicle
+											if playerData.call > 0 then -- Check if the client is in a call
+												if not CompareChannels(voiceData[id], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+													TogglePlayerVoice(id, false)
+												end
+											else
 												TogglePlayerVoice(id, false)
 											end
 										end
@@ -335,7 +389,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							radioTargets = {} -- Remove all radio targets as client has left the radio channel
 
 							if playerData.radioActive then
-								SetPlayerTargets(callTargets, speakerTargets) -- Reset active targets if for some reason if the client was talking on the radio when the client left
+								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Reset active targets if for some reason if the client was talking on the radio when the client left
 							end
 						end
 					end
@@ -358,7 +412,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						radioTargets[player] = true							
 						
 						if playerData.radioActive then
-							SetPlayerTargets(callTargets, speakerTargets, radioTargets)
+							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets)
 						end
 					end
 				end
@@ -384,36 +438,40 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if CompareChannels(playerData, "call", callChannel) then
 						if playerServerId ~= player then
 							if unmutedPlayers[player] then
-								if playerData.radio > 0 then -- Check if the client is in a call
-									if not CompareChannels(voiceData[player], "radio", playerData.radio) then -- Check if the client is in a call with the unmuted player
-										TogglePlayerVoice(player, false)
+								if not vehicleTargets[player] then -- Mute if player is not in client vehicle
+									if playerData.radio > 0 then -- Check if the client is in a call
+										if not CompareChannels(voiceData[player], "radio", playerData.radio) then -- Check if the client is in a call with the unmuted player
+											TogglePlayerVoice(player, false)
+										end
+									else
+										TogglePlayerVoice(player, false) -- mute player on radio channel leave
 									end
-								else
-									TogglePlayerVoice(player, false) -- mute player on radio channel leave
 								end
 							end
 
 							if callTargets[player] then
 								callTargets[player] = nil
-								SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 							end
 						elseif playerServerId == player then
 							for id, _ in pairs(callData[callChannel]) do -- Mute players that aren't supposed to be unmuted
 								if id ~= playerServerId then
 									if unmutedPlayers[id] then -- Check if a player isn't muted
-										if playerData.radio > 0 then -- Check if the client is in a radio channel
-											if not CompareChannels(voiceData[id], "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
-												TogglePlayerVoice(id, false)
-											else -- Client is in the same radio channel with unmuted player
-												if voiceData[id] ~= nil then
-													if not voiceData[id].radioActive then -- Check if the unmuted player isn't talking
-														TogglePlayerVoice(id, false)
+										if not vehicleTargets[id] then -- Mute if player is not in client vehicle
+											if playerData.radio > 0 then -- Check if the client is in a radio channel
+												if not CompareChannels(voiceData[id], "radio", playerData.radio) then -- Check if the client isn't in the radio channel with the unmuted player
+													TogglePlayerVoice(id, false)
+												else -- Client is in the same radio channel with unmuted player
+													if voiceData[id] ~= nil then
+														if not voiceData[id].radioActive then -- Check if the unmuted player isn't talking
+															TogglePlayerVoice(id, false)
+														end
 													end
 												end
-											end
-										else
-											if unmutedPlayers[id] then
-												TogglePlayerVoice(id, false)
+											else
+												if unmutedPlayers[id] then
+													TogglePlayerVoice(id, false)
+												end
 											end
 										end
 									end
@@ -422,7 +480,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							
 							callTargets = {} -- Remove all call targets as client has left the call
 
-							SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil) -- Reset player targets
+							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil) -- Reset player targets
 						end
 					end
 				end
@@ -444,7 +502,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 					if not callTargets[player] then
 						callTargets[player] = true
-						SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+						SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 					end
 				end
 			end
@@ -458,7 +516,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 						if not callTargets[id] then
 							callTargets[id] = true
-							SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 						end
 					end
 				end
@@ -503,7 +561,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			if voiceData[player][key] ~= nil then
 				for id, _ in pairs(voiceData[player][key]) do
 					if playerServerId == id then -- Check if the client has been removed from a nearby call
-						TogglePlayerVoice(player, false) -- Mute
+						if not vehicleTargets[id] then -- Mute if player is not in client vehicle
+							TogglePlayerVoice(player, false) -- Mute
+						end
 					end
 
 					if playerServerId == player then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
@@ -517,7 +577,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 		end
 
 		if speakerTargetsRemoved or #speakerTargetsAdded > 0 then
-			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+			SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 		end
 	elseif key == "callSpeaker" and not value then
 		if voiceData[player] ~= nil then
@@ -531,7 +591,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 									for targetId, _ in pairs(voiceData[id].speakerTargets) do -- Loop through each call participants speaker targets
 										if playerServerId == targetId then -- Check if the client was a target and mute the call
-											TogglePlayerVoice(id, false) -- Mute
+											if not vehicleTargets[id] then -- Mute if player is not in client vehicle
+												TogglePlayerVoice(id, false) -- Mute
+											end
 										end
 
 										if playerServerId == id then -- Check if the client is a paricipant in the phone call whose voice is heard through the speaker
@@ -543,7 +605,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 									end
 
 									if speakerTargetsRemoved then
-										SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+										SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 									end
 								end
 							end
@@ -608,7 +670,7 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 			callTargets[player] = nil
 			speakerTargets[player] = nil
 
-			SetPlayerTargets(callTargets, speakerTargets, playerData.radioActive and radioTargets or nil)
+			SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 		end
 
 		voiceData[player] = nil
@@ -662,11 +724,11 @@ Citizen.CreateThread(function()
 			if mumbleConfig.radioEnabled then
 				if not mumbleConfig.controls.radio.pressed then
 					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) then
-						if playerRadio > 0 then
+						if playerData.radio > 0 then
 							SetVoiceData("radioActive", true)
 							playerData.radioActive = true
-							SetPlayerTargets(callTargets, speakerTargets, radioTargets) -- Send voice to everyone in the radio and call
-							PlayMicClick(playerRadio, true)
+							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets) -- Send voice to everyone in the radio and call
+							PlayMicClick(playerData.radio, true)
 							mumbleConfig.controls.radio.pressed = true
 
 							Citizen.CreateThread(function()
@@ -675,8 +737,8 @@ Citizen.CreateThread(function()
 								end
 
 								SetVoiceData("radioActive", false)
-								SetPlayerTargets(callTargets, speakerTargets) -- Stop sending voice to everyone in the radio
-								PlayMicClick(playerRadio, false)
+								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Stop sending voice to everyone in the radio
+								PlayMicClick(playerData.radio, false)
 								playerData.radioActive = false
 								mumbleConfig.controls.radio.pressed = false
 							end)
@@ -842,6 +904,105 @@ Citizen.CreateThread(function()
 						end
 
 						nearbySpeakerTargets = nearbyPlayers
+					end
+				end
+			end
+
+			Citizen.Wait(1000)
+		else
+			Citizen.Wait(0)
+		end
+	end
+end)
+
+-- Set vehicle passengers to 2D voice and ignore distance checks
+Citizen.CreateThread(function()
+	while true do
+		if initialised then
+			if mumbleConfig.use2dAudioInVehicles then
+				local playerPed = PlayerPedId()
+				local playerData = voiceData[playerServerId]
+
+				if not playerData then
+					playerData = {
+						mode = 2,
+						radio = 0,
+						radioActive = false,
+						call = 0,
+						callSpeaker = false,
+						speakerTargets = {},
+					}
+				end
+
+				if IsPedInAnyVehicle(playerPed, false) then
+					local playerVehicle = GetVehiclePedIsIn(playerPed, false)
+					local passengerCount, passengers = GetVehiclePassengers(playerVehicle)
+
+					if passengerCount > 1 then
+						local playerId = PlayerId()
+						local playerList = GetActivePlayers()
+						local targets = {}
+						local targetList = ""
+						local newPassengers = false
+
+						for i = 1, #playerList do
+							local remotePlayerId = playerList[i]
+							if playerId ~= remotePlayerId then
+								local remotePlayerPed = GetPlayerPed(remotePlayerId)
+								if passengers[remotePlayerPed] then
+									local remotePlayerServerId = GetPlayerServerId(remotePlayerId)
+
+									targets[remotePlayerServerId] = true
+
+									if targetList == "" then
+										targetList = remotePlayerServerId
+									else
+										targetList = targetList .. ", " .. remotePlayerServerId
+									end
+
+									if vehicleTargets[remotePlayerServerId] then
+										vehicleTargets[remotePlayerServerId] = nil
+									else
+										newPassengers = true
+									end
+								end
+							end
+						end
+
+						local removedPassengers = MuteVehiclePassengers(playerData)
+
+						vehicleTargets = targets
+						wasPlayerInVehicle = true
+
+						if newPassengers or removedPassengers then
+							for id, exists in pairs(targets) do
+								if exists then							
+									TogglePlayerVoice(id, true)
+								end
+							end
+
+							if targetList ~= "" then
+								DebugMsg("Unmuted passengers: " .. targetList)
+							else
+								DebugMsg("Unmuting 0 passengers")
+							end
+
+							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
+						end
+					else
+						if wasPlayerInVehicle then					
+							MuteVehiclePassengers(playerData)
+							vehicleTargets = {}
+							wasPlayerInVehicle = false
+							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
+						end
+					end
+				else
+					if wasPlayerInVehicle then
+						MuteVehiclePassengers(playerData)
+						vehicleTargets = {}
+						wasPlayerInVehicle = false
+						SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
 					end
 				end
 			end
