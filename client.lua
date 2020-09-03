@@ -70,9 +70,8 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 	end
 
 	if reset then
-		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
-		MumbleSetVoiceTarget(voiceTarget)
 		NetworkSetTalkerProximity(mumbleConfig.voiceModes[playerData.mode][1] + 0.0) -- Set voice proximity
+		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
 	end
 
 	if playerChunk ~= currentChunk or newGridTargets or reset then -- Only reset target channels if the current chunk or any nearby chunks have changed
@@ -271,7 +270,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	DebugMsg("Initialising")
 
-	Citizen.Wait(2500)
+	Citizen.Wait(1000)
 
 	if mumbleConfig.useExternalServer then
 		MumbleSetServerAddress(mumbleConfig.externalAddress, mumbleConfig.externalPort)
@@ -289,6 +288,13 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 		SendNUIMessage({ warningId = "mumble_is_connected" })
 	end
+
+	Citizen.Wait(1000)
+
+	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
+	MumbleSetVoiceTarget(voiceTarget)
+
+	Citizen.Wait(1000)
 
 	voiceData[playerServerId] = {
 		mode = 2,
