@@ -755,7 +755,7 @@ Citizen.CreateThread(function()
 			if mumbleConfig.callSpeakerEnabled then
 				if ((not mumbleConfig.controls.speaker.secondary == nil) and IsControlPressed(0, mumbleConfig.controls.speaker.secondary) or true) then
 					if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) then
-						if playerCall > 0 then
+						if playerData.call > 0 then
 							SetVoiceData("callSpeaker", not playerData.callSpeaker)
 							playerData.callSpeaker = not playerData.callSpeaker
 						end
