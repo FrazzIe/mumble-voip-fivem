@@ -129,17 +129,24 @@ function SetPlayerTargets(...)
 end
 
 function TogglePlayerVoice(serverId, value)
-	DebugMsg((value and "Unmuting" or "Muting") .. " Player " .. serverId)
+	local msg = false
+
 	if value then
 		if not unmutedPlayers[serverId] then
 			unmutedPlayers[serverId] = true
 			MumbleSetVolumeOverrideByServerId(serverId, 1.0)
+			msg = true
 		end
 	else
 		if unmutedPlayers[serverId] then
 			unmutedPlayers[serverId] = nil
-			MumbleSetVolumeOverrideByServerId(serverId, -1.0)			
+			MumbleSetVolumeOverrideByServerId(serverId, -1.0)
+			msg = true	
 		end		
+	end
+
+	if msg then
+		DebugMsg((value and "Unmuting" or "Muting") .. " Player " .. serverId)
 	end
 end
 
