@@ -459,9 +459,17 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						if playerServerId ~= player then
 							if unmutedPlayers[player] then
 								if not vehicleTargets[player] then -- Mute if player is not in client vehicle
-									if playerData.radio > 0 then -- Check if the client is in a call
-										if not CompareChannels(voiceData[player], "radio", playerData.radio) then -- Check if the client is in a call with the unmuted player
+									if playerData.radio > 0 then -- Check if the client is on the radio
+										if not CompareChannels(voiceData[player], "radio", playerData.radio) then -- Check if the client is in a radio channel with the unmuted player
 											TogglePlayerVoice(player, false)
+										else
+											if voiceData[player] ~= nil then
+												if not voiceData[player].radioActive then -- Check if the unmuted player isn't talking
+													TogglePlayerVoice(player, false)
+												end
+											else
+												TogglePlayerVoice(player, false)
+											end
 										end
 									else
 										TogglePlayerVoice(player, false) -- mute player on radio channel leave
@@ -486,6 +494,8 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 														if not voiceData[id].radioActive then -- Check if the unmuted player isn't talking
 															TogglePlayerVoice(id, false)
 														end
+													else
+														TogglePlayerVoice(id, false)
 													end
 												end
 											else
