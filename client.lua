@@ -602,7 +602,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			if voiceData[player][key] ~= nil then
 				for id, _ in pairs(voiceData[player][key]) do
 					if playerServerId == id then -- Check if the client has been removed from a nearby call
-						if not vehicleTargets[id] then -- Mute if player is not in client vehicle
+						if not vehicleTargets[player] then -- Mute if player is not in client vehicle
 							TogglePlayerVoice(player, false) -- Mute
 						end
 					end
