@@ -529,6 +529,20 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 				if playerServerId ~= player then
 					local ped = GetPlayerFromServerId(player)
 					TogglePlayerVoice(player, value) -- unmute/mute player
+					if value then
+						TogglePlayerVoice(player, true) -- unmute player
+					else
+						if not vehicleTargets[player] then -- Mute if player is not in client vehicle
+							if playerData.call > 0 then -- Check if the client is in a call
+								if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+									TogglePlayerVoice(player, false)
+								end
+							else
+								TogglePlayerVoice(player, false) -- mute player on radio channel leave
+							end
+						end
+					end
+
 					PlayMicClick(radioChannel, value) -- play on/off clicks
 					if value then
 						MumbleSetVolumeOverride(ped, mumbleConfig.radioVolume)
