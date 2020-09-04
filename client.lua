@@ -499,9 +499,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 													end
 												end
 											else
-												if unmutedPlayers[id] then
-													TogglePlayerVoice(id, false)
-												end
+												TogglePlayerVoice(id, false)
 											end
 										end
 									end
