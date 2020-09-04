@@ -527,8 +527,15 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 		if radioChannel > 0 then
 			if CompareChannels(playerData, "radio", radioChannel) then -- Check if player is in the same radio channel as you
 				if playerServerId ~= player then
+					local ped = GetPlayerFromServerId(player)
 					TogglePlayerVoice(player, value) -- unmute/mute player
 					PlayMicClick(radioChannel, value) -- play on/off clicks
+					if value then
+						MumbleSetVolumeOverride(ped, mumbleConfig.radioVolume)
+					else
+						MumbleSetVolumeOverride(ped, 1.0)
+					end
+				
 				end
 			end
 		end
