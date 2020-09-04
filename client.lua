@@ -529,6 +529,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 				if playerServerId ~= player then
 					local ped = GetPlayerFromServerId(player)
 					TogglePlayerVoice(player, value) -- unmute/mute player
+						
 					if value then
 						TogglePlayerVoice(player, true) -- unmute player
 					else
