@@ -547,7 +547,20 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 		if radioChannel > 0 then
 			if CompareChannels(playerData, "radio", radioChannel) then -- Check if player is in the same radio channel as you
 				if playerServerId ~= player then
-					TogglePlayerVoice(player, value) -- unmute/mute player
+					if value then
+						TogglePlayerVoice(player, true) -- unmute player
+					else
+						if not vehicleTargets[player] then -- Mute if player is not in client vehicle
+							if playerData.call > 0 then -- Check if the client is in a call
+								if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
+									TogglePlayerVoice(player, false)
+								end
+							else
+								TogglePlayerVoice(player, false) -- mute player on radio channel leave
+							end
+						end
+					end
+
 					PlayMicClick(radioChannel, value) -- play on/off clicks
 				end
 			end
