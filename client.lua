@@ -246,19 +246,32 @@ function MuteVehiclePassengers(playerData)
 	for id, exists in pairs(vehicleTargets) do
 		if exists then
 			changed = true
-
-			if playerData.radio > 0 or playerData.call > 0 then -- Only mute player if they are not in call or radio channel with client
-				local remotePlayerData = voiceData[id]				
+			if playerData.radio > 0 and playerData.call > 0 then -- Only mute player if they are not in call or radio channel with client
+				local remotePlayerData = voiceData[id]
 				if remotePlayerData ~= nil then
 					if playerData.radio == remotePlayerData.radio then
-						if not remotePlayerData.radioActive then
+						if not remotePlayerData.radioActive and playerData.call ~= remotePlayerData.call then
 							TogglePlayerVoice(id, false)
 						end
 					elseif playerData.call ~= remotePlayerData.call then
 						TogglePlayerVoice(id, false)
 					end
-				else
-					TogglePlayerVoice(id, false)
+				end
+			elseif playerData.call > 0 then
+				local remotePlayerData = voiceData[id]
+				if remotePlayerData ~= nil then
+					if playerData.call ~= remotePlayerData.call then
+						TogglePlayerVoice(id, false)
+					end
+				end
+			elseif playerData.radio > 0 then
+				local remotePlayerData = voiceData[id]
+				if remotePlayerData ~= nil then
+					if playerData.radio == remotePlayerData.radio then
+						if not remotePlayerData.radioActive then
+							TogglePlayerVoice(id, false)
+						end
+					end
 				end
 			else
 				TogglePlayerVoice(id, false)
