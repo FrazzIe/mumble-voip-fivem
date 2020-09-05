@@ -128,6 +128,12 @@ else
 	exports("SetCallChannelName", SetCallChannelName)
 end
 
+function GetRandomPhoneticLetter()
+	math.randomseed(GetGameTimer())
+
+	return phoneticAlphabet[math.random(1, #phoneticAlphabet)]
+end
+
 function GetPlayersInRadioChannel(channel)
 	local channel = tonumber(channel)
 	local players = false
