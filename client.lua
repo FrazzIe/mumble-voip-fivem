@@ -42,6 +42,7 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 			call = 0,
 			callSpeaker = false,
 			speakerTargets = {},
+			radioName = GetRandomPhoneticLetter() + "-" + playerServerId
 		}
 	end
 
@@ -324,6 +325,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 		call = 0,
 		callSpeaker = false,
 		speakerTargets = {},
+		radioName = GetRandomPhoneticLetter() + "-" + playerServerId
 	}
 
 	SetGridTargets(GetEntityCoords(PlayerPedId()), true) -- Add voice targets
@@ -363,6 +365,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			call = 0,
 			callSpeaker = false,
 			speakerTargets = {},
+			radioName = GetRandomPhoneticLetter() + "-" + playerServerId
 		}
 	end
 
@@ -705,6 +708,7 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 					call = 0,
 					callSpeaker = false,
 					speakerTargets = {},
+					radioName = GetRandomPhoneticLetter() + "-" + playerServerId
 				}
 			end
 
