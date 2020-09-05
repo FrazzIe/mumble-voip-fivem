@@ -48,6 +48,34 @@ mumbleConfig = {
 	use2dAudioInVehicles = true, -- Workaround for hearing vehicle passengers at high speeds
 }
 resourceName = GetCurrentResourceName()
+phoneticAlphabet = {
+	"Alpha",
+	"Bravo",
+	"Charlie",
+	"Delta",
+	"Echo",
+	"Foxtrot",
+	"Golf",
+	"Hotel",
+	"India",
+	"Juliet",
+	"Kilo",
+	"Lima",
+	"Mike",
+	"November",
+	"Oscar",
+	"Papa",
+	"Quebec",
+	"Romeo",
+	"Sierra",
+	"Tango",
+	"Uniform",
+	"Victor",
+	"Whisky",
+	"XRay",
+	"Yankee",
+	"Zulu",
+}
 
 if IsDuplicityVersion() then
 	function DebugMsg(msg)
