@@ -41,6 +41,7 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 			radioActive = false,
 			call = 0,
 			callSpeaker = false,
+			speakerTargets = {},
 		}
 	end
 
@@ -901,6 +902,7 @@ Citizen.CreateThread(function()
 						radioActive = false,
 						call = 0,
 						callSpeaker = false,
+						speakerTargets = {},
 					}
 				end
 				
