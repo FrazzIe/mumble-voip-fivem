@@ -1031,7 +1031,7 @@ Citizen.CreateThread(function()
 
 						if newPassengers or removedPassengers then
 							for id, exists in pairs(targets) do
-								if exists then							
+								if exists then
 									TogglePlayerVoice(id, true)
 								end
 							end
