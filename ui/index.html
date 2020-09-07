@@ -128,6 +128,16 @@
 				if (item.radioId != null) {
 					let radioListElem = document.getElementById("voip-radio-list");
 
+					if (!radioListElem.firstChild) { //add radio list header
+						let listHeader = document.createElement("div");
+
+						listHeader.id = "voip-radio-list-header";
+						listHeader.textContent = "\uD83D\uDCE1Radio List";
+						listHeader.style.textDecorationLine = "underline";
+
+						radioListElem.appendChild(listHeader);
+					}
+
 					if (item.radioName != null) {
 						let listItem = document.createElement("div");
 
