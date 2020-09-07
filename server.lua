@@ -30,6 +30,7 @@ AddEventHandler("mumble:Initialise", function()
 			call = 0,
 			callSpeaker = false,
 			speakerTargets = {},
+			radioName = GetRandomPhoneticLetter() .. "-" .. source,
 		}
 	end
 
@@ -46,6 +47,7 @@ AddEventHandler("mumble:SetVoiceData", function(key, value, target)
 			call = 0,
 			callSpeaker = false,
 			speakerTargets = {},
+			radioName = GetRandomPhoneticLetter() .. "-" .. source,
 		}
 	end
 
@@ -139,3 +141,13 @@ AddEventHandler("playerDropped", function()
 		TriggerClientEvent("mumble:RemoveVoiceData", -1, source)
 	end
 end)
+
+function SetPlayerRadioName(serverId, name)
+	if voiceData[serverId] then
+		local value = name or (GetRandomPhoneticLetter() .. "-" .. serverId)
+		voiceData[serverId].radioName = value
+		TriggerClientEvent("mumble:SetVoiceData", -1, serverId, "radioName", value)
+	end
+end
+
+exports("SetPlayerRadioName", SetPlayerRadioName)

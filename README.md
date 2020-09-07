@@ -15,7 +15,10 @@ A tokovoip replacement that uses fivems mumble voip
 - Grid system for voice channels
 
 ### Exports
-Setters
+
+#### Client
+
+##### Setters
  
 | Export              | Description               | Parameter(s) |
 |---------------------|---------------------------|--------------|
@@ -35,7 +38,7 @@ Supported TokoVOIP Exports
 | addPlayerToCall       | Set call channel         | int          |
 | removePlayerFromCall  | Remove player from call  |              |
 
-Getters
+##### Getters
 
 | Export                         | Description                               | Parameter(s)  | Return type    |
 |--------------------------------|-------------------------------------------|---------------|----------------|
@@ -45,6 +48,15 @@ Getters
 | GetPlayersInPlayerRadioChannel | Returns players in a player radio channel | int           | table or false |
 | GetPlayerRadioChannel          | Returns player radio channel              | int           | int            |
 | GetPlayerCallChannel           | Returns player call channel               | int           | int            |
+
+#### Server
+
+##### Setters
+
+| Export               | Description                          | Parameter(s) |
+|----------------------|--------------------------------------|--------------|
+| SetPlayerRadioName   | Set player name on radio list        | int, string  |
+
 ### Credits
 
 - @Itokoyamato for TokoVOIP 

@@ -46,8 +46,37 @@ mumbleConfig = {
 	externalAddress = "127.0.0.1",
 	externalPort = 30120,
 	use2dAudioInVehicles = true, -- Workaround for hearing vehicle passengers at high speeds
+	showRadioList = false, -- Optional feature to show a list of players in a radio channel, to be used with server export `SetPlayerRadioName`
 }
 resourceName = GetCurrentResourceName()
+phoneticAlphabet = {
+	"Alpha",
+	"Bravo",
+	"Charlie",
+	"Delta",
+	"Echo",
+	"Foxtrot",
+	"Golf",
+	"Hotel",
+	"India",
+	"Juliet",
+	"Kilo",
+	"Lima",
+	"Mike",
+	"November",
+	"Oscar",
+	"Papa",
+	"Quebec",
+	"Romeo",
+	"Sierra",
+	"Tango",
+	"Uniform",
+	"Victor",
+	"Whisky",
+	"XRay",
+	"Yankee",
+	"Zulu",
+}
 
 if IsDuplicityVersion() then
 	function DebugMsg(msg)
@@ -98,6 +127,12 @@ else
 	exports("SetTokoProperty", SetMumbleProperty)
 	exports("SetRadioChannelName", SetRadioChannelName)
 	exports("SetCallChannelName", SetCallChannelName)
+end
+
+function GetRandomPhoneticLetter()
+	math.randomseed(GetGameTimer())
+
+	return phoneticAlphabet[math.random(1, #phoneticAlphabet)]
 end
 
 function GetPlayersInRadioChannel(channel)
