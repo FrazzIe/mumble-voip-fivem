@@ -464,7 +464,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							if mumbleConfig.showRadioList then
 								if voiceData[id] ~= nil then
 									if voiceData[id].radioName ~= nil then
-										SendNUIMessage({ radioId = id, radioName = voiceData[player].radioName }) -- Add player to radio list
+										SendNUIMessage({ radioId = id, radioName = voiceData[id].radioName }) -- Add player to radio list
 									end
 								end								
 							end
