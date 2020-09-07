@@ -456,6 +456,8 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			end
 
 			if playerServerId == player then
+				SendNUIMessage({ radioId = playerServerId, radioName = playerData.radioName, self = true }) -- Add client to radio list
+
 				for id, _ in pairs(radioData[value]) do -- Add radio targets of existing players in channel
 					if id ~= playerServerId then
 						if not radioTargets[id] then
@@ -808,6 +810,9 @@ Citizen.CreateThread(function()
 							playerData.radioActive = true
 							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets) -- Send voice to everyone in the radio and call
 							PlayMicClick(playerData.radio, true)
+							if mumbleConfig.showRadioList then
+								SendNUIMessage({ radioId = playerServerId, radioTalking = true }) -- Set client talking in radio list
+							end
 							mumbleConfig.controls.radio.pressed = true
 
 							Citizen.CreateThread(function()
@@ -818,6 +823,9 @@ Citizen.CreateThread(function()
 								SetVoiceData("radioActive", false)
 								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Stop sending voice to everyone in the radio
 								PlayMicClick(playerData.radio, false)
+								if mumbleConfig.showRadioList then
+									SendNUIMessage({ radioId = playerServerId, radioTalking = false }) -- Set client talking in radio list
+								end
 								playerData.radioActive = false
 								mumbleConfig.controls.radio.pressed = false
 							end)
