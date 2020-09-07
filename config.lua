@@ -46,6 +46,7 @@ mumbleConfig = {
 	externalAddress = "127.0.0.1",
 	externalPort = 30120,
 	use2dAudioInVehicles = true, -- Workaround for hearing vehicle passengers at high speeds
+	showRadioList = false, -- Optional feature to show a list of players in a radio channel, to be used with server export `SetPlayerRadioName`
 }
 resourceName = GetCurrentResourceName()
 phoneticAlphabet = {
