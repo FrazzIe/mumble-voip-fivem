@@ -34,6 +34,19 @@
 				font-size: 0.5vw;
 				opacity: 0.8;
 			}
+
+			.radio-list-container {
+				position: absolute;
+				top: 1%;
+				right: 0%;
+				text-align: right;
+				padding: 5px;
+				font-family: sans-serif;
+				font-weight: bold;
+				color: rgb(1, 176, 240);
+				font-size: 0.5vw;
+				text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+			}
 		</style>
 		<script type="text/javascript">
 			let speakerEnabled = true;
@@ -151,11 +164,10 @@
 		<audio id="audio_off" src="mic_click_off.ogg"></audio>
 
 		<div class="watermark">mumble-voip by Frazzle.</div>
-		
+		<div class="radio-list-container" id="voip-radio-list"></div>
 		<div class="info-container">
 			<div>[Mumble] <span id="voip-mode">Initialising</span></div>
 			<div id="voip-radio"></div>
-			<div id="voip-radio-list"></div>
 			<div id="voip-call"></div>
 			<div id="voip-warning"></div>
 		</div>
