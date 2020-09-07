@@ -349,6 +349,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			call = 0,
 			callSpeaker = false,
 			speakerTargets = {},
+			radioName = GetRandomPhoneticLetter() + "-" + player
 		}
 	end
 
