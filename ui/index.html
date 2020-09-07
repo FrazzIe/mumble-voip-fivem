@@ -119,10 +119,7 @@
 						let listItem = document.createElement("div");
 
 						listItem.id = "voip-radio-list-item-" + item.radioId;
-						listItem.textContent = item.radioName;
-
-						if (item.self) 
-							listItem.textContent = "\uD83D\uDD38" + listItem.textContent;
+						listItem.textContent = (item.self ? "\uD83D\uDD38" : "") + item.radioName;
 
 						radioListElem.appendChild(listItem);
 					} else if (item.radioTalking != null) {
