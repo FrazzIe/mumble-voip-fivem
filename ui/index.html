@@ -121,6 +121,9 @@
 						listItem.id = "voip-radio-list-item-" + item.radioId;
 						listItem.textContent = item.radioName;
 
+						if (item.self) 
+							listItem.textContent = "\uD83D\uDD38" + listItem.textContent;
+
 						radioListElem.appendChild(listItem);
 					} else if (item.radioTalking != null) {
 						let listItem = document.getElementById("voip-radio-list-item-" + item.radioId)
