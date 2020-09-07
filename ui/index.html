@@ -135,6 +135,14 @@
 						radioListElem.removeChild(listItem);
 					}
 				}
+
+				if (item.clearRadioList) {
+					let radioListElem = document.getElementById("voip-radio-list");
+
+					while (radioListElem.firstChild) {
+						radioListElem.removeChild(radioListElem.firstChild);
+					}
+				}
 			});
 		</script>
 	</head>
