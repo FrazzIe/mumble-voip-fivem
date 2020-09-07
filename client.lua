@@ -393,6 +393,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 							if radioTargets[player] then
 								radioTargets[player] = nil
+
+								if mumbleConfig.showRadioList then
+									SendNUIMessage({ radioId = player }) -- Remove player from radio list
+								end
 							end
 						elseif playerServerId == player then
 							for id, _ in pairs(radioData[radioChannel]) do -- Mute players that aren't supposed to be unmuted
@@ -412,6 +416,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							end
 							
 							radioTargets = {} -- Remove all radio targets as client has left the radio channel
+
+							if mumbleConfig.showRadioList then
+								SendNUIMessage({ clearRadioList = true }) -- Clear radio list
+							end
 
 							if playerData.radioActive then
 								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Reset active targets if for some reason if the client was talking on the radio when the client left
@@ -436,6 +444,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if not radioTargets[player] then
 						radioTargets[player] = true							
 						
+						if mumbleConfig.showRadioList then
+							SendNUIMessage({ radioId = player, radioName = voiceData[player].radioName }) -- Add player to radio list
+						end
+
 						if playerData.radioActive then
 							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets)
 						end
@@ -448,6 +460,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					if id ~= playerServerId then
 						if not radioTargets[id] then
 							radioTargets[id] = true
+
+							if mumbleConfig.showRadioList then
+								if voiceData[id] ~= nil then
+									if voiceData[id].radioName ~= nil then
+										SendNUIMessage({ radioId = id, radioName = voiceData[player].radioName }) -- Add player to radio list
+									end
+								end								
+							end
 						end
 					end
 				end
@@ -575,6 +595,10 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					end
 
 					PlayMicClick(radioChannel, value) -- play on/off clicks
+
+					if mumbleConfig.showRadioList then
+						SendNUIMessage({ radioId = player, radioTalking = value }) -- Set player talking in radio list
+					end
 				end
 			end
 		end
