@@ -456,7 +456,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			end
 
 			if playerServerId == player then
-				SendNUIMessage({ radioId = playerServerId, radioName = playerData.radioName, self = true }) -- Add client to radio list
+				if mumbleConfig.showRadioList then
+					SendNUIMessage({ radioId = playerServerId, radioName = playerData.radioName, self = true }) -- Add client to radio list
+				end
 
 				for id, _ in pairs(radioData[value]) do -- Add radio targets of existing players in channel
 					if id ~= playerServerId then
