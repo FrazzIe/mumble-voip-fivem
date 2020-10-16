@@ -806,7 +806,7 @@ Citizen.CreateThread(function()
 
 			if mumbleConfig.radioEnabled then
 				if not mumbleConfig.controls.radio.pressed then
-					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) then
+					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) and IsInputDisabled(0) then
 						if playerData.radio > 0 then
 							SetVoiceData("radioActive", true)
 							playerData.radioActive = true
@@ -818,7 +818,7 @@ Citizen.CreateThread(function()
 							mumbleConfig.controls.radio.pressed = true
 
 							Citizen.CreateThread(function()
-								while IsControlPressed(0, mumbleConfig.controls.radio.key) do
+								while IsControlPressed(0, mumbleConfig.controls.radio.key) and IsInputDisabled(0) do
 									Citizen.Wait(0)
 								end
 
