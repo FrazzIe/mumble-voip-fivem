@@ -4,29 +4,23 @@ callData = {}
 mumbleConfig = {
 	debug = false, -- enable debug msgs
 	voiceModes = {
-		{3.0, "Whisper"}, -- Whisper speech distance in gta distance units
-        {7.0, "Normal"}, -- Normal speech distance in gta distance units
-		{15.0, "Shouting"}, -- Shout speech distance in gta distance units
-	},
+		{2.5, "Whisper"}, -- Whisper speech distance in gta distance units
+		{8.0, "Normal"}, -- Normal speech distance in gta distance units
+		{20.0, "Shouting"}, -- Shout speech distance in gta distance units	},
 	speakerRange = 1.5, -- Speaker distance in gta distance units (how close you need to be to another player to hear other players on the radio or phone)
 	callSpeakerEnabled = true, -- Allow players to hear all talking participants of a phone call if standing next to someone that is on the phone
 	radioEnabled = true, -- Enable or disable using the radio
 	micClicks = true, -- Are clicks enabled or not
 	micClickOn = true, -- Is click sound on active
 	micClickOff = true, -- Is click sound off active
-	micClickVolume = 0.05, -- How loud a mic click is
 	radioPressed = false,
-	radioClickMaxChannel = 1000, -- Set the max amount of radio channels that will have local radio clicks enabled
+	radioClickMaxChannel = 100, -- Set the max amount of radio channels that will have local radio clicks enabled
 	radioChannelNames = { -- Add named radio channels (Defaults to [channel number] MHz)
 		[1] = "LEO Tac 1",
 		[2] = "LEO Tac 2",
-		[3] = "LEO Tac 3",
-		[4] = "LEO Tac 4",
-		[5] = "DOC Tac 1",
-		[6] = "DOC Tac 2",
-		[7] = "DOC Tac 3",
-		[8] = "EMS Tac 1",
-		[9] = "EMS Tac 2",
+		[3] = "EMS Tac 1",
+		[4] = "EMS Tac 2",
+		[500] = "Hurr Durr 500 Hurr Durr",
 	},
 	callChannelNames = { -- Add named call channels (Defaults to [channel number])
 
