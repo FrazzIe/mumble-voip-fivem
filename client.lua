@@ -779,9 +779,6 @@ RegisterCommand('+radiotalk', function()
 			speakerTargets = {},
 		}
 
-		local isDead = exports["esx_ambulancejob"]:isPlayerDead()
-		if isDead then return false end
-
 		if mumbleConfig.radioEnabled then
 			if not mumbleConfig.radioPressed then
 				if playerData.radio > 0 then
