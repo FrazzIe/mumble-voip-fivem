@@ -8,8 +8,13 @@ local deltas = {
 	vector2(1, 1),
 	vector2(0, 1),
 }
-local bitShift = 2
-local zoneRadius = 128
+
+-- I don't know why the grid system was needed in the first place
+-- it seems to cause a lot more issues than it fixes, as it works
+-- for onesync infinity without it.
+
+local bitShift = 128
+local zoneRadius = 8192
 
 function GetGridChunk(x)
 	return math.floor((x + 8192) / zoneRadius)

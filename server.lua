@@ -22,19 +22,17 @@ RegisterNetEvent("mumble:Initialise")
 AddEventHandler("mumble:Initialise", function()
 	DebugMsg("Initialised player: " .. source)
 
-	if not voiceData[source] then
-		voiceData[source] = {
-			mode = 2,
-			radio = 0,
-			radioActive = false,
-			call = 0,
-			callSpeaker = false,
-			speakerTargets = {},
-			radioName = GetRandomPhoneticLetter() .. "-" .. source,
-		}
-	end
-
+	voiceData[source] = voiceData[source] or  {
+		mode = 2,
+		radio = 0,
+		radioActive = false,
+		call = 0,
+		callSpeaker = false,
+		speakerTargets = {},
+		radioName = ("[%s] %s"):format(source, GetRandomPhoneticLetter()),
+	}
 	TriggerClientEvent("mumble:SyncVoiceData", -1, voiceData, radioData, callData)
+	
 end)
 
 RegisterNetEvent("mumble:SetVoiceData")

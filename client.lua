@@ -11,6 +11,19 @@ local playerChunk = nil
 local voiceTarget = 2
 local vehicleTargets = {}
 local wasPlayerInVehicle = false
+local volume = 0.3
+local voiceData = {}
+
+-- it annoys me when this is everywhere
+voiceData[playerServerId] = {
+	mode = 2,
+	radio = 0,
+	radioActive = false,
+	call = 0,
+	callSpeaker = false,
+	speakerTargets = {},
+	radioName = ("[%s] %s"):format(playerServerId, GetRandomPhoneticLetter()),
+}
 
 -- Functions
 function SetVoiceData(key, value, target)
@@ -21,11 +34,14 @@ function PlayMicClick(channel, value)
 	if channel <= mumbleConfig.radioClickMaxChannel then
 		if mumbleConfig.micClicks then
 			if (value and mumbleConfig.micClickOn) or (not value and mumbleConfig.micClickOff) then
-				SendNUIMessage({ sound = (value and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
+				SendNUIMessage({ sound = (value and "audio_on" or "audio_off"), volume = (value and (volume) or 0.05) })
 			end
 		end
 	end
 end
+
+
+local nextUpdate = 0
 
 function SetGridTargets(pos, reset) -- Used to set the players voice targets depending on where they are in the map
 	local currentChunk = GetCurrentChunk(pos)
@@ -33,18 +49,6 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 	local nearbyChunksStr = "None"
 	local targets = {}
 	local playerData = voiceData[playerServerId]
-
-	if not playerData then
-		playerData  = {
-			mode = 2,
-			radio = 0,
-			radioActive = false,
-			call = 0,
-			callSpeaker = false,
-			speakerTargets = {},
-			radioName = GetRandomPhoneticLetter() .. "-" .. playerServerId
-		}
-	end
 
 	for i = 1, #nearbyChunks do
 		if nearbyChunks[i] ~= currentChunk then
@@ -76,28 +80,28 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
 	end
 
-	if playerChunk ~= currentChunk or newGridTargets or reset then -- Only reset target channels if the current chunk or any nearby chunks have changed
-		MumbleClearVoiceTargetChannels(voiceTarget)
+	-- runs every 30 seconds
+	MumbleClearVoiceTargetChannels(voiceTarget)
 
-		MumbleAddVoiceTargetChannel(voiceTarget, currentChunk)
+	MumbleAddVoiceTargetChannel(voiceTarget, currentChunk)
 
-		for channel, _ in pairs(targets) do
-			MumbleAddVoiceTargetChannel(voiceTarget, channel)
-		end
-
-		NetworkSetVoiceChannel(currentChunk)
-
-		playerChunk = currentChunk
-		gridTargets = targets
-
-		DebugMsg("Current Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
-
-		if reset then
-			SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
-
-			resetTargets = false
-		end
+	for channel, _ in pairs(targets) do
+		MumbleAddVoiceTargetChannel(voiceTarget, channel)
 	end
+
+	NetworkSetVoiceChannel(currentChunk)
+
+	playerChunk = currentChunk
+	gridTargets = targets
+
+	DebugMsg("Current Chunk: " .. currentChunk .. ", Nearby Chunks: " .. nearbyChunksStr)
+
+	if reset then
+		SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil)
+
+		resetTargets = false
+	end
+		
 end
 
 function SetPlayerTargets(...)	
@@ -130,13 +134,25 @@ function SetPlayerTargets(...)
 	end
 end
 
+RegisterCommand("vol", function(source, args)
+	local newVolume = tonumber(args[1])
+	if newVolume then
+		volume = newVolume / 100
+
+		-- update volume
+		for k, v in pairs(unmutedPlayers) do
+			MumbleSetVolumeOverrideByServerId(k, volume)
+		end
+	end
+end)
+
 function TogglePlayerVoice(serverId, value)
 	local msg = false
 
 	if value then
 		if not unmutedPlayers[serverId] then
 			unmutedPlayers[serverId] = true
-			MumbleSetVolumeOverrideByServerId(serverId, 1.0)
+			MumbleSetVolumeOverrideByServerId(serverId, volume)
 			msg = true
 		end
 	else
@@ -290,9 +306,11 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 		return
 	end
 
-	DebugMsg("Initialising")
+	while not NetworkIsSessionStarted() do
+		Citizen.Wait(50)
+	end
 
-	Citizen.Wait(1000)
+	DebugMsg("Initialising")
 
 	if mumbleConfig.useExternalServer then
 		MumbleSetServerAddress(mumbleConfig.externalAddress, mumbleConfig.externalPort)
@@ -303,30 +321,20 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	if not MumbleIsConnected() then
 		SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "Not connected to mumble" })
-
-		while not MumbleIsConnected() do
-			Citizen.Wait(250)
-		end
-
-		SendNUIMessage({ warningId = "mumble_is_connected" })
 	end
+
+	while not MumbleIsConnected() do
+		Citizen.Wait(250)
+	end
+
+	SendNUIMessage({ warningId = "mumble_is_connected" })
 
 	Citizen.Wait(1000)
 
 	MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
 	MumbleSetVoiceTarget(voiceTarget)
 
-	Citizen.Wait(1000)
-
-	voiceData[playerServerId] = {
-		mode = 2,
-		radio = 0,
-		radioActive = false,
-		call = 0,
-		callSpeaker = false,
-		speakerTargets = {},
-		radioName = GetRandomPhoneticLetter() .. "-" .. playerServerId
-	}
+	Citizen.Wait(100)
 
 	SetGridTargets(GetEntityCoords(PlayerPedId()), true) -- Add voice targets
 
@@ -349,7 +357,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			call = 0,
 			callSpeaker = false,
 			speakerTargets = {},
-			radioName = GetRandomPhoneticLetter() .. "-" .. player
+			radioName = ("[%s] %s"):format(playerServerId, GetRandomPhoneticLetter()),
 		}
 	end
 
@@ -357,18 +365,6 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 	local callChannel = voiceData[player]["call"]
 	local radioActive = voiceData[player]["radioActive"]
 	local playerData = voiceData[playerServerId]
-
-	if not playerData then
-		playerData = {
-			mode = 2,
-			radio = 0,
-			radioActive = false,
-			call = 0,
-			callSpeaker = false,
-			speakerTargets = {},
-			radioName = GetRandomPhoneticLetter() .. "-" .. playerServerId
-		}
-	end
 
 	if key == "radio" and radioChannel ~= value then -- Check if channel has changed
 		if radioChannel > 0 then -- Check if player was in a radio channel
@@ -698,6 +694,19 @@ end)
 RegisterNetEvent("mumble:SyncVoiceData") -- Used to sync players data on initialising
 AddEventHandler("mumble:SyncVoiceData", function(voice, radio, call)
 	voiceData = voice
+
+	-- instead of constant checks do it here.
+
+	voiceData[playerServerId] = voiceData[playerServerId] or {
+		mode = 2,
+		radio = 0,
+		radioActive = false,
+		call = 0,
+		callSpeaker = false,
+		speakerTargets = {},
+		radioName = ("[%s] %s"):format(playerServerId, GetRandomPhoneticLetter()),
+	}
+
 	radioData = radio
 	callData = call
 end)
@@ -725,22 +734,10 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 				end
 			end
 		end
+		local playerData = voiceData[playerServerId]
 
 		if radioTargets[player] or callTargets[player] or speakerTargets[player] then
-			local playerData = voiceData[playerServerId]
-
-			if not playerData then
-				playerData = {
-					mode = 2,
-					radio = 0,
-					radioActive = false,
-					call = 0,
-					callSpeaker = false,
-					speakerTargets = {},
-					radioName = GetRandomPhoneticLetter() .. "-" .. playerServerId
-				}
-			end
-
+			
 			radioTargets[player] = nil
 			callTargets[player] = nil
 			speakerTargets[player] = nil
@@ -749,158 +746,145 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 		end
 
 		voiceData[player] = nil
-	end
-end)
 
--- Simulate PTT when radio is active
-Citizen.CreateThread(function()
-	while true do
-		Citizen.Wait(0)
 
-		if initialised then
-			local playerData = voiceData[playerServerId]
+		if playerData.radio == radioChannel and playerData.radio > 0 then
+			SendNUIMessage({ clearRadioList = true }) -- Clear radio list
+			SendNUIMessage({ radioId = playerServerId, radioName = voiceData[playerServerId].radioName, self = true })
 
-			if not playerData then
-				playerData = {
-					mode = 2,
-					radio = 0,
-					radioActive = false,
-					call = 0,
-					callSpeaker = false,
-					speakerTargets = {},
-				}
-			end
-
-			if playerData.radioActive then -- Force PTT enabled
-				SetControlNormal(0, 249, 1.0)
-				SetControlNormal(1, 249, 1.0)
-				SetControlNormal(2, 249, 1.0)
-			end
-
-			if IsControlJustPressed(0, mumbleConfig.controls.proximity.key) then
-				local secondaryPressed = true
-
-				if mumbleConfig.controls.speaker.key ~= mumbleConfig.controls.proximity.key or mumbleConfig.controls.speaker.secondary == nil then
-					secondaryPressed = false
-				else
-					secondaryPressed = IsControlPressed(0, mumbleConfig.controls.speaker.secondary) and (playerData.call > 0)
-				end
-
-				if not secondaryPressed then
-					local voiceMode = playerData.mode
-				
-					local newMode = voiceMode + 1
-				
-					if newMode > #mumbleConfig.voiceModes then
-						voiceMode = 1
-					else
-						voiceMode = newMode
-					end
-					
-					NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1] + 0.0)
-
-					SetVoiceData("mode", voiceMode)
-					playerData.mode = voiceMode
-				end
-			end
-
-			if mumbleConfig.radioEnabled then
-				if not mumbleConfig.controls.radio.pressed then
-					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) and IsInputDisabled(0) then
-						if playerData.radio > 0 then
-							SetVoiceData("radioActive", true)
-							playerData.radioActive = true
-							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets) -- Send voice to everyone in the radio and call
-							PlayMicClick(playerData.radio, true)
-							if mumbleConfig.showRadioList then
-								SendNUIMessage({ radioId = playerServerId, radioTalking = true }) -- Set client talking in radio list
+			for id, _ in pairs(radioData[radioChannel]) do -- Add radio targets of existing players in channel
+				if id ~= playerServerId then
+					if mumbleConfig.showRadioList then
+						if voiceData[id] ~= nil then
+							if voiceData[id].radioName ~= nil then
+								SendNUIMessage({ radioId = id, radioName = voiceData[id].radioName }) -- Add player to radio list
 							end
-							mumbleConfig.controls.radio.pressed = true
+						end								
+					end
+				end
+			end
+		end
+	end
+end)
+RegisterCommand('+radiotalk', function()
+	if initialised then
+		local playerData = voiceData[playerServerId]
 
-							Citizen.CreateThread(function()
-								while IsControlPressed(0, mumbleConfig.controls.radio.key) and IsInputDisabled(0) do
-									Citizen.Wait(0)
-								end
+		playerData = playerData or {
+			mode = 2,
+			radio = 0,
+			radioActive = false,
+			call = 0,
+			callSpeaker = false,
+			speakerTargets = {},
+		}
 
-								SetVoiceData("radioActive", false)
-								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Stop sending voice to everyone in the radio
-								PlayMicClick(playerData.radio, false)
-								if mumbleConfig.showRadioList then
-									SendNUIMessage({ radioId = playerServerId, radioTalking = false }) -- Set client talking in radio list
-								end
-								playerData.radioActive = false
-								mumbleConfig.controls.radio.pressed = false
-							end)
+		local isDead = exports["esx_ambulancejob"]:isPlayerDead()
+		if isDead then return false end
+
+		if mumbleConfig.radioEnabled then
+			if not mumbleConfig.radioPressed then
+				if playerData.radio > 0 then
+					talking = true
+					SetVoiceData("radioActive", true)
+					playerData.radioActive = true
+					SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets) -- Send voice to everyone in the radio and call
+					PlayMicClick(playerData.radio, true)
+					if mumbleConfig.showRadioList then
+						SendNUIMessage({ radioId = playerServerId, radioTalking = true }) -- Set client talking in radio list
+					end
+					mumbleConfig.radioPressed = true
+					Citizen.CreateThread(function()
+						TriggerEvent("mumble-voip:radioActive", true)
+						while mumbleConfig.radioPressed do
+							Citizen.Wait(0)
+							SetControlNormal(0, 249, 1.0)
+							SetControlNormal(1, 249, 1.0)
+							SetControlNormal(2, 249, 1.0)
 						end
-					end
-				end
-			else
-				if playerData.radioActive then
-					SetVoiceData("radioActive", false)
-					playerData.radioActive = false
+						TriggerEvent("mumble-voip:radioActive", false)
+					end)
 				end
 			end
-
-			if mumbleConfig.callSpeakerEnabled then
-				local secondaryPressed = false
-
-				if mumbleConfig.controls.speaker.secondary ~= nil then
-					secondaryPressed = IsControlPressed(0, mumbleConfig.controls.speaker.secondary)
-				else
-					secondaryPressed = true
-				end
-
-				if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) and secondaryPressed then
-					if playerData.call > 0 then
-						SetVoiceData("callSpeaker", not playerData.callSpeaker)
-						playerData.callSpeaker = not playerData.callSpeaker
-					end
-				end
-			end
-		end
-	end
-end)
-
--- UI
-Citizen.CreateThread(function()
-	while true do
-		if initialised then
-			local playerId = PlayerId()
-			local playerData = voiceData[playerServerId]
-			local playerTalking = NetworkIsPlayerTalking(playerId)
-			local playerMode = 2
-			local playerRadio = 0
-			local playerRadioActive = false
-			local playerCall = 0
-			local playerCallSpeaker = false
-
-			if playerData ~= nil then
-				playerMode = playerData.mode or 2
-				playerRadio = playerData.radio or 0
-				playerRadioActive = playerData.radioActive or false
-				playerCall = playerData.call or 0
-				playerCallSpeaker = playerData.callSpeaker or false
-			end
-
-			-- Update UI
-			SendNUIMessage({
-				talking = playerTalking,
-				mode = mumbleConfig.voiceModes[playerMode][2],
-				radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
-				radioActive = playerRadioActive,
-				call = mumbleConfig.callChannelNames[playerCall] ~= nil and mumbleConfig.callChannelNames[playerCall] or playerCall,
-				speaker = playerCallSpeaker,
-			})
-
-			Citizen.Wait(200)
 		else
-			Citizen.Wait(0)
+			if playerData.radioActive then
+				SetVoiceData("radioActive", false)
+				playerData.radioActive = false
+			end
 		end
 	end
-end)
+
+end, false)
+
+RegisterCommand('-radiotalk', function()
+	if initialised then
+		local playerData = voiceData[playerServerId]
+
+		playerData = playerData or {
+			mode = 2,
+			radio = 0,
+			radioActive = false,
+			call = 0,
+			callSpeaker = false,
+			speakerTargets = {},
+		}
+		if playerData.radio > 0 then
+			SetVoiceData("radioActive", false)
+			SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Stop sending voice to everyone in the radio
+			PlayMicClick(playerData.radio, false)
+			if mumbleConfig.showRadioList then
+				SendNUIMessage({ radioId = playerServerId, radioTalking = false }) -- Set client talking in radio list
+			end
+			playerData.radioActive = false
+			mumbleConfig.radioPressed = false
+		end
+	end
+end, false)
+RegisterKeyMapping('+radiotalk', 'Talk over Radio', 'keyboard', 'LMENU')
+
+
+RegisterCommand('+cycleproximity', function()
+
+	if initialised then
+
+		local playerData = voiceData[playerServerId]
+
+		playerData = playerData or {
+			mode = 2,
+			radio = 0,
+			radioActive = false,
+			call = 0,
+			callSpeaker = false,
+			speakerTargets = {},
+		}
+
+		local secondaryPressed = true
+
+		local voiceMode = playerData.mode
+	
+		local newMode = voiceMode + 1
+	
+		if newMode > #mumbleConfig.voiceModes then
+			voiceMode = 1
+		else
+			voiceMode = newMode
+		end
+		
+		NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1] + 0.0)
+
+		SetVoiceData("mode", voiceMode)
+		playerData.mode = voiceMode
+	end
+end, false)
+-- just a dummy command to prevent chat spam saying it doesn't exist
+RegisterCommand('-cycleproximity', function()
+end, false)
+RegisterKeyMapping('+cycleproximity', 'Cycle Proximity', 'keyboard', 'f11')
 
 -- Manage Grid Target Channels
 Citizen.CreateThread(function()
+	-- possibly fix peoples global issues
+	NetworkSetTalkerProximity(3.0)
 	while true do
 		if initialised then
 			if not MumbleIsConnected() then
@@ -920,7 +904,7 @@ Citizen.CreateThread(function()
 			
 			SetGridTargets(playerCoords, resetTargets)
 
-			Citizen.Wait(2500)
+			Citizen.Wait(30000)
 		else
 			Citizen.Wait(0)
 		end
@@ -933,17 +917,6 @@ Citizen.CreateThread(function()
 		if initialised then
 			if mumbleConfig.callSpeakerEnabled then
 				local playerData = voiceData[playerServerId]
-
-				if not playerData then
-					playerData  = {
-						mode = 2,
-						radio = 0,
-						radioActive = false,
-						call = 0,
-						callSpeaker = false,
-						speakerTargets = {},
-					}
-				end
 				
 				if playerData.call > 0 then -- Check if player is in call
 					if playerData.callSpeaker then -- Check if they have loud speaker on
@@ -1019,17 +992,6 @@ Citizen.CreateThread(function()
 				local playerPed = PlayerPedId()
 				local playerData = voiceData[playerServerId]
 
-				if not playerData then
-					playerData = {
-						mode = 2,
-						radio = 0,
-						radioActive = false,
-						call = 0,
-						callSpeaker = false,
-						speakerTargets = {},
-					}
-				end
-
 				if IsPedInAnyVehicle(playerPed, false) then
 					local playerVehicle = GetVehiclePedIsIn(playerPed, false)
 					local passengerCount, passengers = GetVehiclePassengers(playerVehicle)
@@ -1104,6 +1066,44 @@ Citizen.CreateThread(function()
 			end
 
 			Citizen.Wait(1000)
+		else
+			Citizen.Wait(0)
+		end
+	end
+end)
+
+-- UI
+Citizen.CreateThread(function()
+	while true do
+		if initialised then
+			local playerId = PlayerId()
+			local playerData = voiceData[playerServerId]
+			local playerTalking = NetworkIsPlayerTalking(playerId)
+			local playerMode = 2
+			local playerRadio = 0
+			local playerRadioActive = false
+			local playerCall = 0
+			local playerCallSpeaker = false
+
+			if playerData ~= nil then
+				playerMode = playerData.mode or 2
+				playerRadio = playerData.radio or 0
+				playerRadioActive = playerData.radioActive or false
+				playerCall = playerData.call or 0
+				playerCallSpeaker = playerData.callSpeaker or false
+			end
+
+			-- Update UI
+			SendNUIMessage({
+				talking = playerTalking,
+				mode = mumbleConfig.voiceModes[playerMode][2],
+				radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
+				radioActive = playerRadioActive,
+				call = mumbleConfig.callChannelNames[playerCall] ~= nil and mumbleConfig.callChannelNames[playerCall] or playerCall,
+				speaker = playerCallSpeaker,
+			})
+
+			Citizen.Wait(200)
 		else
 			Citizen.Wait(0)
 		end
