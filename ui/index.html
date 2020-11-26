@@ -132,8 +132,8 @@
 						let listHeader = document.createElement("div");
 
 						listHeader.id = "voip-radio-list-header";
-						listHeader.textContent = "\uD83D\uDCE1 Radio List";
-						// listHeader.style.textDecorationLine = "underline";
+						listHeader.textContent = "\uD83D\uDCE1Radio List";
+						listHeader.style.textDecorationLine = "underline";
 
 						radioListElem.appendChild(listHeader);
 					}
@@ -166,15 +166,19 @@
 						radioListElem.removeChild(radioListElem.firstChild);
 					}
 				}
+
+				if (item.showWatermark != null && !item.showWatermark){
+					let watermarkElem = document.getElementById("voip-watermark");
+
+					watermarkElem.remove()
+				}
 			});
 		</script>
 	</head>
 	<body>
 		<audio id="audio_on" src="mic_click_on.ogg"></audio>
 		<audio id="audio_off" src="mic_click_off.ogg"></audio>
-		<!-- Hope this doesn't make anyone mad, I really just hate watermarks showing at all -->
-		<!-- Everyone should know it's mumble-voip by the design -->
-		<!-- <div class="watermark">mumble-voip by Frazzle.</div> -->
+		<div class="watermark" id="voip-watermark">mumble-voip by Frazzle.</div>
 		<div class="radio-list-container" id="voip-radio-list"></div>
 		<div class="info-container">
 			<div>[Mumble] <span id="voip-mode">Initialising</span></div>

@@ -14,7 +14,7 @@ local wasPlayerInVehicle = false
 local volume = 0.3
 local voiceData = {}
 
--- it annoys me when this is everywhere
+-- put this here so we don't have to check if it's been init.
 voiceData[playerServerId] = {
 	mode = 2,
 	radio = 0,
@@ -792,14 +792,12 @@ RegisterCommand('+radiotalk', function()
 					end
 					mumbleConfig.radioPressed = true
 					Citizen.CreateThread(function()
-						TriggerEvent("mumble-voip:radioActive", true)
 						while mumbleConfig.radioPressed do
 							Citizen.Wait(0)
 							SetControlNormal(0, 249, 1.0)
 							SetControlNormal(1, 249, 1.0)
 							SetControlNormal(2, 249, 1.0)
 						end
-						TriggerEvent("mumble-voip:radioActive", false)
 					end)
 				end
 			end
@@ -882,6 +880,11 @@ RegisterKeyMapping('+cycleproximity', 'Cycle Proximity', 'keyboard', 'f11')
 Citizen.CreateThread(function()
 	-- possibly fix peoples global issues
 	NetworkSetTalkerProximity(3.0)
+	-- only send once
+	SendNUIMessage{
+		showWatermark = mumbleConfig.showWatermark,
+	}
+
 	while true do
 		if initialised then
 			if not MumbleIsConnected() then

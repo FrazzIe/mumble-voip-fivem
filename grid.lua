@@ -9,10 +9,6 @@ local deltas = {
 	vector2(0, 1),
 }
 
--- I don't know why the grid system was needed in the first place
--- it seems to cause a lot more issues than it fixes, as it works
--- for onesync infinity without it.
-
 local bitShift = 128
 local zoneRadius = 8192
 

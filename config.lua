@@ -3,6 +3,7 @@ radioData = {}
 callData = {}
 mumbleConfig = {
 	debug = false, -- enable debug msgs
+	showWatermark = true,
 	voiceModes = {
 		{2.5, "Whisper"}, -- Whisper speech distance in gta distance units
 		{8.0, "Normal"}, -- Normal speech distance in gta distance units
