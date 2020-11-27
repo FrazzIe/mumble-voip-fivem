@@ -342,6 +342,8 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 
+	SendNUIMessage({ hideWatermark = mumbleConfig.hideWatermark })
+
 	TriggerEvent("mumble:Initialised")
 
 	initialised = true
@@ -835,7 +837,7 @@ RegisterCommand('-radiotalk', function()
 		end
 	end
 end, false)
-RegisterKeyMapping('+radiotalk', 'Talk over Radio', 'keyboard', 'LMENU')
+RegisterKeyMapping('+radiotalk', 'Talk over Radio', 'keyboard', mumbleConfig.radioKey)
 
 
 RegisterCommand('+cycleproximity', function()
@@ -874,16 +876,12 @@ end, false)
 -- just a dummy command to prevent chat spam saying it doesn't exist
 RegisterCommand('-cycleproximity', function()
 end, false)
-RegisterKeyMapping('+cycleproximity', 'Cycle Proximity', 'keyboard', 'f11')
+RegisterKeyMapping('+cycleproximity', 'Cycle Proximity', 'keyboard', mumbleConfig.proximityKey)
 
 -- Manage Grid Target Channels
 Citizen.CreateThread(function()
 	-- possibly fix peoples global issues
 	NetworkSetTalkerProximity(3.0)
-	-- only send once
-	SendNUIMessage{
-		showWatermark = mumbleConfig.showWatermark,
-	}
 
 	while true do
 		if initialised then

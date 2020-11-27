@@ -3,7 +3,7 @@ radioData = {}
 callData = {}
 mumbleConfig = {
 	debug = false, -- enable debug msgs
-	showWatermark = true,
+	hideWatermark = false,
 	voiceModes = {
 		{2.5, "Whisper"}, -- Whisper speech distance in gta distance units
 		{8.0, "Normal"}, -- Normal speech distance in gta distance units
@@ -17,6 +17,8 @@ mumbleConfig = {
 	micClickOff = true, -- Is click sound off active
 	radioPressed = false,
 	radioClickMaxChannel = 100, -- Set the max amount of radio channels that will have local radio clicks enabled
+	radioKey = "CAPITAL",
+	proximityKey = "Z",
 	radioChannelNames = { -- Add named radio channels (Defaults to [channel number] MHz)
 		[1] = "LEO Tac 1",
 		[2] = "LEO Tac 2",
