@@ -130,6 +130,13 @@ function SetPlayerTargets(...)
 	end
 end
 
+if mumbleConfig.useRadioSubmix then
+	local radioEffectId = CreateAudioSubmix('Radio')
+	SetAudioSubmixEffectRadioFx(radioEffectId, 0)
+	SetAudioSubmixEffectParamInt(radioEffectId, 0, GetHashKey('default'), 1)
+	AddAudioSubmixOutput(radioEffectId, 0)
+end
+
 function TogglePlayerVoice(serverId, value)
 	local msg = false
 
@@ -585,8 +592,14 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			if CompareChannels(playerData, "radio", radioChannel) then -- Check if player is in the same radio channel as you
 				if playerServerId ~= player then
 					if value then
+						if mumbleConfig.useRadioSubmix then
+							MumbleSetSubmixForServerId(player, radioEffectId)
+						end
 						TogglePlayerVoice(player, true) -- unmute player
 					else
+						if mumbleConfig.useRadioSubmix then
+							MumbleSetSubmixForServerId(player, -1)
+						end
 						if not vehicleTargets[player] then -- Mute if player is not in client vehicle
 							if playerData.call > 0 then -- Check if the client is in a call
 								if not CompareChannels(voiceData[player], "call", playerData.call) then -- Check if the client is in a call with the unmuted player
