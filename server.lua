@@ -101,7 +101,7 @@ AddEventHandler("mumble:SetVoiceData", function(key, value, target)
 	
 	if key == "speakerTargets" then
 		TriggerClientEvent("mumble:SetVoiceData", -1, target, key, value)
-	else
+	elseif key ~= "mode" then
 		TriggerClientEvent("mumble:SetVoiceData", -1, source, key, value)
 	end
 end)
