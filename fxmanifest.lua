@@ -13,5 +13,6 @@ files {}
 client_scripts {}
 shared_scripts {
 	"sh_config.lua",
+	"sh_grid.lua",
 }
 server_scripts {}
