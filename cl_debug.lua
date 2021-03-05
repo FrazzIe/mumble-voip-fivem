@@ -75,8 +75,10 @@ local function ShowChannels()
 end
 
 RegisterCommand("mdc", function(src, args, raw)
-	showChannels = not showChannels
-	if showChannels then
-		Citizen.CreateThread(ShowChannels)
+	if config.debug then
+		showChannels = not showChannels
+		if showChannels then
+			Citizen.CreateThread(ShowChannels)
+		end
 	end
 end)

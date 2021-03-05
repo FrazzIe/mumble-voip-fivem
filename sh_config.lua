@@ -1,1 +1,3 @@
-config = {}
+config = {
+	debug = true,
+}
