@@ -27,6 +27,8 @@ local function ShowChannels()
 				newBlips[chunk.id] = blips[chunk.id]
 				blips[chunk.id] = nil
 				goto next
+			elseif chunk.id < 0 or chunk.id > GetMaxChunkId() then
+				goto next
 			end
 
 			local bounds, centre = GetGridChunkBounds(chunk.pos.x, chunk.pos.y)
