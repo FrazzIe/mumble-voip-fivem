@@ -1,4 +1,5 @@
 local showChannels = false
+local showProximity = false
 local zoneRadius = GetGridChunkRadius()
 
 local function GetGridChunkBounds(x, y)
@@ -127,6 +128,143 @@ local function ShowChannels()
 	end
 end
 
+local function ShowProximity()
+	local blips = {}
+	local playersCanHear = ""
+	local playersCanTalk = ""
+
+	Citizen.CreateThread(function()
+		while showProximity do
+			SetTextScale(1.0, 0.3)
+			SetTextOutline(true)
+
+			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
+			AddTextComponentSubstringPlayerName("~b~Proximity Info")
+			EndTextCommandDisplayText(0.481, 0.68)
+
+			SetTextScale(1.0, 0.3)
+			SetTextOutline(true)
+
+			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
+			AddTextComponentSubstringPlayerName("Players that can hear you: [" .. playersCanTalk .. "]")
+			EndTextCommandDisplayText(0.481, 0.7)
+
+			SetTextScale(1.0, 0.3)
+			SetTextOutline(true)
+
+			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
+			AddTextComponentSubstringPlayerName("Players you can hear:        [" .. playersCanHear .. "]")
+			EndTextCommandDisplayText(0.481, 0.73)
+
+			Citizen.Wait(0)
+		end
+	end)
+
+	while showProximity do
+		local myId = GetPlayerServerId(PlayerId())
+		local myProximity =  GetVoiceProperty("proximity", myId)
+		local players = GetActivePlayers()
+		local newBlips = {}
+
+		playersCanHear = ""
+		playersCanTalk = ""
+
+		for i = 1, #players do
+			local player = players[i]
+			local id = GetPlayerServerId(player)
+			local proximity = GetVoiceProperty("proximity", id)
+
+			if not proximity then
+				goto next
+			end
+
+			local ped = GetPlayerPed(player)
+			local pos = GetEntityCoords(ped)
+
+			if id ~= myId and myProximity then
+				local myPed = PlayerPedId()
+				local myPos = GetEntityCoords(myPed)
+				local dist = #(myPos - pos)
+
+				if (dist - config.proximity[proximity].input) <= config.proximity[myProximity].output then
+					if playersCanTalk == "" then
+						playersCanTalk = id
+					else
+						playersCanTalk = playersCanTalk .. ", " .. id
+					end
+				end
+
+				if (dist - config.proximity[myProximity].input) <= config.proximity[proximity].output then
+					if playersCanHear == "" then
+						playersCanHear = id
+					else
+						playersCanHear = playersCanHear .. ", " .. id
+					end
+				end
+			end
+
+			if blips[id] then
+				if blips[id].proximity ~= proximity then
+					for blip = 1, #blips[id].blips do
+						RemoveBlip(blips[id].blips[blip])
+					end
+
+					blips[id] = nil
+					goto continue
+				end
+
+				if #(blips[id].pos - pos) > 1 then
+					for blip = 1, #blips[id].blips do
+						SetBlipCoords(blips[id].blips[blip], pos.x, pos.y, pos.z)
+					end
+
+					blips[id].pos = pos
+					newBlips[id] = blips[id]
+					blips[id] = nil
+					goto next
+				end
+
+				newBlips[id] = blips[id]
+				blips[id] = nil
+				goto next
+			end
+
+			::continue::
+			local data = config.proximity[proximity]
+
+			newBlips[id] = {}
+			newBlips[id].proximity = proximity
+			newBlips[id].pos = pos
+			newBlips[id].blips = {}
+
+			local blipIdx = #newBlips[id].blips + 1
+			newBlips[id].blips[blipIdx] = AddBlipForRadius(pos.x, pos.y, pos.z, config.proximity[proximity].output)
+			SetBlipColour(newBlips[id].blips[blipIdx], 5)
+			SetBlipAlpha(newBlips[id].blips[blipIdx], 64)
+			SetBlipRotation(newBlips[id].blips[blipIdx], 0)
+			SetBlipAsShortRange(newBlips[id].blips[blipIdx], false)
+
+			local blipIdx = #newBlips[id].blips + 1
+			newBlips[id].blips[blipIdx] = AddBlipForRadius(pos.x, pos.y, pos.z, config.proximity[proximity].input)
+			SetBlipColour(newBlips[id].blips[blipIdx], 1)
+			SetBlipAlpha(newBlips[id].blips[blipIdx], 65)
+			SetBlipRotation(newBlips[id].blips[blipIdx], 0)
+			SetBlipAsShortRange(newBlips[id].blips[blipIdx], false)
+
+			::next::
+		end
+
+		for id, data in pairs(blips) do
+			for i = 1, #data.blips do
+				RemoveBlip(data.blips[i])
+			end
+		end
+
+		blips = newBlips
+		Citizen.Wait(200)
+	end
+end
+
 function LogMessage(msg)
 	if config.debug then
 		print(("[LOG]: %s"):format(msg))
@@ -138,6 +276,15 @@ RegisterCommand("mdc", function(src, args, raw)
 		showChannels = not showChannels
 		if showChannels then
 			Citizen.CreateThread(ShowChannels)
+		end
+	end
+end)
+
+RegisterCommand("mdp", function(src, args, raw)
+	if config.debug then
+		showProximity = not showProximity
+		if showProximity then
+			Citizen.CreateThread(ShowProximity)
 		end
 	end
 end)
