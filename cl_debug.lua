@@ -36,11 +36,20 @@ local function ShowChannels()
 			newBlips[chunk.id] = {}
 			local blipIdx
 
-			for edge = 1, #bounds do
+			local edges = {
+				{ 1, 0, (zoneRadius/2), 1.0, zoneRadius },
+				{ 1, (zoneRadius/2), 0, zoneRadius, 1.0 },
+				{ 3, 0, -(zoneRadius/2), 1.0, zoneRadius },
+				{ 3, -(zoneRadius/2), 0, -zoneRadius, 1.0 },
+			}
+
+			for edge = 1, #edges do
+				local line = edges[edge]
 				blipIdx = #newBlips[chunk.id] + 1
-				newBlips[chunk.id][blipIdx] = AddBlipForCoord(bounds[edge].x, bounds[edge].y, 0)
+				newBlips[chunk.id][blipIdx] = AddBlipForArea(bounds[line[1]].x + line[2], bounds[line[1]].y + line[3], 0, line[4] + 0.0, line[5] + 0.0)
 				SetBlipColour(newBlips[chunk.id][blipIdx], 1)
-				SetBlipScale(newBlips[chunk.id][blipIdx], 0.6)
+				SetBlipRotation(newBlips[chunk.id][blipIdx], 0)
+				SetBlipAsShortRange(newBlips[chunk.id][blipIdx], true)
 			end
 
 			blipIdx = #newBlips[chunk.id] + 1
