@@ -10,9 +10,11 @@ lua54 "yes"
 ui_page ""
 files {}
 
-client_scripts {}
 shared_scripts {
 	"sh_config.lua",
 	"sh_grid.lua",
+}
+client_scripts {
+	"cl_debug.lua",
 }
 server_scripts {}
