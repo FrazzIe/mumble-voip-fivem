@@ -1,5 +1,5 @@
 fx_version "cerulean"
-games { "gta" }
+games { "gta5" }
 
 author "Fraser Watt (https://github.com/FrazzIe)"
 description "A manager for FiveM's implementation of mumble-voip"
