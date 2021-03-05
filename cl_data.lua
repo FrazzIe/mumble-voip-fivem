@@ -25,3 +25,15 @@ function SetVoiceProperty(property, src, data, send) -- Set voice data propertie
 		end
 	end
 end
+
+function GetVoiceProperty(property, src)
+	if VoiceProperty[property] then -- Check if property exists
+		if not VoiceData[src] then -- Init player if data doesn't exist
+			VoiceData[src] = GetDefaultData()
+		end
+
+		return VoiceData[src][property]
+	end
+
+	return nil
+end
