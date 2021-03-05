@@ -14,11 +14,34 @@ end
 
 local function ShowChannels()
 	local blips = {}
+	local channelList = ""
+
+	Citizen.CreateThread(function()
+		while showChannels do
+			SetTextScale(1.0, 0.3)
+			SetTextOutline(true)
+
+			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
+			AddTextComponentSubstringPlayerName("~b~Channel Info")
+			EndTextCommandDisplayText(0.481, 0.63)
+
+			SetTextScale(1.0, 0.3)
+			SetTextOutline(true)
+
+			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
+			AddTextComponentSubstringPlayerName("Channels: " .. channelList)
+			EndTextCommandDisplayText(0.5, 0.65)
+
+			Citizen.Wait(0)
+		end
+	end)
+
 	while showChannels do
 		local ped = PlayerPedId()
 		local pos = GetEntityCoords(ped)
 		local nearbyChunks = GetNearbyChunks(pos)
 		local newBlips = {}
+		local newChannelList = ""
 
 		for i = 1, #nearbyChunks do
 			local chunk = nearbyChunks[i]
@@ -26,6 +49,12 @@ local function ShowChannels()
 			if blips[chunk.id] ~= nil then
 				newBlips[chunk.id] = blips[chunk.id]
 				blips[chunk.id] = nil
+
+				if newChannelList == "" then
+					newChannelList = chunk.id
+				else
+					newChannelList = newChannelList .. ", " .. chunk.id
+				end
 				goto next
 			elseif chunk.id < 0 or chunk.id > GetMaxChunkId() then
 				goto next
@@ -78,6 +107,11 @@ local function ShowChannels()
 				offsets[numCount][1] = offsets[numCount][1] + offsets[numCount][2]
 			end
 
+			if newChannelList == "" then
+				newChannelList = chunk.id
+			else
+				newChannelList = newChannelList .. ", " .. chunk.id
+			end
 			::next::
 		end
 
@@ -88,6 +122,7 @@ local function ShowChannels()
 		end
 
 		blips = newBlips
+		channelList = newChannelList
 		Citizen.Wait(500)
 	end
 end
