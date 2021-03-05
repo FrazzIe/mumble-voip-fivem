@@ -15,7 +15,7 @@ shared_scripts {
 	"sh_grid.lua",
 }
 client_scripts {
-	"cl_data.lua",
 	"cl_debug.lua",
+	"cl_data.lua",
 }
 server_scripts {}
