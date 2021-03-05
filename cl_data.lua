@@ -18,6 +18,8 @@ function SetVoiceProperty(property, src, data, send) -- Set voice data propertie
 			VoiceData[src] = GetDefaultData()
 		end
 
+		LogMessage(("Setting [%s] to [%s]")) -- Log property change
+
 		VoiceProperty[property](src, data) -- Set voice property
 
 		if send then -- Notify server of local change
