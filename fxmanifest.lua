@@ -11,4 +11,7 @@ ui_page ""
 files {}
 
 client_scripts {}
+shared_scripts {
+	"sh_config.lua",
+}
 server_scripts {}
