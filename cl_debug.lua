@@ -74,6 +74,12 @@ local function ShowChannels()
 	end
 end
 
+function LogMessage(msg)
+	if config.debug then
+		print(("[LOG]: %s"):format(msg))
+	end
+end
+
 RegisterCommand("mdc", function(src, args, raw)
 	if config.debug then
 		showChannels = not showChannels
