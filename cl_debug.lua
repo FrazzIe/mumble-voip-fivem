@@ -46,18 +46,25 @@ local function ShowChannels()
 			SetBlipColour(newBlips[chunk.id][blipIdx], 5)
 			SetBlipAlpha(newBlips[chunk.id][blipIdx], 64)
 			SetBlipRotation(newBlips[chunk.id][blipIdx], 0)
+			SetBlipAsShortRange(newBlips[chunk.id][blipIdx], true)
 
-			local id = tostring(chunk.id)
-			local textOffset = -12
+			local chunkId = tostring(chunk.id)
+			local numCount = math.ceil(#chunkId / 2)
+			local offsets = {
+				{0, 0},
+				{-8, 16},
+				{-12, 12},
+			}
 
-			for digit = 1, #id, 2 do
-				local num = id:sub(digit, digit + 1)
+			for digit = 1, #chunkId, 2 do
+				local num = chunkId:sub(digit, digit + 1)
 				blipIdx = #newBlips[chunk.id] + 1
-				newBlips[chunk.id][blipIdx] = AddBlipForCoord(centre.x + textOffset, centre.y, 0)
+				newBlips[chunk.id][blipIdx] = AddBlipForCoord(centre.x + offsets[numCount][1], centre.y, 0)
 				ShowNumberOnBlip(newBlips[chunk.id][blipIdx], tonumber(num))
 				ShowHeightOnBlip(newBlips[chunk.id][blipIdx], false)
 				SetBlipRotation(newBlips[chunk.id][blipIdx], 0)
-				textOffset = textOffset + 12
+				SetBlipAsShortRange(newBlips[chunk.id][blipIdx], true)
+				offsets[numCount][1] = offsets[numCount][1] + offsets[numCount][2]
 			end
 
 			::next::
