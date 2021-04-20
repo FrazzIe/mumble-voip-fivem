@@ -8,7 +8,7 @@ function VoiceProperty.proximity(src, data) -- Set voice proximity
 		MumbleSetAudioInputDistance(proximityMode.input + 0.0)
 		MumbleSetAudioOutputDistance(proximityMode.output + 0.0)
 
-		LogMessage(("Change voice proximity to %s (%s) [input: %s, output: %s]"):format(data, proximityMode.name, proximityMode.input, proximityMode.output))
+		LogMessage("INFO", ("Change voice proximity to %s (%s) [input: %s, output: %s]"):format(data, proximityMode.name, proximityMode.input, proximityMode.output))
 	end
 end
 

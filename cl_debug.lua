@@ -243,9 +243,9 @@ local function ShowProximity()
 	end
 end
 
-function LogMessage(msg)
-	if config.debug then
-		print(("[LOG]: %s"):format(msg))
+function LogMessage(tag, msg, ignore)
+	if config.debug or ignore then
+		print(("%s: %s"):format(tag, msg))
 	end
 end
 

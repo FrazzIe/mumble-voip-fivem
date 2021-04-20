@@ -18,7 +18,7 @@ function SetVoiceProperty(property, src, data, send) -- Set voice data propertie
 			VoiceData[src] = GetDefaultData()
 		end
 
-		LogMessage(("Setting [%s] to [%s]"):format(property, data)) -- Log property change
+		LogMessage("INFO", ("Setting [%s] to [%s]"):format(property, data)) -- Log property change
 
 		VoiceProperty[property](src, data) -- Set voice property
 
