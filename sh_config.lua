@@ -1,5 +1,6 @@
 config = {
 	debug = true,
+	eventPrefix = "mumble",
 	proximity = {
 		{ name = "whisper", input = 3.0, output = 2.5 },
 		{ name = "normal", input = 3.0, output = 8.0 },
