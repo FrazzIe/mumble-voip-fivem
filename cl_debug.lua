@@ -13,26 +13,22 @@ local function GetGridChunkBounds(x, y)
 	}, base.xy + (zoneRadius/2)
 end
 
+local function AddText(text, x, y)
+	SetTextScale(1.0, 0.3)
+	SetTextOutline(true)
+	BeginTextCommandDisplayText("CELL_EMAIL_BCON")
+	AddTextComponentSubstringPlayerName(text)
+	EndTextCommandDisplayText(x, y)
+end
+
 local function ShowChannels()
 	local blips = {}
 	local channelList = ""
 
 	Citizen.CreateThread(function()
 		while showChannels do
-			SetTextScale(1.0, 0.3)
-			SetTextOutline(true)
-
-			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
-			AddTextComponentSubstringPlayerName("~b~Channel Info")
-			EndTextCommandDisplayText(0.481, 0.63)
-
-			SetTextScale(1.0, 0.3)
-			SetTextOutline(true)
-
-			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
-			AddTextComponentSubstringPlayerName("Channels: " .. channelList)
-			EndTextCommandDisplayText(0.5, 0.65)
-
+			AddText("~b~Channel Info", 0.481, 0.63)
+			AddText("Channels: " .. channelList, 0.5, 0.65)
 			Citizen.Wait(0)
 		end
 	end)
@@ -135,27 +131,9 @@ local function ShowProximity()
 
 	Citizen.CreateThread(function()
 		while showProximity do
-			SetTextScale(1.0, 0.3)
-			SetTextOutline(true)
-
-			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
-			AddTextComponentSubstringPlayerName("~b~Proximity Info")
-			EndTextCommandDisplayText(0.481, 0.68)
-
-			SetTextScale(1.0, 0.3)
-			SetTextOutline(true)
-
-			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
-			AddTextComponentSubstringPlayerName("Players that can hear you: [" .. playersCanTalk .. "]")
-			EndTextCommandDisplayText(0.481, 0.7)
-
-			SetTextScale(1.0, 0.3)
-			SetTextOutline(true)
-
-			BeginTextCommandDisplayText("CELL_EMAIL_BCON")
-			AddTextComponentSubstringPlayerName("Players you can hear:        [" .. playersCanHear .. "]")
-			EndTextCommandDisplayText(0.481, 0.73)
-
+			AddText("~b~Proximity Info", 0.481, 0.68)
+			AddText("Players that can hear you: [" .. playersCanTalk .. "]", 0.5, 0.7)
+			AddText("Players you can hear:        [" .. playersCanHear .. "]", 0.5, 0.72)
 			Citizen.Wait(0)
 		end
 	end)
