@@ -19,7 +19,22 @@ function SetVoiceProperty(property, src, data, send) -- Set voice data propertie
 			VoiceData[src] = GetDefaultData()
 		end
 
-		LogMessage("INFO", ("Setting [%s] to [%s]"):format(property, data)) -- Log property change
+		if config.debug then
+			local dataType = type(data)
+			local dataMsg = data
+			if dataType == "table" then
+				local printKeys = #data == 0
+				dataMsg = ""
+
+				for k, v in pairs(data) do
+					dataMsg = dataMsg .. ", " .. (printKeys and k or v)
+				end
+
+				dataMsg = string.sub(dataMsg, 3)
+			end
+
+			LogMessage("INFO", ("Setting [%s] to [%s]"):format(property, dataMsg)) -- Log property change
+		end
 
 		VoiceProperty[property](src, data) -- Set voice property
 
