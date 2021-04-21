@@ -8,5 +8,6 @@ config = {
 	},
 	controls = {
 		proximity = { mapper = "keyboard", param = "z" },
-	}
+	},
+	channelInterval = 250,
 }

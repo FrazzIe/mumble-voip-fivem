@@ -19,5 +19,6 @@ client_scripts {
 	"cl_data.lua",
 	"cl_proximity.lua",
 	"cl_targets.lua",
+	"cl_channels.lua",
 }
 server_scripts {}
