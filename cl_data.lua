@@ -56,5 +56,5 @@ AddEventHandler("onClientResourceStart", function(resName)
 
 	VoiceData[ClientServerId] = GetDefaultData()
 
-	TriggerEvent(config.eventPrefix .. ":initialise")
+	TriggerEvent(config.eventPrefix .. ":initialise", ClientServerId)
 end)
