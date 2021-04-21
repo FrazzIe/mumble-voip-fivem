@@ -18,5 +18,6 @@ client_scripts {
 	"cl_debug.lua",
 	"cl_data.lua",
 	"cl_proximity.lua",
+	"cl_targets.lua",
 }
 server_scripts {}
