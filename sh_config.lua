@@ -7,7 +7,7 @@ config = {
 		{ name = "shouting", input = 3.0, output = 20.0 },
 	},
 	controls = {
-		proximity = { mapper = "keyboard", param = "z" },
+		proximity = { description = "Cycle Proximity", mapper = "keyboard", param = "z" },
 	},
 	channelInterval = 250,
 	uiInterval = 200,

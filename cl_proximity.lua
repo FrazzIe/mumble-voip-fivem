@@ -19,7 +19,7 @@ function UIProperty.proximity(src, data)
 end
 
 RegisterCommand("+mumble_proximity", function(src, args, raw)
-	local src = GetPlayerServerId(PlayerId())
+	local src = ClientServerId
 	local proximity = GetVoiceProperty("proximity", src)
 
 	if proximity ~= nil then
@@ -34,4 +34,4 @@ RegisterCommand("+mumble_proximity", function(src, args, raw)
 end)
 
 RegisterCommand("-mumble_proximity", function() end)
-RegisterKeyMapping("+mumble_proximity", "Cycle Proximity", config.controls.proximity.mapper, config.controls.proximity.param)
+RegisterKeyMapping("+mumble_proximity", config.controls.proximity.description, config.controls.proximity.mapper, config.controls.proximity.param)
