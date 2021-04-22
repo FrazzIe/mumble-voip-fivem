@@ -8,6 +8,6 @@ function VoiceProperty.target(src, data) -- Set voice channel
 	end
 end
 
-AddEventHandler("mumble:initialise", function(src)
+AddEventHandler(config.eventPrefix .. ":initialise", function(src)
 	SetVoiceProperty("target", src, GetVoiceProperty("target", src))
 end)

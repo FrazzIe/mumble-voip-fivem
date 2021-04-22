@@ -39,7 +39,7 @@ function SetVoiceProperty(property, src, data, send) -- Set voice data propertie
 		VoiceProperty[property](src, data) -- Set voice property
 
 		if send then -- Notify server of local change
-			TriggerServerEvent("mumble:SetVoiceProperty", property, data)
+			TriggerServerEvent(config.eventPrefix .. ":SetVoiceProperty", property, data)
 		end
 	end
 end

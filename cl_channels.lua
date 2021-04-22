@@ -68,7 +68,7 @@ function SetChannels(src, pos)
 	end
 end
 
-AddEventHandler("mumble:initialise", function(src)
+AddEventHandler(config.eventPrefix .. ":initialise", function(src)
 	Citizen.CreateThread(function()
 		local src = src
 
