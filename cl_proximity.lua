@@ -12,6 +12,12 @@ function VoiceProperty.proximity(src, data) -- Set voice proximity
 	end
 end
 
+function UIProperty.proximity(src, data)
+	local proximityMode = config.proximity[data]
+
+	return { proximity = proximityMode }
+end
+
 RegisterCommand("+mumble_proximity", function(src, args, raw)
 	local src = GetPlayerServerId(PlayerId())
 	local proximity = GetVoiceProperty("proximity", src)
