@@ -38,6 +38,10 @@ function SetVoiceProperty(property, src, data, send) -- Set voice data propertie
 
 		VoiceProperty[property](src, data) -- Set voice property
 
+		if ClientServerId == src and UIProperty[property] then -- Send updated property to ui
+			SendNUIMessage(UIProperty[property](src, data))
+		end
+
 		if send then -- Notify server of local change
 			TriggerServerEvent(config.eventPrefix .. ":SetVoiceProperty", property, data)
 		end
