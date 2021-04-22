@@ -33,27 +33,66 @@ function AddTarget(src, targetId)
 	end
 end
 
-function RemoveTarget(src, targetId)
+function RemoveTarget(src, data)
 	local targets = GetVoiceProperty("targets", src)
+	local targetTypes = {}
+	local removeMultiple = type(data) == "table"
 
-	if targets[targetId] then
-		local canRemove = true
+	for i = 1, #TargetTypes do
+		local type = TargetTypes[i]
+		local typeData = GetVoiceProperty(type, src)
 
-		for type, _ in pairs(TargetTypes) do
-			local typeData = GetVoiceProperty(type, src)
+		if typeData then
+			targetTypes[#targetTypes + 1] = typeData
+		end
+	end
 
-			if typeData then
-				if typeData[targetId] then
+	if not removeMultiple then
+		if targets[data] then
+			local canRemove = true
+
+			for i = 1, #targetTypes do
+				local typeData = targetTypes[i]
+
+				if typeData[data] then
 					canRemove = false
 					break
 				end
 			end
+
+			if canRemove then
+				targets[targetId] = nil
+				SetVoiceProperty("targets", src, targets)
+			end
 		end
 
-		if canRemove then
-			targets[targetId] = nil
-			SetVoiceProperty("targets", src, targets)
+		return
+	end
+
+	local resetTargets = false
+
+	for targetId, _ in pairs(data) do
+		if targets[targetId] then
+			local canRemove = true
+
+			for i = 1, #targetTypes do
+				local typeData = targetTypes[i]
+
+				if typeData[data] then
+					canRemove = false
+					break
+				end
+			end
+
+			if canRemove then
+				targets[targetId] = nil
+				resetTargets = true
+			end
 		end
+	end
+
+	if resetTargets then
+		SetVoiceProperty("targets", src, targets)
 	end
 end
 
