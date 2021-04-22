@@ -10,4 +10,5 @@ config = {
 		proximity = { mapper = "keyboard", param = "z" },
 	},
 	channelInterval = 250,
+	uiInterval = 200,
 }

@@ -17,6 +17,7 @@ shared_scripts {
 client_scripts {
 	"cl_debug.lua",
 	"cl_data.lua",
+	"cl_ui.lua",
 	"cl_proximity.lua",
 	"cl_targets.lua",
 	"cl_channels.lua",
