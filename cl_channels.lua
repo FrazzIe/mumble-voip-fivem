@@ -9,7 +9,7 @@ function VoiceProperty.channel(src, data) -- Set voice channel
 	end
 end
 
-function VoiceProperty.targetChannels(src, data) -- Set voice channel
+function VoiceProperty.targetChannels(src, data) -- Set voice channel targets
 	if data ~= nil then
 		VoiceData[src].targetChannels = data
 
@@ -21,7 +21,7 @@ function VoiceProperty.targetChannels(src, data) -- Set voice channel
 	end
 end
 
-function SetChannels(src, pos)
+function SetChannels(src, pos) -- Update voice channel and voice channel targets
 	if not VoiceData[src] then -- Init player if data doesn't exist
 		VoiceData[src] = GetDefaultData()
 	end
