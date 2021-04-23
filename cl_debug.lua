@@ -122,6 +122,12 @@ local function ShowChannels()
 		channelList = newChannelList
 		Citizen.Wait(500)
 	end
+
+	for chunk, values in pairs(blips) do
+		for i = 1, #values do
+			RemoveBlip(values[i])
+		end
+	end
 end
 
 local function ShowProximity()
