@@ -21,7 +21,7 @@ function PlayMicClick(channel, value)
 	if channel <= mumbleConfig.radioClickMaxChannel then
 		if mumbleConfig.micClicks then
 			if (value and mumbleConfig.micClickOn) or (not value and mumbleConfig.micClickOff) then
-				SendNUIMessage({ sound = (value and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume })
+				SendNUIMessage({ sound = (value and "audio_on" or "audio_off"), volume = mumbleConfig.micClickVolume, safezone = GetSafeZoneSize() })
 			end
 		end
 	end
@@ -72,7 +72,7 @@ function SetGridTargets(pos, reset) -- Used to set the players voice targets dep
 	end
 
 	if reset then
-		NetworkSetTalkerProximity(mumbleConfig.voiceModes[playerData.mode][1] + 0.0) -- Set voice proximity
+		-- NetworkSetTalkerProximity(13.0) -- Set voice proximity
 		MumbleClearVoiceTarget(voiceTarget) -- Reset voice target
 	end
 
@@ -198,7 +198,7 @@ function CheckVoiceSetting(varName, msg)
 	local setting = GetConvarInt(varName, -1)
 
 	if setting == 0 then
-		SendNUIMessage({ warningId = varName, warningMsg = msg })
+		SendNUIMessage({ warningId = varName, warningMsg = msg, safezone = GetSafeZoneSize() })
 
 		Citizen.CreateThread(function()
 			local varName = varName
@@ -206,7 +206,7 @@ function CheckVoiceSetting(varName, msg)
 				Citizen.Wait(1000)
 			end
 
-			SendNUIMessage({ warningId = varName })
+			SendNUIMessage({ warningId = varName, safezone = GetSafeZoneSize() })
 		end)
 	end
 
@@ -285,30 +285,35 @@ function MuteVehiclePassengers(playerData)
 end
 
 -- Events
+
+AddEventHandler("IsPauseMenuActive", function(ENABLED)
+	SendNUIMessage({ HideUI = ENABLED, safezone = GetSafeZoneSize() })
+end)
+
 AddEventHandler("onClientResourceStart", function(resName) -- Initialises the script, sets up voice range, voice targets and request sync with server
 	if GetCurrentResourceName() ~= resName then
 		return
 	end
 
 	DebugMsg("Initialising")
+	
 
 	Citizen.Wait(1000)
-
+	SendNUIMessage({ safezone = GetSafeZoneSize() })
 	if mumbleConfig.useExternalServer then
 		MumbleSetServerAddress(mumbleConfig.externalAddress, mumbleConfig.externalPort)
 	end
 
-	CheckVoiceSetting("profile_voiceEnable", "Voice chat disabled")
-	CheckVoiceSetting("profile_voiceTalkEnabled", "Microphone disabled")
+	CheckVoiceSetting("profile_voiceEnable", "การสนทนาเสียงปิดอยู่")
+	CheckVoiceSetting("profile_voiceTalkEnabled", "ไม่โครโฟนปิดอยู่")
 
 	if not MumbleIsConnected() then
-		SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "Not connected to mumble" })
-
+		SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "ไม่ได้เชื่อมต่อ", safezone = GetSafeZoneSize() })
 		while not MumbleIsConnected() do
+			NetworkSetTalkerProximity(13.0)
 			Citizen.Wait(250)
 		end
-
-		SendNUIMessage({ warningId = "mumble_is_connected" })
+		SendNUIMessage({ warningId = "mumble_is_connected", safezone = GetSafeZoneSize() })
 	end
 
 	Citizen.Wait(1000)
@@ -332,7 +337,7 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 
 	TriggerServerEvent("mumble:Initialise")
 
-	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
+	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled, safezone = GetSafeZoneSize() })
 
 	TriggerEvent("mumble:Initialised")
 
@@ -395,7 +400,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 								radioTargets[player] = nil
 
 								if mumbleConfig.showRadioList then
-									SendNUIMessage({ radioId = player }) -- Remove player from radio list
+									SendNUIMessage({ radioId = player, safezone = GetSafeZoneSize() }) -- Remove player from radio list
 								end
 							end
 						elseif playerServerId == player then
@@ -418,7 +423,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							radioTargets = {} -- Remove all radio targets as client has left the radio channel
 
 							if mumbleConfig.showRadioList then
-								SendNUIMessage({ clearRadioList = true }) -- Clear radio list
+								SendNUIMessage({ clearRadioList = true, safezone = GetSafeZoneSize() }) -- Clear radio list
 							end
 
 							if playerData.radioActive then
@@ -445,7 +450,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 						radioTargets[player] = true							
 						
 						if mumbleConfig.showRadioList then
-							SendNUIMessage({ radioId = player, radioName = voiceData[player].radioName }) -- Add player to radio list
+							SendNUIMessage({ radioId = player, radioName = voiceData[player].radioName, safezone = GetSafeZoneSize() }) -- Add player to radio list
 						end
 
 						if playerData.radioActive then
@@ -457,7 +462,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 
 			if playerServerId == player then
 				if mumbleConfig.showRadioList then
-					SendNUIMessage({ radioId = playerServerId, radioName = playerData.radioName, self = true }) -- Add client to radio list
+					SendNUIMessage({ radioId = playerServerId, radioName = playerData.radioName, self = true, safezone = GetSafeZoneSize() }) -- Add client to radio list
 				end
 
 				for id, _ in pairs(radioData[value]) do -- Add radio targets of existing players in channel
@@ -468,7 +473,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							if mumbleConfig.showRadioList then
 								if voiceData[id] ~= nil then
 									if voiceData[id].radioName ~= nil then
-										SendNUIMessage({ radioId = id, radioName = voiceData[id].radioName }) -- Add player to radio list
+										SendNUIMessage({ radioId = id, radioName = voiceData[id].radioName, safezone = GetSafeZoneSize() }) -- Add player to radio list
 									end
 								end								
 							end
@@ -533,10 +538,8 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 										end
 									end
 								end
-							end
-							
+							end	
 							callTargets = {} -- Remove all call targets as client has left the call
-
 							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, playerData.radioActive and radioTargets or nil) -- Reset player targets
 						end
 					end
@@ -601,7 +604,7 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 					PlayMicClick(radioChannel, value) -- play on/off clicks
 
 					if mumbleConfig.showRadioList then
-						SendNUIMessage({ radioId = player, radioTalking = value }) -- Set player talking in radio list
+						SendNUIMessage({ radioId = player, radioTalking = value, safezone = GetSafeZoneSize() }) -- Set player talking in radio list
 					end
 				end
 			end
@@ -737,7 +740,7 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 					call = 0,
 					callSpeaker = false,
 					speakerTargets = {},
-					radioName = GetRandomPhoneticLetter() .. "-" .. playerServerId
+					radioName = radioName = GetRandomPhoneticLetter() .. "-" .. playerServerId
 				}
 			end
 
@@ -752,11 +755,10 @@ AddEventHandler("mumble:RemoveVoiceData", function(player)
 	end
 end)
 
+
 -- Simulate PTT when radio is active
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(0)
-
 		if initialised then
 			local playerData = voiceData[playerServerId]
 
@@ -777,89 +779,59 @@ Citizen.CreateThread(function()
 				SetControlNormal(2, 249, 1.0)
 			end
 
-			if IsControlJustPressed(0, mumbleConfig.controls.proximity.key) then
-				local secondaryPressed = true
-
-				if mumbleConfig.controls.speaker.key ~= mumbleConfig.controls.proximity.key or mumbleConfig.controls.speaker.secondary == nil then
-					secondaryPressed = false
-				else
-					secondaryPressed = IsControlPressed(0, mumbleConfig.controls.speaker.secondary) and (playerData.call > 0)
-				end
-
-				if not secondaryPressed then
-					local voiceMode = playerData.mode
-				
-					local newMode = voiceMode + 1
-				
-					if newMode > #mumbleConfig.voiceModes then
-						voiceMode = 1
-					else
-						voiceMode = newMode
-					end
-					
-					NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1] + 0.0)
-
-					SetVoiceData("mode", voiceMode)
-					playerData.mode = voiceMode
-				end
-			end
-
-			if mumbleConfig.radioEnabled then
-				if not mumbleConfig.controls.radio.pressed then
-					if IsControlJustPressed(0, mumbleConfig.controls.radio.key) and IsInputDisabled(0) then
-						if playerData.radio > 0 then
-							SetVoiceData("radioActive", true)
-							playerData.radioActive = true
-							SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets) -- Send voice to everyone in the radio and call
-							PlayMicClick(playerData.radio, true)
-							if mumbleConfig.showRadioList then
-								SendNUIMessage({ radioId = playerServerId, radioTalking = true }) -- Set client talking in radio list
-							end
-							mumbleConfig.controls.radio.pressed = true
-
-							Citizen.CreateThread(function()
-								while IsControlPressed(0, mumbleConfig.controls.radio.key) and IsInputDisabled(0) do
-									Citizen.Wait(0)
-								end
-
-								SetVoiceData("radioActive", false)
-								SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Stop sending voice to everyone in the radio
-								PlayMicClick(playerData.radio, false)
-								if mumbleConfig.showRadioList then
-									SendNUIMessage({ radioId = playerServerId, radioTalking = false }) -- Set client talking in radio list
-								end
-								playerData.radioActive = false
-								mumbleConfig.controls.radio.pressed = false
-							end)
-						end
-					end
-				end
-			else
+			if not mumbleConfig.radioEnabled then
 				if playerData.radioActive then
 					SetVoiceData("radioActive", false)
 					playerData.radioActive = false
 				end
 			end
+		end
+		Citizen.Wait(70)
+	end
+end)
 
-			if mumbleConfig.callSpeakerEnabled then
-				local secondaryPressed = false
-
-				if mumbleConfig.controls.speaker.secondary ~= nil then
-					secondaryPressed = IsControlPressed(0, mumbleConfig.controls.speaker.secondary)
-				else
-					secondaryPressed = true
-				end
-
-				if IsControlJustPressed(0, mumbleConfig.controls.speaker.key) and secondaryPressed then
-					if playerData.call > 0 then
-						SetVoiceData("callSpeaker", not playerData.callSpeaker)
-						playerData.callSpeaker = not playerData.callSpeaker
-					end
-				end
+RegisterCommand('+mumble-voip-radio', function()
+	mumbleConfig.controls.radio.pressed = true
+	if mumbleConfig.radioEnabled then
+		local playerData = voiceData[playerServerId]
+		if playerData.radio > 0 then
+			SetVoiceData("radioActive", true)
+			playerData.radioActive = true
+			SetPlayerTargets(callTargets, speakerTargets, vehicleTargets, radioTargets) -- Send voice to everyone in the radio and call
+			PlayMicClick(playerData.radio, true)
+			if mumbleConfig.showRadioList then
+				SendNUIMessage({ radioId = playerServerId, radioTalking = true, safezone = GetSafeZoneSize() }) -- Set client talking in radio list
 			end
 		end
 	end
-end)
+end, false)
+RegisterCommand('-mumble-voip-radio', function()
+	mumbleConfig.controls.radio.pressed = false
+	if mumbleConfig.radioEnabled then
+		local playerData = voiceData[playerServerId]
+		SetVoiceData("radioActive", false)
+		SetPlayerTargets(callTargets, speakerTargets, vehicleTargets) -- Stop sending voice to everyone in the radio
+		PlayMicClick(playerData.radio, false)
+		if mumbleConfig.showRadioList then
+			SendNUIMessage({ radioId = playerServerId, radioTalking = false, safezone = GetSafeZoneSize() }) -- Set client talking in radio list
+		end
+		playerData.radioActive = false
+	end
+end, false)
+RegisterKeyMapping('+mumble-voip-radio', 'Mumble Voip Radio', 'keyboard', mumbleConfig.controls.radio.key)
+
+RegisterCommand('+mumble-voip-speacker-secondary', function()
+	if mumbleConfig.callSpeakerEnabled then
+		local playerData = voiceData[playerServerId]
+		if playerData.call > 0 then
+			SetVoiceData("callSpeaker", not playerData.callSpeaker) 
+			playerData.callSpeaker = not playerData.callSpeaker
+		end
+	end
+end, false)
+RegisterCommand('-mumble-voip-speacker-secondary', function()
+end, false)
+RegisterKeyMapping('+mumble-voip-speacker-secondary', 'Mumble Voip Speacker Secondary', 'keyboard', mumbleConfig.controls.speaker.key)
 
 -- UI
 Citizen.CreateThread(function()
@@ -867,7 +839,6 @@ Citizen.CreateThread(function()
 		if initialised then
 			local playerId = PlayerId()
 			local playerData = voiceData[playerServerId]
-			local playerTalking = NetworkIsPlayerTalking(playerId)
 			local playerMode = 2
 			local playerRadio = 0
 			local playerRadioActive = false
@@ -884,18 +855,16 @@ Citizen.CreateThread(function()
 
 			-- Update UI
 			SendNUIMessage({
-				talking = playerTalking,
-				mode = mumbleConfig.voiceModes[playerMode][2],
+				talking = mumbleConfig.controls.radio.pressed,
+				mode = "Normal",
 				radio = mumbleConfig.radioChannelNames[playerRadio] ~= nil and mumbleConfig.radioChannelNames[playerRadio] or playerRadio,
 				radioActive = playerRadioActive,
 				call = mumbleConfig.callChannelNames[playerCall] ~= nil and mumbleConfig.callChannelNames[playerCall] or playerCall,
 				speaker = playerCallSpeaker,
+				safezone = GetSafeZoneSize(),
 			})
-
-			Citizen.Wait(200)
-		else
-			Citizen.Wait(0)
 		end
+		Citizen.Wait(500)
 	end
 end)
 
@@ -904,14 +873,11 @@ Citizen.CreateThread(function()
 	while true do
 		if initialised then
 			if not MumbleIsConnected() then
-				SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "Not connected to mumble" })
-
+				SendNUIMessage({ warningId = "mumble_is_connected", warningMsg = "ไม่ได้เชื่อมกับระบบเสียง", safezone = GetSafeZoneSize() })
 				while not MumbleIsConnected() do
 					Citizen.Wait(250)
 				end
-
-				SendNUIMessage({ warningId = "mumble_is_connected" })
-
+				SendNUIMessage({ warningId = "mumble_is_connected", safezone = GetSafeZoneSize() })
 				resetTargets = true
 			end
 
@@ -919,11 +885,8 @@ Citizen.CreateThread(function()
 			local playerCoords = GetEntityCoords(playerPed)
 			
 			SetGridTargets(playerCoords, resetTargets)
-
-			Citizen.Wait(2500)
-		else
-			Citizen.Wait(0)
 		end
+		Citizen.Wait(2500)
 	end
 end)
 
@@ -1003,11 +966,8 @@ Citizen.CreateThread(function()
 					end
 				end
 			end
-
-			Citizen.Wait(1000)
-		else
-			Citizen.Wait(0)
 		end
+		Citizen.Wait(1000)
 	end
 end)
 
@@ -1102,11 +1062,8 @@ Citizen.CreateThread(function()
 					end
 				end
 			end
-
-			Citizen.Wait(1000)
-		else
-			Citizen.Wait(0)
 		end
+		Citizen.Wait(1000)
 	end
 end)
 
