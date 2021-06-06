@@ -117,7 +117,7 @@ end, true)
 RegisterCommand("mumbleCallChannels", function(src, args, raw)
 	for id, players in pairs(callData) do
 		for player, _ in pairs(players) do
-			RconPrint("\x1b[32m[" .. resourceName .. "]\x1b[0m Call " .. id .. "-> id: " .. player .. ", name: " .. GetPlayerName(player) .. "\n")
+			RconPrint("\x1b[32m[" .. resourceName .. "]\x1b[0m Call " .. id .. "-> id: " .. player .. ", name: " .. GetPlayerName(player) .. "\n")RconPrint("\x1b[32m[" .. resourceName .. "]\x1b[0m Call " .. id .. "-> id: " .. player .. ", name: " .. GetPlayerName(player) .. "\n")
 		end
 	end
 end, true)
