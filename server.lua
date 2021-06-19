@@ -4,6 +4,10 @@ AddEventHandler("onResourceStart", function(resName) -- Initialises the script, 
 	end
 
 	-- Set voice related convars
+	if mumbleConfig.useRadioSubmix then
+		mumbleConfig.useNativeAudio = true
+		mumbleConfig.use3dAudio = false
+	end
 	SetConvarReplicated("voice_useNativeAudio", mumbleConfig.useNativeAudio and "true" or "false")
 	SetConvarReplicated("voice_use2dAudio", mumbleConfig.use3dAudio and "false" or "true")
 	SetConvarReplicated("voice_use3dAudio", mumbleConfig.use3dAudio and "true" or "false")	

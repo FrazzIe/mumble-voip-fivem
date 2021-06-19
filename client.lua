@@ -130,6 +130,8 @@ function SetPlayerTargets(...)
 	end
 end
 
+local radioEffectId = -1
+
 function TogglePlayerVoice(serverId, value)
 	local msg = false
 
@@ -143,8 +145,11 @@ function TogglePlayerVoice(serverId, value)
 		if unmutedPlayers[serverId] then
 			unmutedPlayers[serverId] = nil
 			MumbleSetVolumeOverrideByServerId(serverId, -1.0)
-			msg = true	
-		end		
+			msg = true
+			if radioEffectId ~= -1 then
+				pcall(MumbleSetSubmixForServerId(serverId, -1))
+			end
+		end
 	end
 
 	if msg then
@@ -167,6 +172,9 @@ function SetRadioChannel(channel)
 						if playerData ~= nil then
 							if playerData.radioActive then
 								TogglePlayerVoice(id, true)
+								if radioEffectId ~= -1 then
+									pcall(MumbleSetSubmixForServerId(id, radioEffectId))
+								end
 							end
 						end
 					end
@@ -335,6 +343,15 @@ AddEventHandler("onClientResourceStart", function(resName) -- Initialises the sc
 	SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
 
 	TriggerEvent("mumble:Initialised")
+
+	if mumbleConfig.useRadioSubmix then
+		pcall(function()
+			radioEffectId = CreateAudioSubmix('Radio')
+			SetAudioSubmixEffectRadioFx(radioEffectId, 0)
+			SetAudioSubmixEffectParamInt(radioEffectId, 0, GetHashKey('default'), 1)
+			AddAudioSubmixOutput(radioEffectId, 0)
+		end)
+	end
 
 	initialised = true
 end)
@@ -585,6 +602,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 			if CompareChannels(playerData, "radio", radioChannel) then -- Check if player is in the same radio channel as you
 				if playerServerId ~= player then
 					if value then
+						if radioEffectId ~= -1 then
+							pcall(MumbleSetSubmixForServerId(player, radioEffectId))
+						end
 						TogglePlayerVoice(player, true) -- unmute player
 					else
 						if not vehicleTargets[player] then -- Mute if player is not in client vehicle
@@ -595,6 +615,9 @@ AddEventHandler("mumble:SetVoiceData", function(player, key, value)
 							else
 								TogglePlayerVoice(player, false) -- mute player on radio channel leave
 							end
+						end
+						if radioEffectId ~= -1 then
+							pcall(MumbleSetSubmixForServerId(player, -1))
 						end
 					end
 
