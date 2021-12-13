@@ -8,8 +8,6 @@ mumbleConfig = {
 		{8.0, "Normal"}, -- Normal speech distance in gta distance units
 		{20.0, "Shouting"}, -- Shout speech distance in gta distance units
 	},
-	speakerRange = 1.5, -- Speaker distance in gta distance units (how close you need to be to another player to hear other players on the radio or phone)
-	callSpeakerEnabled = true, -- Allow players to hear all talking participants of a phone call if standing next to someone that is on the phone
 	radioEnabled = true, -- Enable or disable using the radio
 	micClicks = true, -- Are clicks enabled or not
 	micClickOn = true, -- Is click sound on active
@@ -23,11 +21,7 @@ mumbleConfig = {
 		radio = {
 			pressed = false, -- don't touch
 			key = 137, -- capital
-		}, -- Use radio
-		speaker = {
-			key = 20, -- Z
-			secondary = 21, -- LEFT SHIFT
-		} -- Toggle speaker mode (phone calls)
+		} -- Use radio
 	},
 	radioChannelNames = { -- Add named radio channels (Defaults to [channel number] MHz)
 		[1] = "LEO Tac 1",
@@ -95,10 +89,6 @@ else
 	function SetMumbleProperty(key, value)
 		if mumbleConfig[key] ~= nil and mumbleConfig[key] ~= "controls" and mumbleConfig[key] ~= "radioChannelNames" then
 			mumbleConfig[key] = value
-
-			if key == "callSpeakerEnabled" then
-				SendNUIMessage({ speakerOption = mumbleConfig.callSpeakerEnabled })
-			end
 		end
 	end
 

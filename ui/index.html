@@ -49,8 +49,6 @@
 			}
 		</style>
 		<script type="text/javascript">
-			let speakerEnabled = true;
-			
 			window.addEventListener("message", function(event) {
 				var item = event.data;
 
@@ -59,10 +57,6 @@
 					snd.load();
 					snd.volume = item.volume;
 					snd.play();
-				}
-
-				if (item.speakerOption != null) {
-					speakerEnabled = item.speakerOption;
 				}
 
 				if (item.mode) {					
@@ -93,11 +87,7 @@
 					let callElem = document.getElementById("voip-call");
 					
 					if (item.call > 0) {
-						if (speakerEnabled) {
-							callElem.textContent = "[Call] [" + (item.speaker ? "\uD83D\uDD0A" : "\uD83D\uDD08") + "] " + item.call;
-						} else {
-							callElem.textContent = "[Call] " + item.call;
-						}
+						callElem.textContent = "[Call] " + item.call;
 					} else {
 						callElem.textContent = "";
 					}

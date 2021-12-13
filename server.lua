@@ -28,8 +28,6 @@ AddEventHandler("mumble:Initialise", function()
 			radio = 0,
 			radioActive = false,
 			call = 0,
-			callSpeaker = false,
-			speakerTargets = {},
 			radioName = GetRandomPhoneticLetter() .. "-" .. source,
 		}
 	end
@@ -45,8 +43,6 @@ AddEventHandler("mumble:SetVoiceData", function(key, value, target)
 			radio = 0,
 			radioActive = false,
 			call = 0,
-			callSpeaker = false,
-			speakerTargets = {},
 			radioName = GetRandomPhoneticLetter() .. "-" .. source,
 		}
 	end
@@ -99,11 +95,7 @@ AddEventHandler("mumble:SetVoiceData", function(key, value, target)
 
 	DebugMsg("Player " .. source .. " changed " .. key .. " to: " .. tostring(value))
 	
-	if key == "speakerTargets" then
-		TriggerClientEvent("mumble:SetVoiceData", -1, target, key, value)
-	else
-		TriggerClientEvent("mumble:SetVoiceData", -1, source, key, value)
-	end
+	TriggerClientEvent("mumble:SetVoiceData", -1, source, key, value)
 end)
 
 RegisterCommand("mumbleRadioChannels", function(src, args, raw)
