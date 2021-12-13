@@ -8,6 +8,7 @@ config = {
 	},
 	controls = {
 		proximity = { description = "Cycle Proximity", mapper = "keyboard", param = "z" },
+		radio = { description = "Talk on radio", mapper = "keyboard", param = "capital" },
 	},
 	channelInterval = 250,
 	uiInterval = 200,

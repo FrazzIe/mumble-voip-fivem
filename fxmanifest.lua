@@ -21,5 +21,6 @@ client_scripts {
 	"cl_proximity.lua",
 	"cl_targets.lua",
 	"cl_channels.lua",
+	-- "cl_radio.lua",
 }
 server_scripts {}
