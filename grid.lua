@@ -8,15 +8,18 @@ local deltas = {
 	vector2(1, 1),
 	vector2(0, 1),
 }
-local bitShift = 2
-local zoneRadius = 128
+local bitShift = 8
+local zoneRadius = 4096 -- 1024 channels
+local size = 8192
+local maxChunkBase = math.floor((size * 2) / zoneRadius)
+local maxChunkId = (maxChunkBase << bitShift) + maxChunkBase
 
 function GetGridChunk(x)
-	return math.floor((x + 8192) / zoneRadius)
+	return math.floor((x + size) / zoneRadius)
 end
 
 function GetGridBase(x)
-	return (x * zoneRadius) - 8192
+	return (x * zoneRadius) - size
 end
 
 function GetChunkId(v)
@@ -24,7 +27,7 @@ function GetChunkId(v)
 end
 
 function GetMaxChunkId()
-	return zoneRadius << bitShift
+	return maxChunkId
 end
 
 function GetCurrentChunk(pos)
