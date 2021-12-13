@@ -6,11 +6,9 @@ A tokovoip replacement that uses fivems mumble voip
 - Radio mic clicks
 - Calls
 - Facial animations when talking
-- Phone Speaker mode toggle
-- Hear nearby calls
 - HTML UI
 - Voice chat & Microphone disabled warning messages
-- 3D Proximity base audio
+- 3D Proximity based audio
 - Onesync/Infinity/Beyond support
 - Grid system for voice channels
 
