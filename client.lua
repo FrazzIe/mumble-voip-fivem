@@ -690,7 +690,6 @@ Citizen.CreateThread(function()
 				
 				NetworkSetTalkerProximity(mumbleConfig.voiceModes[voiceMode][1] + 0.0)
 
-				SetVoiceData("mode", voiceMode)
 				playerData.mode = voiceMode
 			end
 
